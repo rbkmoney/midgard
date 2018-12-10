@@ -1,0 +1,49 @@
+#* @vtlvariable name="dateTool" type="org.apache.velocity.tools.generic.DateTool" *#
+#* @vtlvariable name="procDate" type="java.lang.String" *#
+#* @vtlvariable name="msgNr" type="java.lang.String" *#
+#* @vtlvariable name="transaction" type="org.jooq.generated.tables.pojos.ClearingTransaction" *#
+#* @vtlvariable name="merchant" type="org.jooq.generated.tables.pojos.Merchant" *#
+#* @vtlvariable name="cardData" type="com.rbkmoney.midgard.clearing.data.CardData" *#
+## $procDate - external processing date parameter
+<Transaction>
+    <AccntTypeFrom>$transaction.accountTypeFrom</AccntTypeFrom>
+    <AccntTypeTo>$transaction.accountTypeTo</AccntTypeTo>
+    <ApprCode>$transaction.approvalCode</ApprCode>
+    <CardCaptureCap>$transaction.cardCaptureCapability</CardCaptureCap>
+    <CardDataInputCap>$transaction.cardDataInputCapability</CardDataInputCap>
+    <CardDataInputMode>$transaction.cardDataInputMode</CardDataInputMode>
+    <CardDataOutputCap>$transaction.cardDataOutputCapability</CardDataOutputCap>
+    <CardPresence>$transaction.cardPresence</CardPresence>
+    <CrdhAuthCap>$transaction.cardholderAuthCapability</CrdhAuthCap>
+    <CrdhAuthEntity>$transaction.cardholderAuthEntity</CrdhAuthEntity>
+    <CrdhAuthMethod>$transaction.cardholderAuthMethod</CrdhAuthMethod>
+    <CrdhPresence>$transaction.cardholderPresence</CrdhPresence>
+    <CardExpDate>$cardData.expDate</CardExpDate>
+    <EcommSecLevel>$transaction.eCommerceSecurityLevel</EcommSecLevel>
+    <Mcc>$transaction.mcc</Mcc>
+    <MerchantId>$transaction.merchantId</MerchantId>
+    <MerchantName>$merchant.merchantName</MerchantName>
+    <MerchantAddr>$merchant.merchantAddress</MerchantAddr>
+    <MerchantCountry>$merchant.merchantCountry</MerchantCountry>
+    <MerchantCity>$merchant.merchantCity</MerchantCity>
+    <MerchantPostalCode>$merchant.merchantPostalCode</MerchantPostalCode>
+    <MsgFunctCode>$transaction.messageFunctionCode</MsgFunctCode>
+    <MsgReasonCode>$transaction.messageReasonCode</MsgReasonCode>
+    <Mti>$transaction.messageTypeIdentifier</Mti>
+    <OperEnv>$transaction.operationalEnvironment</OperEnv>
+    <Pan>$!cardData.pan</Pan>
+    <PinCaptureCap>$transaction.pinCaptureCapability</PinCaptureCap>
+    <ProcDate>$procDate</ProcDate>
+    <RespCode>$transaction.responseCode</RespCode>
+    <Rrn>$transaction.rrn</Rrn>
+    <Stan>$transaction.systemTraceAuditNumber</Stan>
+    <TermDataOutputCap>$transaction.terminalDataOutputCapability</TermDataOutputCap>
+    <TermId>$transaction.terminalId</TermId>
+    <Tid>$transaction.transactionId</Tid>
+    <TranAmnt>$transaction.transactionAmount</TranAmnt>
+    <TranCcy>$transaction.transactionCurrency</TranCcy>
+    <TranDateTime>$dateTool.format('yyyyMMddHHmmss', $transaction.transactionDate)</TranDateTime>
+    <TranType>$transaction.transactionType</TranType>
+    <PaymentNarrative/>
+    <MsgNr>$msgNr</MsgNr>
+</Transaction>

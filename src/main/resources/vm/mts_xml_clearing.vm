@@ -1,0 +1,12 @@
+#* @vtlvariable name="header" type="java.lang.String" *#
+#* @vtlvariable name="transactions" type="java.lang.String" *#
+<?xml version="1.0" encoding="UTF-8"?>
+<File>
+    $header
+    <Transactions>
+        #foreach($transaction in $transactions)
+            $transaction
+
+        #end
+    </Transactions>
+</File>
