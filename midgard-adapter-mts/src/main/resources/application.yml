@@ -1,0 +1,9 @@
+server:
+  port: @server.port@
+
+spring:
+  application:
+    name: @name@
+
+retry-policy:
+  maxAttempts: 10

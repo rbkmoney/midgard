@@ -1,7 +1,0 @@
-#* @vtlvariable name="header" type="com.rbkmoney.midgard.clearing.data.MtsXmlHeader" *#
-<Header>
-    <FormatVersion>$header.formatVersion</FormatVersion>
-    <FileOriginator>$header.fileOriginator</FileOriginator>
-    <FileId>$header.fileId</FileId>
-    <FileDateTime>$header.fileDateTime</FileDateTime>
-</Header>
