@@ -6,8 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.locks.ReentrantLock;
-
 /**
  * Сервис отвечающий за миграцию данных из внешней системы в хранилище клирингового сервиса
  *
@@ -24,33 +22,18 @@ import java.util.concurrent.locks.ReentrantLock;
 @Service
 public class MigrationDataService implements GenericService {
 
-    /** Исполнитель миграции данных */
     private final MigrationDataHandler migrationDataHandler;
-    /** Блокировка для процедуры миграции данных */
-    private static ReentrantLock migrationLock = new ReentrantLock();
 
     @Override
     @Scheduled(fixedDelayString = "${migration.delay}")
     public void process() {
-        //TODO: правильнее будет устанавливать блокировку на уровне конкретного импортера
-        if (migrationLock.tryLock()) {
-            try {
-                migrationLock.lock();
-                log.debug("Migration get started!");
+        log.debug("Migration get started!");
 
-                //TODO: реализовать метод миграции данных из feed в midgard
-                migrationDataHandler.handle();
+        //TODO: реализовать метод миграции данных из feed в midgard
+        migrationDataHandler.handle();
 
-                log.error("Procedure of migration is not realised yet!");
-            } catch (Exception ex) {
-                log.error("Error was detected during data migration: ", ex);
-            } finally {
-                migrationLock.unlock();
-            }
-            log.debug("Data migration finished!");
-        } else {
-            log.info("Data migration have benn running...");
-        }
+        log.error("Procedure of migration is not realised yet!");
+        log.debug("Data migration finished!");
     }
 
 }

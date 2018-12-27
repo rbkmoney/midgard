@@ -1,15 +1,17 @@
 package com.rbkmoney.midgard.base.clearing.handlers;
 
+import com.rbkmoney.midgard.ClearingAdapterSrv;
 import com.rbkmoney.midgard.base.clearing.data.enums.HandlerType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-/** Исполнитель операции проверки статуса клирингового события */
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class ClearingRevisionHandler implements Handler {
+
+    private final ClearingAdapterSrv.Iface clearingAdapterService;
 
     @Override
     public void handle() {

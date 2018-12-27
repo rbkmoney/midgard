@@ -1,8 +1,8 @@
 package com.rbkmoney.midgard.base.load.pollers.dominant.impl;
 
 import com.rbkmoney.damsel.domain.CurrencyObject;
-import com.rbkmoney.midgard.base.load.DAO.dominant.iface.DomainObjectDao;
-import com.rbkmoney.midgard.base.load.DAO.dominant.impl.CurrencyDaoImpl;
+import com.rbkmoney.midgard.base.load.dao.dominant.iface.DomainObjectDao;
+import com.rbkmoney.midgard.base.load.dao.dominant.impl.CurrencyDaoImpl;
 import com.rbkmoney.midgard.base.load.pollers.dominant.AbstractDominantHandler;
 import org.jooq.generated.feed.tables.pojos.Currency;
 import org.springframework.stereotype.Component;

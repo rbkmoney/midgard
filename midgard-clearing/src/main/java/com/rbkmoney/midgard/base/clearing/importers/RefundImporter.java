@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-/** Импортер для получения возвратов */
 @Slf4j
 @RequiredArgsConstructor
 @Component

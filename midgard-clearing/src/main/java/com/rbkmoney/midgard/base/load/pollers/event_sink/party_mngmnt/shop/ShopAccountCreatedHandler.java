@@ -6,7 +6,7 @@ import com.rbkmoney.damsel.payment_processing.PartyChange;
 import com.rbkmoney.damsel.payment_processing.ShopEffectUnit;
 import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.midgard.base.clearing.exception.NotFoundException;
-import com.rbkmoney.midgard.base.load.DAO.party.iface.ShopDao;
+import com.rbkmoney.midgard.base.load.dao.party.iface.ShopDao;
 import com.rbkmoney.midgard.base.load.pollers.event_sink.party_mngmnt.AbstractClaimChangedHandler;
 import com.rbkmoney.midgard.base.load.utils.ShopUtil;
 import lombok.RequiredArgsConstructor;

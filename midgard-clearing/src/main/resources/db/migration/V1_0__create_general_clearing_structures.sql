@@ -4,6 +4,9 @@ CREATE SCHEMA IF NOT EXISTS midgard;
 CREATE TYPE midgard.merchant_state AS ENUM ('OPEN', 'CLOSE');
 
 CREATE TABLE midgard.clearing_merchant (
+  event_id                     BIGINT                        NOT NULL,
+  party_id                     CHARACTER VARYING             NOT NULL,
+  shop_id                      CHARACTER VARYING             NOT NULL,
   merchant_id                  VARCHAR(15)                   NOT NULL,
   merchant_name                VARCHAR(32)                   NOT NULL,
   merchant_address             VARCHAR(64)                   NOT NULL,
@@ -16,25 +19,27 @@ CREATE TABLE midgard.clearing_merchant (
   CONSTRAINT clearing_merchant_PK PRIMARY KEY (merchant_id)
 );
 
-CREATE INDEX clearing_merchant_id_idx ON midgard.clearing_merchant (merchant_id);
+CREATE INDEX clearing_merchant_id_idx ON midgard.clearing_merchant (event_id);
 
 
 /***************************************************************************/
 CREATE TYPE midgard.transaction_clearing_state AS ENUM ('CREATED', 'READY', 'ACTIVE', 'FINISHED', 'FAILED');
 
 CREATE TABLE midgard.clearing_transaction (
+  event_id                        BIGINT                        NOT NULL,
   invoice_id                      VARCHAR(100)                  NOT NULL,
   doc_id                          VARCHAR(100)                  NOT NULL,
-  provider_id                     VARCHAR(100)                  NOT NULL,
+  provider_id                     INT                           NOT NULL,
   transaction_id                  VARCHAR(100)                  NULL,
   transaction_date                TIMESTAMP WITHOUT TIME ZONE   NOT NULL,
   transaction_amount              BIGINT                        NOT NULL,
   transaction_currency            VARCHAR(3)                    NOT NULL,
-  transaction_type                VARCHAR(2)                    NULL,
   transaction_clearing_state      transaction_clearing_state    NOT NULL,
-  merchant_id                     VARCHAR(15)                   NOT NULL,
-  terminal_id                     VARCHAR(8)                    NOT NULL,
-  mcc                             INTEGER                       NOT NULL,
+  party_id                        CHARACTER VARYING             NOT NULL,
+  shop_id                         CHARACTER VARYING             NOT NULL,
+  merchant_id                     VARCHAR(15)                   NULL,
+  terminal_id                     VARCHAR(8)                    NULL,
+  mcc                             INTEGER                       NULL,
   payer_bank_card_token           CHARACTER VARYING             NULL,
   payer_bank_card_payment_system  CHARACTER VARYING             NULL,
   payer_bank_card_bin             CHARACTER VARYING             NULL,
@@ -52,7 +57,36 @@ CREATE TABLE midgard.clearing_transaction (
 
 CREATE INDEX clearing_transactions_id_idx ON midgard.clearing_transaction (transaction_id);
 
+CREATE INDEX clearing_transactions_event_id_idx ON midgard.clearing_transaction (event_id);
+
 CREATE INDEX clearing_transactions_date_idx ON midgard.clearing_transaction (transaction_date, provider_id);
+
+
+/***************************************************************************/
+CREATE TYPE midgard.refund_status AS ENUM ('pending', 'succeeded', 'failed');
+
+-- TODO: определить необходиме столбцы
+CREATE TABLE midgard.refund (
+  id                                 BIGSERIAL                   NOT NULL,
+  event_id                           BIGINT                      NOT NULL,
+  event_created_at                   TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+  domain_revision                    BIGINT                      NOT NULL,
+  refund_id                          CHARACTER VARYING           NOT NULL,
+  payment_id                         CHARACTER VARYING           NOT NULL,
+  invoice_id                         CHARACTER VARYING           NOT NULL,
+  party_id                           CHARACTER VARYING           NOT NULL,
+  shop_id                            CHARACTER VARYING           NOT NULL,
+  created_at                         TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+  status                             midgard.refund_status       NOT NULL,
+  status_failed_failure              CHARACTER VARYING,
+  amount                             BIGINT,
+  currency_code                      CHARACTER VARYING,
+  reason                             CHARACTER VARYING,
+  wtime                              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT (now() at time zone 'utc'),
+  current                            BOOLEAN NOT NULL DEFAULT TRUE,
+  CONSTRAINT refund_pkey PRIMARY KEY (id)
+);
+
 
 /***************************************************************************/
 --TODO: проверить необходимость конфига. Что нужно будет конфигурировать?

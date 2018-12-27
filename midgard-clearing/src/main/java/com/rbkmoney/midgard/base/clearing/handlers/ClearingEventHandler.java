@@ -8,19 +8,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-/** Исполнитель операции получения клиринговых данных */
-//TODO: клиринговые данные нужно предоставлять по частям. Пока что предоставляется так, но в дальнейшем нужно переделать
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class ClearingEventHandler implements Handler {
 
-    /** Вспомогательный класс для работы с транзакциями */
-    private TransactionHelper transactionHelper;
-    /** Вспомогательный класс для работы с мерчантами */
-    private MerchantHelper merchantHelper;
-    /** Вспомогательный класс для работы с метаинформацией */
-    private ClearingInfoHelper clearingInfoHelper;
+    private final TransactionHelper transactionHelper;
+
+    private final MerchantHelper merchantHelper;
+
+    private final ClearingInfoHelper clearingInfoHelper;
 
     @Override
     public void handle() {

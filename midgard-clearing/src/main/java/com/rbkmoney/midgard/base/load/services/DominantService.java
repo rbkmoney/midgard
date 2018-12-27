@@ -3,7 +3,7 @@ package com.rbkmoney.midgard.base.load.services;
 import com.rbkmoney.damsel.domain_config.Commit;
 import com.rbkmoney.damsel.domain_config.Operation;
 import com.rbkmoney.midgard.base.load.utils.JsonUtil;
-import com.rbkmoney.midgard.base.load.DAO.dominant.iface.DominantDao;
+import com.rbkmoney.midgard.base.load.dao.dominant.iface.DominantDao;
 import com.rbkmoney.midgard.base.load.pollers.dominant.DominantHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

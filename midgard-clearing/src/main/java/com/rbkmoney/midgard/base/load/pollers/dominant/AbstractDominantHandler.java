@@ -2,7 +2,7 @@ package com.rbkmoney.midgard.base.load.pollers.dominant;
 
 import com.rbkmoney.damsel.domain.DomainObject;
 import com.rbkmoney.damsel.domain_config.Operation;
-import com.rbkmoney.midgard.base.load.DAO.dominant.iface.DomainObjectDao;
+import com.rbkmoney.midgard.base.load.dao.dominant.iface.DomainObjectDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +62,7 @@ public abstract class AbstractDominantHandler<T, C, I> implements DominantHandle
         getDomainObjectDao().save(convertToDatabaseObject(object, versionId, true));
         log.info("End to insert '{}' with id={}, versionId={}", object.getClass().getSimpleName(), getObjectRefId(), versionId);
     }
+
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateDomainObject(T object, Long versionId) {
         log.info("Start to update '{}' with id={}, versionId={}", object.getClass().getSimpleName(), getObjectRefId(), versionId);
@@ -69,6 +70,7 @@ public abstract class AbstractDominantHandler<T, C, I> implements DominantHandle
         getDomainObjectDao().save(convertToDatabaseObject(object, versionId, true));
         log.info("End to update '{}' with id={}, versionId={}", object.getClass().getSimpleName(), getObjectRefId(), versionId);
     }
+
     @Transactional(propagation = Propagation.REQUIRED)
     public void removeDomainObject(T object, Long versionId) {
         log.info("Start to remove '{}' with id={}, versionId={}", object.getClass().getSimpleName(), getObjectRefId(), versionId);
@@ -76,4 +78,5 @@ public abstract class AbstractDominantHandler<T, C, I> implements DominantHandle
         getDomainObjectDao().save(convertToDatabaseObject(object, versionId, false));
         log.info("End to remove '{}' with id={}, versionId={}", object.getClass().getSimpleName(), getObjectRefId(), versionId);
     }
+
 }

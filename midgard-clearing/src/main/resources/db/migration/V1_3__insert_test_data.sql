@@ -4,7 +4,7 @@
 --//TODO: проверить актуальность тестовых данных
 
 /** TEST MERCHANT DATA */
-/*INSERT INTO midgard.merchants(merchant_id, merchant_name, merchant_address,
+/*INSERT INTO midgard.merchants(merchantId, merchantName, merchant_address,
        merchant_country, merchant_city, merchant_postal_code, status, valid_from, valid_to)
 VALUES ('29003001', '231285*EPS', 'address', '643', 'Moscow', '117112',
        transaction_clearing_state.OPEN, now() at time zone 'utc', null);*/
@@ -20,7 +20,7 @@ INSERT INTO midgard.clearing_transactions( invoice_id, doc_id, transaction_id, t
                                            account_type_to, approval_code, card_capture_capability, card_data_input_capability,
                                            card_data_input_mode, card_data_output_capability, card_presence,
                                            cardholder_auth_capability, cardholder_auth_entity, cardholder_auth_method,
-                                           cardholder_presence, e_commerce_security_level, mcc, merchant_id,
+                                           cardholder_presence, e_commerce_security_level, mcc, merchantId,
                                            message_function_code, message_reason_code, message_type_identifier,
                                            operational_environment, pin_capture_capability, terminal_data_output_capability,
                                            terminal_id, rrn, response_code, system_trace_audit_number)

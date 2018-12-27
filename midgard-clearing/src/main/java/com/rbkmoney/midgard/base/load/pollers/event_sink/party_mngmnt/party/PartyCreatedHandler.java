@@ -8,7 +8,7 @@ import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
-import com.rbkmoney.midgard.base.load.DAO.party.iface.PartyDao;
+import com.rbkmoney.midgard.base.load.dao.party.iface.PartyDao;
 import com.rbkmoney.midgard.base.load.pollers.event_sink.party_mngmnt.AbstractPartyManagementHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.enums.Blocking;

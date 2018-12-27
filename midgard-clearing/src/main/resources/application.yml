@@ -25,6 +25,9 @@ clearing-service:
       networkTimeout: 5000
       providerId: 1
 
+import:
+  trx-pool-size: 100
+
 retry-policy:
   maxAttempts: 10
 

@@ -8,7 +8,6 @@ import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 
-/** Класс, инкапсулирующий логику создания сервера для взаимодейстаия с клиринговым сервисом */
 @WebServlet("/v1/clearing_service")
 public class ClearingServiceEndpoint extends GenericServlet {
 

@@ -9,27 +9,27 @@ BEGIN
     WITH clearing_trx_cte as (
         SELECT    clearing_id,
                   trx.transaction_id,
-                  trx.merchant_id,
-                  CASE WHEN merch.merchant_id IS NULL
+                  trx.merchantId,
+                  CASE WHEN merch.merchantId IS NULL
                       THEN 'REFUSED'
                       ELSE 'PROCESSED'
                   END AS trx_state
         FROM      midgard.clearing_transaction trx
         LEFT JOIN midgard.merchant merch
                ON merch.status = 'OPEN'
-              AND trx.merchant_id = merch.merchant_id
+              AND trx.merchantId = merch.merchantId
         WHERE     trx.provider_id = provider_id
               AND trx.transaction_clearing_state in ('READY', 'FAILED')
     ),
 
     ordered_clearing_trx_cte as (
-        SELECT clearing_id, transaction_id, merchant_id, trx_state,
-               row_number() over(partition BY clearing_id ORDER BY trx_state, merchant_id, transaction_id) as row_num
+        SELECT clearing_id, transaction_id, merchantId, trx_state,
+               row_number() over(partition BY clearing_id ORDER BY trx_state, merchantId, transaction_id) as row_num
         FROM   clearing_trx_cte cte
     )
 
-    INSERT INTO midgard.clearing_event_info(clearing_id, transaction_id, merchant_id, state,  row_number)
-    SELECT clearing_id, transaction_id, merchant_id, trx_state, row_num
+    INSERT INTO midgard.clearing_event_info(clearing_id, transaction_id, merchantId, state,  row_number)
+    SELECT clearing_id, transaction_id, merchantId, trx_state, row_num
     FROM   ordered_clearing_trx_cte;
 
     /** Добавление в список сбойных трназаций тех, для которых не найдено соответствующего мерчанта */

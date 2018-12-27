@@ -1,6 +1,6 @@
 package com.rbkmoney.midgard.base.clearing.services;
 
-import com.rbkmoney.midgard.ClearingAdapterSrv;
+import com.rbkmoney.midgard.base.clearing.handlers.ClearingRevisionHandler;
 import com.rbkmoney.midgard.base.clearing.helpers.ClearingInfoHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +22,9 @@ import java.util.stream.Collectors;
 @Service
 public class ClearingRevisionService implements GenericService {
 
-    /** Клиент для работы с адаптером */
-    private final ClearingAdapterSrv.Iface clearingAdapterService;
-    /** Класс для работы с информацией о клиринговых событиях  */
     private final ClearingInfoHelper clearingInfoHelper;
+
+    private final ClearingRevisionHandler revisionHandler;
 
     @Override
     @Scheduled(fixedDelayString = "${clearing-service.revision}")
@@ -35,7 +34,13 @@ public class ClearingRevisionService implements GenericService {
         List<Long> clearingIds = clearingEvents.stream()
                 .map(event -> event.getId())
                 .collect(Collectors.toList());
-        log.debug("Список активных клиринговых событий: {}", clearingIds);
+
+        log.debug("Active clearing event IDs: {}", clearingIds);
+
+        for (ClearingEvent clearingEvent : clearingEvents) {
+            //TODO: передать в обработчик ID события, которое нужно проверить
+            revisionHandler.handle();
+        }
 
         log.info("Clearing revision process was finished");
     }

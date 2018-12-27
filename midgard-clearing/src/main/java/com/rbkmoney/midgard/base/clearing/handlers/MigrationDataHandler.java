@@ -10,19 +10,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
-/** Исполнитель для получения данных из внешней системы */
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class MigrationDataHandler implements Handler {
 
-    /** Блокировка */
+    //TODO: по-хорошему нужно вынести в отдельный класс получения блокировки по имени, но каждый случай
+    //      использования блокировки нужно отдельно продумать
     private final static ReentrantLock lock = new ReentrantLock();
-    //TODO: лауреат на премию "ПЕРЕДЕЛАТЬ"
+    //TODO: В данном случае можно и нужно запускать импортеры в параллельном режиме, но получение
+    //      инстанса далеко не факт, что должно быть здесь
     private final ExecutorService executor = Executors.newCachedThreadPool();;
-    /** Список импортеров данных */
-    private List<Importer> importers;
+
+    private final List<Importer> importers;
 
     @Override
     public void handle() {
@@ -38,30 +40,21 @@ public class MigrationDataHandler implements Handler {
                 lock.unlock();
             }
         } else {
-            log.debug("Migration data has been rinning...");
+            log.debug("Migration data has been running...");
         }
     }
 
-    /**
-     * Запускает импортеры на выполнение
-     *
-     * Примечание: на данном этапе порядок импорта не важен (FK не проставлены), но в дальшейшем порядок может
-     *             играть важную роль, поэтому с одной стороны запуск задач на импорт вынесен в отдельный метод,
-     *             а в импортеры добавлен тип импортируемых данныъ
-     *
-     * @param importers список импортеров
-     */
     private void runImporters(List<Importer> importers) {
-        List<Future<?>> importTasks = new ArrayList<>();
-        for (Importer importer : importers) {
-            importTasks.add(executor.submit(() -> importer.getData()));
-        }
+        List<Future<?>> importTasks = importers.stream()
+                .map(importer -> executor.submit(importer::getData))
+                .collect(Collectors.toList());
         try {
             for (Future<?> task : importTasks) {
                 task.get();
             }
         } catch (InterruptedException e) {
             log.error("InterruptedException was received during the migration", e);
+            //TODO: продумать корректную обработку
         } catch (ExecutionException e) {
             log.error("ExecutionException was received during the migration", e);
         }

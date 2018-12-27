@@ -9,7 +9,6 @@ import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 
-/** Класс предваритальной конфигурации приложения */
 @Configuration
 public class ClearingServiceConfig {
 

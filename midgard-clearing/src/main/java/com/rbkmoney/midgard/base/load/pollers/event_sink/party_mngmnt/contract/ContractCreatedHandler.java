@@ -6,7 +6,7 @@ import com.rbkmoney.damsel.payment_processing.PartyChange;
 import com.rbkmoney.geck.common.util.TBaseUtil;
 import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.midgard.base.clearing.exception.NotFoundException;
-import com.rbkmoney.midgard.base.load.DAO.party.iface.*;
+import com.rbkmoney.midgard.base.load.dao.party.iface.*;
 import com.rbkmoney.midgard.base.load.utils.ContractUtil;
 import com.rbkmoney.midgard.base.load.utils.ContractorUtil;
 import com.rbkmoney.midgard.base.load.pollers.event_sink.party_mngmnt.AbstractClaimChangedHandler;

@@ -10,12 +10,11 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>base</artifactId>
+    <artifactId>midgard-clearing</artifactId>
     <version>1.0.0</version>
 
     <name>Midgard Clearing</name>
     <description>Application for work with clearing data</description>
-
     <properties>
         <server.port>8022</server.port>
         <!-- Environment settings -->
@@ -85,7 +84,16 @@
             <artifactId>jooq-codegen-maven</artifactId>
             <version>${jooq.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.9.8</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.9.8</version>
+        </dependency>
         <dependency>
             <groupId>com.rbkmoney.maven.plugins</groupId>
             <artifactId>pg-embedded-plugin</artifactId>
@@ -94,12 +102,6 @@
     </dependencies>
 
     <build>
-        <!--<resources>-->
-            <!--<resource>-->
-                <!--<directory>midgard-clearing/src/main/resources</directory>-->
-                <!--<filtering>true</filtering>-->
-            <!--</resource>-->
-        <!--</resources>-->
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

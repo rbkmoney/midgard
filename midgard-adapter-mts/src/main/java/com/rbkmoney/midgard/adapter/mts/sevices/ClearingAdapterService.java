@@ -8,12 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.springframework.stereotype.Component;
 
-/** Обработчик запросов от сервиса клиринга */
 @Slf4j
 @Component
 public class ClearingAdapterService implements ClearingAdapterSrv.Iface {
 
-    /** Номер первого пакета при передаче данных */
     private static final int FIRST_PACKAGE = 1;
 
     @Override
@@ -36,11 +34,7 @@ public class ClearingAdapterService implements ClearingAdapterSrv.Iface {
         //TODO: нужно чтобы данные писались в один файл, поэтому при первом пакете нужно создать его таким образом,
         //TODO: чтобы второй пакет по сути создал тот же самый файл
 
-
-
         //TODO: важный момент с шифрованием - как сохранять поток если нельзя будет дозаписывать поблоково?
-
-
 
         if (dataPackage.isFinalPackage() == true) {
             closeXmlFile();
@@ -50,36 +44,18 @@ public class ClearingAdapterService implements ClearingAdapterSrv.Iface {
                 dataPackage.getClearingId());
     }
 
-    /**
-     * Создание клирингового XML файла
-     *
-     * @param clearingDataPackage
-     */
     private void createXmlFile(ClearingDataPackage clearingDataPackage) {
-
-
         writeHeader(clearingDataPackage.getClearingId());
     }
 
-    /**
-     * Запись заголовка клирингового XML в файл
-     *
-     * @param clearingId ID клирингового события
-     */
     private void writeHeader(Long clearingId) {
 
     }
 
-    /**
-     * Закрытие XML файла
-     */
     private void closeXmlFile() {
 
     }
 
-    /**
-     * Отправка файла на FTP
-     */
     private void sendFileToFtp() {
 
     }

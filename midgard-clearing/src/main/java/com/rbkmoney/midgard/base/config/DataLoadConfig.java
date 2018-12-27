@@ -13,11 +13,9 @@ import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 
-/** Класс предваритальной конфигурации приложения */
 @Configuration
 public class DataLoadConfig {
 
-    /** Бин для получение событий групп мерчантов */
     @Bean
     public EventPublisher partyManagementEventPublisher(
             PartyManagementEventStockHandler partyMngmntEventStockHandler,
@@ -37,7 +35,6 @@ public class DataLoadConfig {
                 .build();
     }
 
-    /** Бин для получения платежных событий */
     @Bean
     public EventPublisher invoicingEventPublisher(
             InvoicingEventStockHandler invoicingEventStockHandler,
@@ -57,10 +54,10 @@ public class DataLoadConfig {
                 .build();
     }
 
-    /** Бин для получения инфы из доминанты */
     @Bean
     public RepositorySrv.Iface dominantClient(@Value("${dmt.url}") Resource resource,
-                                              @Value("${dmt.networkTimeout}") int networkTimeout) throws IOException {
+                                              @Value("${dmt.networkTimeout}") int networkTimeout
+    ) throws IOException {
         return new THSpawnClientBuilder()
                 .withNetworkTimeout(networkTimeout)
                 .withAddress(resource.getURI()).build(RepositorySrv.Iface.class);

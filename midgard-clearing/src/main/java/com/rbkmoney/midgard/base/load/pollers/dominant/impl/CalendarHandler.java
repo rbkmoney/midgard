@@ -2,8 +2,8 @@ package com.rbkmoney.midgard.base.load.pollers.dominant.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.rbkmoney.damsel.domain.CalendarObject;
-import com.rbkmoney.midgard.base.load.DAO.dominant.iface.DomainObjectDao;
-import com.rbkmoney.midgard.base.load.DAO.dominant.impl.CalendarDaoImpl;
+import com.rbkmoney.midgard.base.load.dao.dominant.iface.DomainObjectDao;
+import com.rbkmoney.midgard.base.load.dao.dominant.impl.CalendarDaoImpl;
 import com.rbkmoney.midgard.base.load.pollers.dominant.AbstractDominantHandler;
 import com.rbkmoney.midgard.base.load.utils.JsonUtil;
 import org.jooq.generated.feed.tables.pojos.Calendar;

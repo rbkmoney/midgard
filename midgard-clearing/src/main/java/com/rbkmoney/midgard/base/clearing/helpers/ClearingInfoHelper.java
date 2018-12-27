@@ -1,42 +1,26 @@
 package com.rbkmoney.midgard.base.clearing.helpers;
 
 import com.rbkmoney.midgard.ClearingEventStateResponse;
-import com.rbkmoney.midgard.base.clearing.helpers.DAO.ClearingInfoDao;
+import com.rbkmoney.midgard.base.clearing.helpers.dao.ClearingInfoDao;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.midgard.enums.ClearingEventState;
 import org.jooq.generated.midgard.routines.PrepareTransactionData;
 import org.jooq.generated.midgard.tables.pojos.ClearingEvent;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.sql.DataSource;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.jooq.generated.midgard.enums.ClearingEventState.STARTED;
 
-/** Вспомогательный класс для работы с дополнительной информацией в рамках задачи клиринга */
 @Slf4j
+@RequiredArgsConstructor
 @Component
 public class ClearingInfoHelper {
 
-    /** Объект для работы с данными в БД */
     private final ClearingInfoDao dao;
 
-    @Autowired
-    public ClearingInfoHelper(DataSource dataSource) {
-        dao = new ClearingInfoDao(dataSource);
-    }
-
-    /**
-     * Создание нового события клиринга
-     *
-     * @param eventId ID события из внешней системы
-     * @param providerId ID провайдера, для которого необходимо произвести клиринг
-     * @return ID созданного события
-     */
     //TODO: рассмотреть вариант, когда для банка присутствует незавершенное клиринговое событие.
     public Long createNewClearingEvent(long eventId, String providerId) {
         log.trace("Creating new clearing event for provider {} by event ", providerId, eventId);
@@ -58,12 +42,6 @@ public class ClearingInfoHelper {
         return clearingId;
     }
 
-    /**
-     * Получение клирингового события по ID внешнего события
-     *
-     * @param eventId ID внешнего события
-     * @return клиринговое событие
-     */
     public ClearingEventStateResponse getClearingEventByEventId(long eventId) {
         ClearingEvent clearingEvent = dao.getClearingEvent(eventId);
         ClearingEventStateResponse response = new ClearingEventStateResponse();
@@ -76,11 +54,6 @@ public class ClearingInfoHelper {
         return response;
     }
 
-    /**
-     * Получение списка всех выполняющихся на даннй момент клиринговых событий
-     *
-     * @return спискок всех выполняющихся на даннй момент клиринговых событий
-     */
     public List<ClearingEvent> getAllExecuteClearingEvents() {
         return dao.getClearingEventsByState(ClearingEventState.EXECUTE);
     }

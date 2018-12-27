@@ -1,13 +1,19 @@
 package com.rbkmoney.midgard.base.clearing.data.enums;
 
-/** Список импортеров клирингового сервиса */
 public enum ImporterType {
 
-    /** Импортер транзакций из внешней системы */
-    TRANSACTION,
-    /** Импортер мерчантов из внешней системы */
-    MERCHANT,
-    /** Импортер возвратов из внешней системы */
-    REFUND;
+    TRANSACTION("Импортер транзакций из внешней системы"),
+    MERCHANT("Импортер мерчантов из внешней системы"),
+    REFUND("Импортер возвратов из внешней системы");
+
+    private String description;
+
+    ImporterType(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 
 }

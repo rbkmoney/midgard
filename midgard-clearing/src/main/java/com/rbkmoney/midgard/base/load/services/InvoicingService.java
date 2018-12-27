@@ -3,7 +3,7 @@ package com.rbkmoney.midgard.base.load.services;
 import com.rbkmoney.damsel.payment_processing.Event;
 import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.midgard.base.clearing.exception.DaoException;
-import com.rbkmoney.midgard.base.load.DAO.invoicing.iface.InvoiceDao;
+import com.rbkmoney.midgard.base.load.dao.invoicing.iface.InvoiceDao;
 import com.rbkmoney.midgard.base.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
