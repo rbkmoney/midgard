@@ -1,4 +1,4 @@
-package com.rbkmoney.midgard.service.config;
+package com.rbkmoney.midgard.service.config.props;
 
 import lombok.Data;
 import org.springframework.core.io.Resource;

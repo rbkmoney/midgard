@@ -185,8 +185,8 @@ public class TransactionHelper {
         return (int) Math.floor((double) packagesCount / packageSize);
     }
 
-    public long getMaxTransactionEventId() {
-        Long eventId = transactionsDao.getMaxTransactionEventId();
+    public long getLastTransactionEventId() {
+        Long eventId = transactionsDao.getLastTransactionEventId();
         if (eventId == null) {
             log.warn("Event ID for clearing transactions was not found!");
             return 0L;

@@ -154,7 +154,7 @@ public class TransactionsDao extends AbstractGenericDao implements ClearingDao<C
         return record.value1();
     }
 
-    public Long getMaxTransactionEventId() {
+    public Long getLastTransactionEventId() {
         Query query = getDslContext().selectFrom(CLEARING_TRANSACTION)
                 .orderBy(CLEARING_TRANSACTION.EVENT_ID.desc())
                 .limit(1);

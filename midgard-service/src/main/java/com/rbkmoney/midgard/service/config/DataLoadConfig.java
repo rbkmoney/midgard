@@ -3,6 +3,8 @@ package com.rbkmoney.midgard.service.config;
 import com.rbkmoney.damsel.domain_config.RepositorySrv;
 import com.rbkmoney.eventstock.client.EventPublisher;
 import com.rbkmoney.eventstock.client.poll.PollingEventPublisherBuilder;
+import com.rbkmoney.midgard.service.config.props.InvoicingProperties;
+import com.rbkmoney.midgard.service.config.props.PartyManagementProperties;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.InvoicingEventStockHandler;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.PartyManagementEventStockHandler;
 import com.rbkmoney.woody.thrift.impl.http.THSpawnClientBuilder;

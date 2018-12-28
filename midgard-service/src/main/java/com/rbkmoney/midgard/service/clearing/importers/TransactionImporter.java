@@ -34,7 +34,7 @@ public class TransactionImporter implements Importer {
 
     @Override
     public void getData() {
-        long eventId = transactionHelper.getMaxTransactionEventId();
+        long eventId = transactionHelper.getLastTransactionEventId();
         log.info("Transaction data import will start with event id {}", eventId);
         List<Payment> payments;
         do {
