@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 // TODO: подумать насколько правильно держать это на статике
 public final class VelocityUtil {
 
+    private static VelocityEngine engine;
+
     public static List<String> create(String templateDir, List<VelocityContext> contexts) {
         VelocityEngine engine = getEngine();
         Template template = engine.getTemplate(templateDir);
@@ -32,11 +34,13 @@ public final class VelocityUtil {
     }
 
     private static VelocityEngine getEngine() {
-        VelocityEngine engine = new VelocityEngine();
-        engine.setProperty("resource.loader", "class");
-        String resourceLoader = "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader";
-        engine.setProperty("class.resource.loader.class", resourceLoader);
-        engine.init();
+        if (engine == null) {
+            engine = new VelocityEngine();
+            engine.setProperty("resource.loader", "class");
+            String resourceLoader = "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader";
+            engine.setProperty("class.resource.loader.class", resourceLoader);
+            engine.init();
+        }
         return engine;
     }
 

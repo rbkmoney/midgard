@@ -22,7 +22,7 @@ public class ClearingAdapterService implements ClearingAdapterSrv.Iface {
 
     @Override
     public void sendClearingDataPackage(ClearingDataPackage dataPackage) throws ClearingAdapterException, TException {
-        log.info("Received data package: {}", dataPackage);
+        log.info("Data package have received: {}", dataPackage);
         if (dataPackage == null) {
             log.error("Received empty data package!");
             return;
@@ -36,11 +36,11 @@ public class ClearingAdapterService implements ClearingAdapterSrv.Iface {
 
         //TODO: важный момент с шифрованием - как сохранять поток если нельзя будет дозаписывать поблоково?
 
-        if (dataPackage.isFinalPackage() == true) {
+        if (dataPackage.isFinalPackage()) {
             closeXmlFile();
             sendFileToFtp();
         }
-        log.info("Data package {} for clearing event {} obtained", dataPackage.getPackageNumber(),
+        log.info("Data package {} for clearing event {} processed", dataPackage.getPackageNumber(),
                 dataPackage.getClearingId());
     }
 

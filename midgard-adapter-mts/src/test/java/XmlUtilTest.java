@@ -6,6 +6,9 @@ import data.ClearingTransactionsTestData;
 import data.MerchantsTestData;
 import org.junit.Test;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class XmlUtilTest {
@@ -25,6 +28,11 @@ public class XmlUtilTest {
         clearingData.setMerchants(merchants);
         clearingData.setTransactions(transactions);
         return clearingData;
+    }
+
+    @Test
+    public void testDateFormatter() {
+        System.out.println("> " + LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE));
     }
 
 }

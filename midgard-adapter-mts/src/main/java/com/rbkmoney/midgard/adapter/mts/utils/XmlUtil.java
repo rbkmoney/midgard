@@ -6,6 +6,8 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.tools.generic.DateTool;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,9 +36,7 @@ public final class XmlUtil {
 
 
         DateTool dateTool = new DateTool();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-        String procDate = dateFormat.format(new Date());
-        String msgNr = UUID.randomUUID().toString();
+        String msgNr = Utils.getUUID();
         List<TransactionData> transactions = clearingData.getTransactions();
         List<MerchantData> merchants = clearingData.getMerchants();
 
@@ -45,7 +45,7 @@ public final class XmlUtil {
             VelocityContext context = new VelocityContext();
             CardData cardData = new CardData();
             context.put("dateTool", dateTool);
-            context.put("procDate", procDate);
+            context.put("procDate", LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE));
             context.put("msgNr", msgNr);
             context.put("cardData", cardData);
             context.put("transaction", transaction);
