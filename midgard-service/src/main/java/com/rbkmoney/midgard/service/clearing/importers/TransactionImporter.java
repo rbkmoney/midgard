@@ -1,9 +1,8 @@
 package com.rbkmoney.midgard.service.clearing.importers;
 
-import com.rbkmoney.midgard.service.clearing.data.enums.ImporterType;
-import com.rbkmoney.midgard.service.clearing.helpers.ClearingCashFlowHelper;
-import com.rbkmoney.midgard.service.clearing.helpers.PaymentHelper;
-import com.rbkmoney.midgard.service.clearing.helpers.TransactionHelper;
+import com.rbkmoney.midgard.service.clearing.helpers.clearing_cash_flow.ClearingCashFlowHelper;
+import com.rbkmoney.midgard.service.clearing.helpers.payment.PaymentHelper;
+import com.rbkmoney.midgard.service.clearing.helpers.transaction.TransactionHelper;
 import com.rbkmoney.midgard.service.config.props.AdapterProps;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,21 +39,21 @@ public class TransactionImporter implements Importer {
                 .map(adapterProps -> adapterProps.getProviderId())
                 .collect(Collectors.toList());
 
-        List<Payment> payments;
+        int obtainPaymentsSize;
         do {
-            payments = paymentHelper.getPayments(eventId, providerIds, poolSize);
-            for (Payment payment : payments) {
-                transactionHelper.saveTransaction(payment);
-                List<CashFlow> cashFlow = paymentHelper.getCashFlow(payment.getId());
-                cashFlowHelper.saveCashFlow(payment, cashFlow);
-            }
-        } while(payments.size() == poolSize);
+            obtainPaymentsSize = pollPayments(eventId, providerIds);
+        } while(obtainPaymentsSize == poolSize);
         log.info("Transaction data import have finished");
     }
 
-    @Override
-    public boolean isInstance(ImporterType type) {
-        return ImporterType.TRANSACTION == type;
+    private int pollPayments(long eventId, List<Integer> providerIds) {
+        List<Payment> payments = paymentHelper.getPayments(eventId, providerIds, poolSize);
+        for (Payment payment : payments) {
+            transactionHelper.saveTransaction(payment);
+            List<CashFlow> cashFlow = paymentHelper.getCashFlow(payment.getId());
+            cashFlowHelper.saveCashFlow(payment, cashFlow);
+        }
+        return payments.size();
     }
 
 }

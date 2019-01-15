@@ -1,9 +1,9 @@
 package com.rbkmoney.midgard.service.load.dao.invoicing.impl;
 
 import com.rbkmoney.midgard.service.clearing.exception.DaoException;
-import com.rbkmoney.midgard.service.clearing.helpers.DAO.common.RecordRowMapper;
+import com.rbkmoney.midgard.service.clearing.dao.common.RecordRowMapper;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.CashFlowDao;
-import com.rbkmoney.midgard.service.clearing.helpers.DAO.common.AbstractGenericDao;
+import com.rbkmoney.midgard.service.clearing.dao.common.AbstractGenericDao;
 import org.jooq.Query;
 import org.jooq.generated.feed.enums.AdjustmentCashFlowType;
 import org.jooq.generated.feed.enums.PaymentChangeType;

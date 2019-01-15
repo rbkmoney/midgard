@@ -3,8 +3,7 @@ package com.rbkmoney.midgard.service.clearing.handlers;
 import com.rbkmoney.midgard.ClearingAdapterException;
 import com.rbkmoney.midgard.ClearingAdapterSrv;
 import com.rbkmoney.midgard.ClearingDataPackage;
-import com.rbkmoney.midgard.service.clearing.data.enums.HandlerType;
-import com.rbkmoney.midgard.service.clearing.helpers.TransactionHelper;
+import com.rbkmoney.midgard.service.clearing.helpers.transaction.TransactionHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
@@ -21,9 +20,6 @@ public class ClearingEventHandler implements Handler {
 
     @Override
     public void handle(Long clearingId) {
-        // TODO: перевести обработку клирингового эвента из сервиса сюда
-        //       Получение количества пакетов, которое необходимо будет отправить
-        // TODO: можно, конечно, запилить и в бесконечный while до момента окончания записей
         int packagesCount = transactionHelper.getClearingTransactionPackagesCount(clearingId);
         for (int packageNumber = 1; packageNumber <= packagesCount; packageNumber++) {
             ClearingDataPackage dataPackage = transactionHelper.getClearingTransactionPackage(clearingId, packageNumber);
@@ -37,11 +33,6 @@ public class ClearingEventHandler implements Handler {
                 log.error("Вata transfer error", ex);
             }
         }
-    }
-
-    @Override
-    public boolean isInstance(HandlerType handler) {
-        return HandlerType.CLEARING_EVENT == handler;
     }
 
 }

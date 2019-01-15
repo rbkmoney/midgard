@@ -2,7 +2,7 @@ package com.rbkmoney.midgard.service.clearing.services;
 
 import com.rbkmoney.midgard.*;
 import com.rbkmoney.midgard.service.clearing.handlers.Handler;
-import com.rbkmoney.midgard.service.clearing.helpers.ClearingInfoHelper;
+import com.rbkmoney.midgard.service.clearing.helpers.clearing_info.ClearingInfoHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
@@ -37,7 +37,7 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
 
     @Override
     public ClearingEventStateResponse getClearingEventState(long eventId) throws NoClearingEvent, TException {
-        log.info("Getting the state of event {}...", eventId);
+        log.info("Getting the state of event {}", eventId);
         return clearingInfoHelper.getClearingEventState(eventId);
     }
 

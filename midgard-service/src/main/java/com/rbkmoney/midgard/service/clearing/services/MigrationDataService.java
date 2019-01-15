@@ -52,17 +52,19 @@ public class MigrationDataService implements GenericService {
                 runImporters(importers);
 
                 log.debug("Migration data finished");
+            } catch (Exception ex) {
+
             } finally {
                 lock.unlock();
             }
         } else {
-            log.debug("Migration data has been running...");
+            log.debug("Migration data has been running");
         }
 
         log.debug("Data migration finished!");
     }
 
-    private void runImporters(List<Importer> importers) {
+    private void runImporters(List<Importer> importers) throws Exception {
         List<Future<?>> importTasks = importers.stream()
                 .map(importer -> executor.submit(importer::getData))
                 .collect(Collectors.toList());
@@ -72,9 +74,10 @@ public class MigrationDataService implements GenericService {
             }
         } catch (InterruptedException e) {
             log.error("InterruptedException was received during the migration", e);
-            //TODO: продумать корректную обработку
+            throw new Exception(e);
         } catch (ExecutionException e) {
             log.error("ExecutionException was received during the migration", e);
+            throw e;
         }
     }
 

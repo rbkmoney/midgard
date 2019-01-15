@@ -4,9 +4,8 @@ import com.rbkmoney.midgard.ClearingAdapterSrv;
 import com.rbkmoney.midgard.ClearingEventResponse;
 import com.rbkmoney.midgard.ClearingEventState;
 import com.rbkmoney.midgard.FailureTransactionData;
-import com.rbkmoney.midgard.service.clearing.data.enums.HandlerType;
-import com.rbkmoney.midgard.service.clearing.helpers.ClearingInfoHelper;
-import com.rbkmoney.midgard.service.clearing.helpers.TransactionHelper;
+import com.rbkmoney.midgard.service.clearing.helpers.clearing_info.ClearingInfoHelper;
+import com.rbkmoney.midgard.service.clearing.helpers.transaction.TransactionHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
@@ -44,8 +43,4 @@ public class ClearingRevisionHandler implements Handler {
         }
     }
 
-    @Override
-    public boolean isInstance(HandlerType handlerType) {
-        return HandlerType.CLEARING_REVISION == handlerType;
-    }
 }

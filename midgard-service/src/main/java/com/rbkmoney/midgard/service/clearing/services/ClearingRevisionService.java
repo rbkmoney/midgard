@@ -1,9 +1,7 @@
 package com.rbkmoney.midgard.service.clearing.services;
 
 import com.rbkmoney.midgard.service.clearing.handlers.ClearingRevisionHandler;
-import com.rbkmoney.midgard.service.clearing.helpers.ClearingInfoHelper;
-import com.rbkmoney.midgard.service.config.props.AdapterProps;
-import com.rbkmoney.midgard.service.config.props.PartyManagementProperties;
+import com.rbkmoney.midgard.service.clearing.helpers.clearing_info.ClearingInfoHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.midgard.tables.pojos.ClearingEvent;

@@ -1,9 +1,8 @@
 package com.rbkmoney.midgard.service.clearing.importers;
 
-import com.rbkmoney.midgard.service.clearing.data.enums.ImporterType;
-import com.rbkmoney.midgard.service.clearing.helpers.RefundHelper;
-import com.rbkmoney.midgard.service.clearing.helpers.TransactionHelper;
-import com.rbkmoney.midgard.service.clearing.utils.Utils;
+import com.rbkmoney.midgard.service.clearing.helpers.refund.RefundHelper;
+import com.rbkmoney.midgard.service.clearing.helpers.transaction.TransactionHelper;
+import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
 import com.rbkmoney.midgard.service.config.props.AdapterProps;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,20 +37,20 @@ public class RefundsImporter implements Importer {
                 .map(adapterProps -> adapterProps.getProviderId())
                 .collect(Collectors.toList());
 
-        List<Refund> refunds;
+        int obtainRufundsSize;
         do {
-            refunds = refundHelper.getRefunds(eventId, providerIds, poolSize);
-            for (Refund refund : refunds) {
-                ClearingRefund clearingRefund = Utils.transformRefund(refund);
-                refundHelper.saveClearingRefund(clearingRefund);
-            }
-        } while(refunds.size() == poolSize);
+            obtainRufundsSize = pollRefunds(eventId, providerIds);
+        } while(obtainRufundsSize == poolSize);
         log.info("Transaction data import have finished");
     }
 
-    @Override
-    public boolean isInstance(ImporterType type) {
-        return ImporterType.REFUND == type;
+    private int pollRefunds(long eventId, List<Integer> providerIds) {
+        List<Refund> refunds = refundHelper.getRefunds(eventId, providerIds, poolSize);
+        for (Refund refund : refunds) {
+            ClearingRefund clearingRefund = MappingUtils.transformRefund(refund);
+            refundHelper.saveClearingRefund(clearingRefund);
+        }
+        return refunds.size();
     }
 
 }
