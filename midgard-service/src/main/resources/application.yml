@@ -21,10 +21,12 @@ clearing-service:
   revision: 30000
   adapters:
     mts:
+      name: mts
       url: http://mts_clearing_adapter:8022/repo
       networkTimeout: 5000
       providerId: 1
     test:
+      name: test
       url: http://test_clearing_adapter:8022/repo
       networkTimeout: 5000
       providerId: 11

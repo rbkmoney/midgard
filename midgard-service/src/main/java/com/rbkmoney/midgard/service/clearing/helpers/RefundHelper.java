@@ -19,9 +19,9 @@ public class RefundHelper {
 
     private final ClearingRefundDao clearingRefundDao;
 
-    public List<Refund> getRefund(long eventId, int poolSize) {
+    public List<Refund> getRefunds(long eventId, List<Integer> providerIds, int poolSize) {
         log.debug("Taking list of refund events with event ID {} and pool size {}", eventId, poolSize);
-        return refundDAO.getRefunds(eventId, poolSize);
+        return refundDAO.getRefunds(eventId, providerIds, poolSize);
     }
 
     public void saveClearingRefund(ClearingRefund clearingRefund) {

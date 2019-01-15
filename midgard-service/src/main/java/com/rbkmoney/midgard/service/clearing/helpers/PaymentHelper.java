@@ -16,9 +16,9 @@ public class PaymentHelper {
 
     private final PaymentDao paymentDao;
 
-    public List<Payment> getPayments(long eventId, int poolSize) {
+    public List<Payment> getPayments(long eventId, List<Integer> providerIds, int poolSize) {
         log.debug("Taking list of events with event ID {} and pool size {}", eventId, poolSize);
-        return paymentDao.getPayments(eventId, poolSize);
+        return paymentDao.getPayments(eventId, providerIds, poolSize);
     }
 
     public List<CashFlow> getCashFlow(long objId) {

@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 
 import java.util.List;
 
+import static org.jooq.generated.feed.Tables.PAYMENT;
 import static org.jooq.generated.feed.Tables.REFUND;
 
 @Component
@@ -24,8 +25,12 @@ public class RefundDAO extends AbstractGenericDao {
         refundRowMapper = new RecordRowMapper<>(REFUND, Refund.class);
     }
 
-    public List<Refund> getRefunds(long eventId, int poolSize) {
-        Query query = getDslContext().selectFrom(REFUND)
+    public List<Refund> getRefunds(long eventId, List<Integer> providerIds, int poolSize) {
+        Query query = getDslContext().select()
+                .from(REFUND)
+                .join(PAYMENT).on(REFUND.INVOICE_ID.eq(PAYMENT.INVOICE_ID))
+                .and(REFUND.PAYMENT_ID.eq(PAYMENT.PAYMENT_ID))
+                .and(PAYMENT.ROUTE_PROVIDER_ID.in(providerIds))
                 .where(REFUND.EVENT_ID.greaterThan(eventId))
                 .and(REFUND.STATUS.eq(RefundStatus.succeeded))
                 .orderBy(REFUND.EVENT_ID).limit(poolSize);

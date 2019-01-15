@@ -49,7 +49,6 @@ public class MigrationDataService implements GenericService {
                 lock.lock();
                 log.debug("Migration data get started");
 
-                //TODO: сделать импорты для конкретных провайдеров, чтобы не тащить лишнее
                 runImporters(importers);
 
                 log.debug("Migration data finished");

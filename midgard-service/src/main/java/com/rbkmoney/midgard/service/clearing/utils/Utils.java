@@ -3,6 +3,7 @@ package com.rbkmoney.midgard.service.clearing.utils;
 import com.rbkmoney.midgard.*;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
 import org.jooq.generated.feed.tables.pojos.Payment;
+import org.jooq.generated.feed.tables.pojos.Refund;
 import org.jooq.generated.midgard.enums.CashFlowAccount;
 import org.jooq.generated.midgard.enums.PaymentChangeType;
 import org.jooq.generated.midgard.enums.TransactionClearingState;
@@ -118,6 +119,22 @@ public final class Utils {
         tranCashFlow.setDestinationAccountTypeValue(cashFlow.getDestinationAccountTypeValue());
         tranCashFlow.setObjType(PaymentChangeType.valueOf(cashFlow.getObjType().getName()));
         return tranCashFlow;
+    }
+
+    public static ClearingRefund transformRefund(Refund refund) {
+        ClearingRefund clearingRefund = new ClearingRefund();
+        clearingRefund.setEventId(refund.getEventId());
+        clearingRefund.setInvoiceId(refund.getInvoiceId());
+        clearingRefund.setPaymentId(refund.getPaymentId());
+        clearingRefund.setPartyId(refund.getPartyId());
+        clearingRefund.setShopId(refund.getShopId());
+        clearingRefund.setCreatedAt(refund.getCreatedAt());
+        clearingRefund.setAmount(refund.getAmount());
+        clearingRefund.setCurrencyCode(refund.getCurrencyCode());
+        clearingRefund.setReason(refund.getReason());
+        clearingRefund.setDomainRevision(refund.getDomainRevision());
+        clearingRefund.setClearingState(TransactionClearingState.READY);
+        return clearingRefund;
     }
 
     private Utils() { }

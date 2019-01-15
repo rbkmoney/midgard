@@ -3,15 +3,17 @@ package com.rbkmoney.midgard.service.clearing.importers;
 import com.rbkmoney.midgard.service.clearing.data.enums.ImporterType;
 import com.rbkmoney.midgard.service.clearing.helpers.RefundHelper;
 import com.rbkmoney.midgard.service.clearing.helpers.TransactionHelper;
+import com.rbkmoney.midgard.service.clearing.utils.Utils;
+import com.rbkmoney.midgard.service.config.props.AdapterProps;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.tables.pojos.Refund;
-import org.jooq.generated.midgard.enums.TransactionClearingState;
 import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,38 +24,29 @@ public class RefundsImporter implements Importer {
 
     private final RefundHelper refundHelper;
 
+    private final List<AdapterProps> adaptersProps;
+
     @Value("${import.trx-pool-size}")
     private int poolSize;
 
     @Override
     public void getData() {
         long eventId = transactionHelper.getLastTransactionEventId();
-        log.info("Transaction data import will start with event id {}", eventId);
+        log.info("Refund data import will start with event id {}", eventId);
+
+        List<Integer> providerIds = adaptersProps.stream()
+                .map(adapterProps -> adapterProps.getProviderId())
+                .collect(Collectors.toList());
+
         List<Refund> refunds;
         do {
-            refunds = refundHelper.getRefund(eventId, poolSize);
+            refunds = refundHelper.getRefunds(eventId, providerIds, poolSize);
             for (Refund refund : refunds) {
-                ClearingRefund clearingRefund = transformRefund(refund);
+                ClearingRefund clearingRefund = Utils.transformRefund(refund);
                 refundHelper.saveClearingRefund(clearingRefund);
             }
         } while(refunds.size() == poolSize);
         log.info("Transaction data import have finished");
-    }
-
-    private ClearingRefund transformRefund(Refund refund) {
-        ClearingRefund clearingRefund = new ClearingRefund();
-        clearingRefund.setEventId(refund.getEventId());
-        clearingRefund.setInvoiceId(refund.getInvoiceId());
-        clearingRefund.setPaymentId(refund.getPaymentId());
-        clearingRefund.setPartyId(refund.getPartyId());
-        clearingRefund.setShopId(refund.getShopId());
-        clearingRefund.setCreatedAt(refund.getCreatedAt());
-        clearingRefund.setAmount(refund.getAmount());
-        clearingRefund.setCurrencyCode(refund.getCurrencyCode());
-        clearingRefund.setReason(refund.getReason());
-        clearingRefund.setDomainRevision(refund.getDomainRevision());
-        clearingRefund.setClearingState(TransactionClearingState.READY);
-        return clearingRefund;
     }
 
     @Override

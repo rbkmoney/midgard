@@ -4,6 +4,7 @@ import com.rbkmoney.midgard.service.clearing.data.enums.ImporterType;
 import com.rbkmoney.midgard.service.clearing.helpers.ClearingCashFlowHelper;
 import com.rbkmoney.midgard.service.clearing.helpers.PaymentHelper;
 import com.rbkmoney.midgard.service.clearing.helpers.TransactionHelper;
+import com.rbkmoney.midgard.service.config.props.AdapterProps;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,6 +26,8 @@ public class TransactionImporter implements Importer {
 
     private final ClearingCashFlowHelper cashFlowHelper;
 
+    private final List<AdapterProps> adaptersProps;
+
     @Value("${import.trx-pool-size}")
     private int poolSize;
 
@@ -31,9 +35,14 @@ public class TransactionImporter implements Importer {
     public void getData() {
         long eventId = transactionHelper.getLastTransactionEventId();
         log.info("Transaction data import will start with event id {}", eventId);
+
+        List<Integer> providerIds = adaptersProps.stream()
+                .map(adapterProps -> adapterProps.getProviderId())
+                .collect(Collectors.toList());
+
         List<Payment> payments;
         do {
-            payments = paymentHelper.getPayments(eventId, poolSize);
+            payments = paymentHelper.getPayments(eventId, providerIds, poolSize);
             for (Payment payment : payments) {
                 transactionHelper.saveTransaction(payment);
                 List<CashFlow> cashFlow = paymentHelper.getCashFlow(payment.getId());

@@ -29,10 +29,11 @@ public class PaymentDao extends AbstractGenericDao {
         cashFlowRowMapper = new RecordRowMapper<>(CASH_FLOW, CashFlow.class);
     }
 
-    public List<Payment> getPayments(long eventId, int poolSize) {
+    public List<Payment> getPayments(long eventId, List<Integer> providerIds, int poolSize) {
         Query query = getDslContext().selectFrom(PAYMENT)
                 .where(PAYMENT.EVENT_ID.greaterThan(eventId))
                 .and(PAYMENT.STATUS.eq(PaymentStatus.captured))
+                .and(PAYMENT.ROUTE_PROVIDER_ID.in(providerIds))
                 .orderBy(PAYMENT.EVENT_ID).limit(poolSize);
         return fetch(query, paymentRowMapper);
     }

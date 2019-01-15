@@ -2,6 +2,8 @@ package com.rbkmoney.midgard.service.clearing.services;
 
 import com.rbkmoney.midgard.service.clearing.handlers.ClearingRevisionHandler;
 import com.rbkmoney.midgard.service.clearing.helpers.ClearingInfoHelper;
+import com.rbkmoney.midgard.service.config.props.AdapterProps;
+import com.rbkmoney.midgard.service.config.props.PartyManagementProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.midgard.tables.pojos.ClearingEvent;
@@ -29,6 +31,7 @@ public class ClearingRevisionService implements GenericService {
     @Override
     @Scheduled(fixedDelayString = "${clearing-service.revision}")
     public void process() {
+
         log.info("Clearing revision process get started");
         List<ClearingEvent> clearingEvents = clearingInfoHelper.getAllExecuteClearingEvents();
         List<Long> clearingIds = clearingEvents.stream()
