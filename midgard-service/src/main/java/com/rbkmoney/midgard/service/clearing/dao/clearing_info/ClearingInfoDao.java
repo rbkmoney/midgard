@@ -10,8 +10,8 @@ public interface ClearingInfoDao extends ClearingDao<ClearingEvent> {
 
     ClearingEvent getClearingEvent(long eventId);
 
-    void updateClearingState(Long clearingId, ClearingEventStatus state);
+    void updateClearingStatus(Long clearingId, ClearingEventStatus status);
 
-    List<ClearingEvent> getClearingEventsByState(ClearingEventStatus state);
+    List<ClearingEvent> getClearingEventsByStatus(ClearingEventStatus status);
 
 }

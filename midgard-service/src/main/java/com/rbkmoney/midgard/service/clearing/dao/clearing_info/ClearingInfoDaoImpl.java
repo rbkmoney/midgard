@@ -65,17 +65,17 @@ public class ClearingInfoDaoImpl extends AbstractGenericDao implements ClearingI
     }
 
     @Override
-    public void updateClearingState(Long clearingId, ClearingEventStatus state) throws DaoException {
+    public void updateClearingStatus(Long clearingId, ClearingEventStatus state) throws DaoException {
         Query query = getDslContext().update(CLEARING_EVENT)
-                .set(CLEARING_EVENT.STATE, state)
+                .set(CLEARING_EVENT.STATUS, state)
                 .where(CLEARING_EVENT.ID.eq(clearingId));
         execute(query);
     }
 
     @Override
-    public List<ClearingEvent> getClearingEventsByState(ClearingEventStatus state) throws DaoException {
+    public List<ClearingEvent> getClearingEventsByStatus(ClearingEventStatus state) throws DaoException {
         Query query = getDslContext().selectFrom(CLEARING_EVENT)
-                .where(CLEARING_EVENT.STATE.eq(state));
+                .where(CLEARING_EVENT.STATUS.eq(state));
         return fetch(query, clearingEventsRowMapper);
     }
 

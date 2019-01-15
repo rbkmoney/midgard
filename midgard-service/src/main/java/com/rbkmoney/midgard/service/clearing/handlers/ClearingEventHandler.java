@@ -18,10 +18,12 @@ public class ClearingEventHandler implements Handler {
 
     private final ClearingAdapterSrv.Iface clearingAdapterService;
 
+    private static final int INIT_PACKAGE_NUMBER = 0;
+
     @Override
     public void handle(Long clearingId) {
         int packagesCount = transactionHelper.getClearingTransactionPackagesCount(clearingId);
-        for (int packageNumber = 1; packageNumber <= packagesCount; packageNumber++) {
+        for (int packageNumber = INIT_PACKAGE_NUMBER; packageNumber < packagesCount; packageNumber++) {
             ClearingDataPackage dataPackage = transactionHelper.getClearingTransactionPackage(clearingId, packageNumber);
             try {
                 //TODO: нужно предварительно получить конкретный адаптер из списка

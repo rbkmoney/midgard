@@ -29,7 +29,7 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
         String providerId = clearingEvent.getProviderId();
         log.info("Starting clearing event for provider id {}", providerId);
         // Подготовка транзакций для клиринга
-        Long clearingId = clearingInfoHelper.prepareTransactionData(providerId, eventId);
+        Long clearingId = clearingInfoHelper.prepareTransactionData(eventId, providerId);
         // Передача транзакций в клиринговый адаптер
         clearingEventHandler.handle(clearingId);
         log.info("Clearing event for provider id {} finished", providerId);

@@ -10,7 +10,7 @@ public interface ClearingInfoHelper {
 
     Long createNewClearingEvent(long eventId, String providerId);
 
-    Long prepareTransactionData(String providerId, long eventId);
+    Long prepareTransactionData(long eventId, String providerId);
 
     ClearingEventStateResponse getClearingEventState(long eventId);
 

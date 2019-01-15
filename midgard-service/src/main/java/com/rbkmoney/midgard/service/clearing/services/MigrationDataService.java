@@ -42,8 +42,6 @@ public class MigrationDataService implements GenericService {
     @Override
     @Scheduled(fixedDelayString = "${import.migration.delay}")
     public void process() {
-        log.debug("Migration get started!");
-
         if (lock.tryLock()) {
             try {
                 lock.lock();
@@ -53,15 +51,15 @@ public class MigrationDataService implements GenericService {
 
                 log.debug("Migration data finished");
             } catch (Exception ex) {
-
+                log.error("Error detected during data migration", ex);
             } finally {
                 lock.unlock();
             }
         } else {
-            log.debug("Migration data has been running");
+            log.debug("Migration data is running. New task is not started");
         }
 
-        log.debug("Data migration finished!");
+        log.debug("Data migration is finished!");
     }
 
     private void runImporters(List<Importer> importers) throws Exception {

@@ -84,11 +84,11 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
 
     @Override
     public List<ClearingTransactionEventInfo> getClearingTransactionsByClearingId(Long clearingId,
-                                                                                  int rowForm,
+                                                                                  int rowFrom,
                                                                                   int rowTo) throws DaoException {
         Query query = getDslContext().selectFrom(CLEARING_TRANSACTION_EVENT_INFO)
                 .where(CLEARING_TRANSACTION_EVENT_INFO.CLEARING_ID.eq(clearingId))
-                .and(CLEARING_TRANSACTION_EVENT_INFO.ROW_NUMBER.greaterThan(rowForm))
+                .and(CLEARING_TRANSACTION_EVENT_INFO.ROW_NUMBER.greaterThan(rowFrom))
                 .and(CLEARING_TRANSACTION_EVENT_INFO.ROW_NUMBER.lessOrEqual(rowTo));
         return fetch(query, transactionEventInfoRowMapper);
     }

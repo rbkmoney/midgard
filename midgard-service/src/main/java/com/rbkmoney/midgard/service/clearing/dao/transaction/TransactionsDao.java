@@ -15,7 +15,7 @@ public interface TransactionsDao extends ClearingDao<ClearingTransaction> {
     void saveFailureTransaction(FailureTransaction failureTransaction) throws DaoException;
 
     List<ClearingTransactionEventInfo> getClearingTransactionsByClearingId(Long clearingId,
-                                                                           int rowForm,
+                                                                           int rowFrom,
                                                                            int rowTo) throws DaoException;
 
     Integer getProcessedClearingTransactionCount(long clearingId) throws DaoException;

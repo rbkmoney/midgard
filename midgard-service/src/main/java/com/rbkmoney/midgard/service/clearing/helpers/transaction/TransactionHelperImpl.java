@@ -57,7 +57,7 @@ public class TransactionHelperImpl implements TransactionHelper {
         List<ClearingTransactionEventInfo> trxEventInfo = getActualClearingTransactionsInfo(clearingId, packageNumber);
         ClearingDataPackage dataPackage = new ClearingDataPackage();
         dataPackage.setClearingId(clearingId);
-        dataPackage.setPackageNumber(packageNumber);
+        dataPackage.setPackageNumber(packageNumber + 1);
         dataPackage.setFinalPackage(trxEventInfo.size() == packageSize ? false : true);
 
         List<Transaction> transactions = new ArrayList<>();

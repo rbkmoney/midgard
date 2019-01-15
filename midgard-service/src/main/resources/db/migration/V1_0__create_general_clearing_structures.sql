@@ -94,7 +94,7 @@ CREATE TABLE midgard.clearing_event (
   event_id     BIGINT                        NOT NULL,
   date         TIMESTAMP WITHOUT TIME ZONE   NOT NULL DEFAULT (now() at time zone 'utc'),
   provider_id  VARCHAR(100)                  NOT NULL,
-  state        clearing_event_status          NOT NULL,
+  status       clearing_event_status         NOT NULL,
   CONSTRAINT clearing_event_PK PRIMARY KEY (id)
 );
 

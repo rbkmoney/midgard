@@ -14,7 +14,7 @@ import org.jooq.generated.midgard.tables.pojos.ClearingTransactionCashFlow;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO: переделать на Spring Converter
+//TODO: переделать на Spring Converter / MapStruct
 public final class MappingUtils {
 
     public static ClearingTransaction transformTransaction(Payment payment) {
