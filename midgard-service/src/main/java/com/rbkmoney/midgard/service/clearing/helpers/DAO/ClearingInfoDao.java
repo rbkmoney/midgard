@@ -5,7 +5,7 @@ import com.rbkmoney.midgard.service.clearing.helpers.DAO.common.ClearingDao;
 import com.rbkmoney.midgard.service.clearing.helpers.DAO.common.RecordRowMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.Query;
-import org.jooq.generated.midgard.enums.ClearingEventState;
+import org.jooq.generated.midgard.enums.ClearingEventStatus;
 import org.jooq.generated.midgard.tables.pojos.ClearingEvent;
 import org.jooq.generated.midgard.tables.records.ClearingEventRecord;
 import org.springframework.jdbc.core.RowMapper;
@@ -63,7 +63,7 @@ public class ClearingInfoDao extends AbstractGenericDao implements ClearingDao<C
         return clearingEvent;
     }
 
-    public ClearingEvent getLastClearingEvent(String providerId, List<ClearingEventState> states) {
+    public ClearingEvent getLastClearingEvent(String providerId, List<ClearingEventStatus> states) {
         Query query = getDslContext().selectFrom(CLEARING_EVENT)
                 .where((CLEARING_EVENT.PROVIDER_ID.eq(providerId)).and(CLEARING_EVENT.STATE.in(states)))
                 .orderBy(CLEARING_EVENT.DATE.desc())
@@ -72,14 +72,14 @@ public class ClearingInfoDao extends AbstractGenericDao implements ClearingDao<C
         return event;
     }
 
-    public void updateClearingState(Long clearingId, ClearingEventState state) {
+    public void updateClearingState(Long clearingId, ClearingEventStatus state) {
         Query query = getDslContext().update(CLEARING_EVENT)
                 .set(CLEARING_EVENT.STATE, state)
                 .where(CLEARING_EVENT.ID.eq(clearingId));
         execute(query);
     }
 
-    public List<ClearingEvent> getClearingEventsByState(ClearingEventState state) {
+    public List<ClearingEvent> getClearingEventsByState(ClearingEventStatus state) {
         Query query = getDslContext().selectFrom(CLEARING_EVENT)
                 .where(CLEARING_EVENT.STATE.eq(state));
         return fetch(query, clearingEventsRowMapper);

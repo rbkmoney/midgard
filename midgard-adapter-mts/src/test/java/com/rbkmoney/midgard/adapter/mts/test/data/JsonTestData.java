@@ -1,6 +1,6 @@
-package com.rbkmoney.midgard.base.test.data;
+package com.rbkmoney.midgard.adapter.mts.test.data;
 
-import com.rbkmoney.midgard.service.clearing.data.TerminalOptionalJson;
+import com.rbkmoney.midgard.adapter.mts.data.TerminalOptionalJson;
 
 public final class JsonTestData {
 
@@ -21,7 +21,6 @@ public final class JsonTestData {
         json.setSmCity("Krasnoyar");
         return json;
     }
-
 
     private JsonTestData() {}
 

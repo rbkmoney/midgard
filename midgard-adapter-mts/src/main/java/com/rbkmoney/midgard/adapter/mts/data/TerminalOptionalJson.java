@@ -1,4 +1,4 @@
-package com.rbkmoney.midgard.service.clearing.data;
+package com.rbkmoney.midgard.adapter.mts.data;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

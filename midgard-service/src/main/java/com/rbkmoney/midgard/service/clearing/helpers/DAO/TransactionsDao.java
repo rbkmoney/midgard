@@ -7,8 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jooq.Field;
 import org.jooq.Query;
 import org.jooq.Record1;
-import org.jooq.generated.midgard.enums.ClearingTrxEventState;
 import org.jooq.generated.midgard.enums.TransactionClearingState;
+import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransactionEventInfo;
 import org.jooq.generated.midgard.tables.pojos.FailureTransaction;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
@@ -23,6 +23,7 @@ import javax.sql.DataSource;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.jooq.generated.midgard.Tables.CLEARING_REFUND;
 import static org.jooq.generated.midgard.Tables.CLEARING_TRANSACTION_EVENT_INFO;
 import static org.jooq.generated.midgard.tables.ClearingTransaction.CLEARING_TRANSACTION;
 import static org.jooq.generated.midgard.tables.FailureTransaction.*;
@@ -41,34 +42,46 @@ public class TransactionsDao extends AbstractGenericDao implements ClearingDao<C
 
     private final RowMapper<ClearingTransaction> transactionRowMapper;
 
+    private final RowMapper<ClearingRefund> refundRowMapper;
+
     private final RowMapper<ClearingTransactionEventInfo> transactionEventInfoRowMapper;
 
     public TransactionsDao(DataSource dataSource) {
         super(dataSource);
         transactionRowMapper = new RecordRowMapper<>(CLEARING_TRANSACTION, ClearingTransaction.class);
+        refundRowMapper = new RecordRowMapper<>(CLEARING_REFUND, ClearingRefund.class);
         transactionEventInfoRowMapper =
                 new RecordRowMapper<>(CLEARING_TRANSACTION_EVENT_INFO, ClearingTransactionEventInfo.class);
     }
 
     @Override
     public Long save(ClearingTransaction transaction) {
-        log.debug("Adding new merchant: {}", transaction);
         ClearingTransactionRecord record = getDslContext().newRecord(CLEARING_TRANSACTION, transaction);
         Query query = getDslContext().insertInto(CLEARING_TRANSACTION).set(record);
         int addedRows = execute(query);
-        log.debug("New transaction with id {} was added", transaction.getMerchantId());
+        log.debug("New transaction with id {} was added", transaction.getTransactionId());
         return Long.valueOf(addedRows);
     }
 
     @Override
     public ClearingTransaction get(String transactionId) {
-        log.debug("Getting a transaction with id {}", transactionId);
         Query query = getDslContext().selectFrom(CLEARING_TRANSACTION)
                 .where(CLEARING_TRANSACTION.TRANSACTION_ID.eq(transactionId));
         ClearingTransaction clearingTransaction = fetchOne(query, transactionRowMapper);
         log.debug("Transaction with id {} {}", transactionId, clearingTransaction == null ? "not found" : "found");
         return clearingTransaction;
     }
+
+    public ClearingTransaction getTransaction(String invoiceId, String paymentId) {
+        Query query = getDslContext().selectFrom(CLEARING_TRANSACTION)
+                .where(CLEARING_TRANSACTION.INVOICE_ID.eq(invoiceId)
+                        .and(CLEARING_TRANSACTION.PAYMENT_ID.eq(paymentId)));
+        ClearingTransaction clearingTransaction = fetchOne(query, transactionRowMapper);
+        log.debug("Transaction with invoice id id {} and payment id {} {}", invoiceId, paymentId,
+                clearingTransaction == null ? "not found" : "found");
+        return clearingTransaction;
+    }
+
 
     public List<ClearingTransaction> getTransactionsByProviderId(Integer providerId,
                                                                  LocalDateTime dateTo,
@@ -112,12 +125,10 @@ public class TransactionsDao extends AbstractGenericDao implements ClearingDao<C
     }
 
     public List<ClearingTransactionEventInfo> getClearingTransactionsByClearingId(Long clearingId,
-                                                                                  ClearingTrxEventState state,
                                                                                   int rowForm,
                                                                                   int rowTo) {
         Query query = getDslContext().selectFrom(CLEARING_TRANSACTION_EVENT_INFO)
                 .where(CLEARING_TRANSACTION_EVENT_INFO.CLEARING_ID.eq(clearingId))
-                .and(CLEARING_TRANSACTION_EVENT_INFO.STATE.eq(state))
                 .and(CLEARING_TRANSACTION_EVENT_INFO.ROW_NUMBER.greaterThan(rowForm))
                 .and(CLEARING_TRANSACTION_EVENT_INFO.ROW_NUMBER.lessOrEqual(rowTo));
         return fetch(query, transactionEventInfoRowMapper);
@@ -150,7 +161,7 @@ public class TransactionsDao extends AbstractGenericDao implements ClearingDao<C
         Record1<Integer> record = getDslContext().select(rowCount)
                 .from(CLEARING_TRANSACTION_EVENT_INFO)
                 .where(CLEARING_TRANSACTION_EVENT_INFO.CLEARING_ID.eq(clearingId))
-                .and(CLEARING_TRANSACTION_EVENT_INFO.STATE.eq(ClearingTrxEventState.PROCESSED)).fetchOne();
+                .fetchOne();
         return record.value1();
     }
 

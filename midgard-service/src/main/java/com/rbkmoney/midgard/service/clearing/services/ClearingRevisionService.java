@@ -39,9 +39,8 @@ public class ClearingRevisionService implements GenericService {
 
         for (ClearingEvent clearingEvent : clearingEvents) {
             //TODO: передать в обработчик ID события, которое нужно проверить
-            revisionHandler.handle();
+            revisionHandler.handle(clearingEvent.getId());
         }
-
         log.info("Clearing revision process was finished");
     }
 

@@ -1,30 +1,20 @@
 package com.rbkmoney.midgard.service.clearing.helpers;
 
-import com.rbkmoney.midgard.ClearingDataPackage;
-import com.rbkmoney.midgard.ClearingEvent;
-import com.rbkmoney.midgard.Merchant;
-import com.rbkmoney.midgard.Transaction;
+import com.rbkmoney.midgard.*;
+import com.rbkmoney.midgard.service.clearing.helpers.DAO.ClearingCashFlowDao;
+import com.rbkmoney.midgard.service.clearing.helpers.DAO.ClearingRefundDao;
 import com.rbkmoney.midgard.service.clearing.helpers.DAO.TransactionsDao;
-import com.rbkmoney.midgard.service.clearing.helpers.DAO.MerchantDao;
 import com.rbkmoney.midgard.service.clearing.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.generated.midgard.enums.ClearingTrxEventState;
-import org.jooq.generated.midgard.tables.pojos.ClearingMerchant;
-import org.jooq.generated.midgard.tables.pojos.ClearingTransactionEventInfo;
-import org.jooq.generated.midgard.tables.pojos.FailureTransaction;
-import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
+import org.jooq.generated.feed.tables.pojos.Payment;
+import org.jooq.generated.midgard.enums.ClearingTrxType;
+import org.jooq.generated.midgard.tables.pojos.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import static org.jooq.generated.midgard.enums.TransactionClearingState.ACTIVE;
-import static org.jooq.generated.midgard.enums.TransactionClearingState.FAILED;
-import static org.jooq.generated.midgard.enums.TransactionClearingState.READY;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,122 +23,29 @@ public class TransactionHelper {
 
     private final TransactionsDao transactionsDao;
 
-    private final MerchantDao merchantDao;
+    private final ClearingRefundDao clearingRefundDao;
+
+    private final ClearingCashFlowDao cashFlowDao;
 
     @Value("${clearing-service.package-size}")
     private int packageSize;
 
-    public void saveTransactions(List<ClearingTransaction> transactions) {
-        transactions.forEach(this::saveTransaction);
-    }
-
-    public void saveTransaction(ClearingTransaction transaction) {
+    public void saveTransaction(Payment payment) {
+        ClearingTransaction transaction = Utils.transformTransaction(payment);
         log.debug("Saving a transaction {}...", transaction);
-        ClearingTransaction tmpTransaction = transactionsDao.get(transaction.getTransactionId());
-        if (tmpTransaction == null) {
-                transactionsDao.save(transaction);
-        } else if (!Utils.compareTransactions(transaction, tmpTransaction)) {
-            log.warn("Duplicate transactions! Source transaction: {}, arrived transaction: {}",
-                    transaction, tmpTransaction);
-            //TODO: до конца непонятно как корректно сравнивать транзакции, но учитывая,
-            //      что в целевую таблицу добавился event_id возможно это и не нужно
-        } else {
-            log.debug("The transaction {} was found in the database", tmpTransaction.getTransactionId());
-        }
+        transactionsDao.save(transaction);
     }
 
     public ClearingTransaction getTransaction(String transactionId) {
         return transactionsDao.get(transactionId);
     }
 
-    public List<ClearingTransaction> getActualClearingTransactions(ClearingEvent clearingEvent) {
-        //TODO: поправить тип в протоколе
-        Integer providerId = Integer.parseInt(clearingEvent.getProviderId());
-        LocalDateTime dateTo = clearingEvent.getDateTo() == null ?
-                LocalDateTime.now() : LocalDateTime.parse(clearingEvent.getDateTo());
-        if (clearingEvent.getDateFrom() == null) {
-            return transactionsDao.getTransactionsByProviderId(providerId, dateTo, Arrays.asList(READY, FAILED));
-        } else {
-            LocalDateTime dateFrom = LocalDateTime.parse(clearingEvent.getDateFrom());
-            return transactionsDao.getTransactionsByProviderId(providerId, dateFrom, dateTo, Arrays.asList(READY, FAILED));
-        }
-
+    public ClearingTransaction getTransaction(String invoiceId, String paymentId) {
+        return transactionsDao.getTransaction(invoiceId, paymentId);
     }
 
-    public List<ClearingTransaction> getAllActualClearingTransactions() {
-        return transactionsDao.getClearingTransactions(LocalDateTime.now(), Arrays.asList(READY, FAILED));
-    }
-
-    public void saveAllFailureTransactionByOneReason(List<ClearingTransaction> transactions,
-                                                     Long clearingId,
-                                                     String reason) {
-        for (ClearingTransaction transaction : transactions) {
-            saveFailureTransaction(transaction.getTransactionId(), clearingId, reason);
-        }
-    }
-
-    public void saveFailureTransaction(String transactionId, Long clearingId, String reason) {
-        FailureTransaction failureTransaction = new FailureTransaction();
-        failureTransaction.setTransactionId(transactionId);
-        failureTransaction.setClearingId(clearingId);
-        failureTransaction.setReason(reason);
-        transactionsDao.saveFailureTransaction(failureTransaction);
-    }
-
-    public void saveClearingTransactionsInfo(List<ClearingTransaction> activeTrx,
-                                             List<ClearingTransaction> failedTrx,
-                                             Long clearingId) {
-        saveSentClearingTransactionsInfo(activeTrx, clearingId);
-        saveRefusedClearingTransactionsInfo(failedTrx, clearingId);
-    }
-
-    private void saveSentClearingTransactionsInfo(List<ClearingTransaction> transactions, Long clearingId) {
-        for (ClearingTransaction transaction : transactions) {
-            saveSentClearingTranInfo(clearingId, transaction.getTransactionId());
-        }
-    }
-
-    private void saveRefusedClearingTransactionsInfo(List<ClearingTransaction> transactions, Long clearingId) {
-        for (ClearingTransaction transaction : transactions) {
-            saveRefusedClearingTranInfo(clearingId, transaction.getTransactionId());
-        }
-    }
-
-    public void saveSentClearingTranInfo(Long clearingId, String transactionId) {
-        saveClearingTransactionInfo(clearingId, transactionId, ClearingTrxEventState.PROCESSED);
-    }
-
-    public void saveRefusedClearingTranInfo(Long clearingId, String transactionId) {
-        saveClearingTransactionInfo(clearingId, transactionId, ClearingTrxEventState.REFUSED);
-    }
-
-    private void saveClearingTransactionInfo(Long clearingId,
-                                             String transactionId,
-                                             ClearingTrxEventState state) {
-        ClearingTransactionEventInfo transactionInfo = new ClearingTransactionEventInfo();
-        transactionInfo.setClearingId(clearingId);
-        transactionInfo.setTransactionId(transactionId);
-        transactionInfo.setState(state);
-        transactionsDao.saveClearingTransactionInfo(transactionInfo);
-    }
-
-    public void updateClearingTransactionsState(List<ClearingTransaction> activeTrx,
-                                                List<ClearingTransaction> failedTrx,
-                                                Long clearingId) {
-        updateClearingTransactionsToActiveState(activeTrx, clearingId);
-        updateClearingTransactionsToFailedState(failedTrx, clearingId);
-    }
-
-    private void updateClearingTransactionsToActiveState(List<ClearingTransaction> transactions, Long clearingId) {
-        for (ClearingTransaction transaction : transactions) {
-            transactionsDao.setClearingTransactionMetaInfo(transaction.getTransactionId(), clearingId, ACTIVE);
-        }
-    }
-
-    private void updateClearingTransactionsToFailedState(List<ClearingTransaction> transactions, Long clearingId) {
-        for (ClearingTransaction transaction : transactions) {
-            transactionsDao.setClearingTransactionMetaInfo(transaction.getTransactionId(), clearingId, FAILED);
-        }
+    public ClearingRefund getRefundTransaction(String transactionId) {
+        return clearingRefundDao.getRefund(transactionId);
     }
 
     public ClearingDataPackage getClearingTransactionPackage(Long clearingId, int packageNumber) {
@@ -159,15 +56,21 @@ public class TransactionHelper {
         dataPackage.setFinalPackage(trxEventInfo.size() == packageSize ? false : true);
 
         List<Transaction> transactions = new ArrayList<>();
-        List<Merchant> merchants = new ArrayList<>();
         for (ClearingTransactionEventInfo info : trxEventInfo) {
-            ClearingTransaction clearingTransaction = getTransaction(info.getTransactionId());
-            transactions.add(Utils.transformTransaction(clearingTransaction));
-            ClearingMerchant clearingMerchant = merchantDao.get(info.getMerchantId());
-            merchants.add(Utils.transaformMerchant(clearingMerchant));
+            if (info.getTransactionType().equals(ClearingTrxType.PAYMENT)) {
+                ClearingTransaction clearingTransaction = getTransaction(info.getTransactionId());
+                List<ClearingTransactionCashFlow> cashFlowList =
+                        cashFlowDao.get(clearingTransaction.getEventId().toString());
+                transactions.add(Utils.transformClearingTransaction(clearingTransaction, cashFlowList));
+            } else if (info.getTransactionType().equals(ClearingTrxType.REFUND)) {
+                ClearingRefund refund = getRefundTransaction(info.getTransactionId());
+                ClearingTransaction clearingTransaction = getTransaction(refund.getInvoiceId(), refund.getPaymentId());
+                List<ClearingTransactionCashFlow> cashFlowList =
+                        cashFlowDao.get(clearingTransaction.getEventId().toString());
+                transactions.add(Utils.transformRefundTransaction(clearingTransaction, cashFlowList, refund));
+            }
         }
 
-        dataPackage.setMerchants(merchants);
         dataPackage.setTransactions(transactions);
         return dataPackage;
     }
@@ -176,8 +79,7 @@ public class TransactionHelper {
                                                                                  int packageNumber) {
         int rowFrom = packageNumber * packageSize;
         int rowTo = rowFrom + packageSize;
-        return transactionsDao.getClearingTransactionsByClearingId(clearingId,
-                ClearingTrxEventState.PROCESSED, rowFrom, rowTo);
+        return transactionsDao.getClearingTransactionsByClearingId(clearingId, rowFrom, rowTo);
     }
 
     public int getClearingTransactionPackagesCount(long clearingId) {
@@ -193,6 +95,21 @@ public class TransactionHelper {
         } else {
             return eventId;
         }
+    }
+
+    public void saveFailureTransactions(long clearingEventId, List<FailureTransactionData> failureTransactions) {
+        for (FailureTransactionData failureTransaction : failureTransactions) {
+            saveFailureTransaction(clearingEventId, failureTransaction.getTransactionId(),
+                    failureTransaction.getComment());
+        }
+    }
+
+    private void saveFailureTransaction(Long clearingId, String transactionId, String reason) {
+        FailureTransaction failureTransaction = new FailureTransaction();
+        failureTransaction.setTransactionId(transactionId);
+        failureTransaction.setClearingId(clearingId);
+        failureTransaction.setReason(reason);
+        transactionsDao.saveFailureTransaction(failureTransaction);
     }
 
 }
