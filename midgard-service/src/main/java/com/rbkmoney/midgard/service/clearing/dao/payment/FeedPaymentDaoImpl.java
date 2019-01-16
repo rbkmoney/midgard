@@ -18,13 +18,13 @@ import static org.jooq.generated.feed.tables.CashFlow.CASH_FLOW;
 import static org.jooq.generated.feed.tables.Payment.PAYMENT;
 
 @Component
-public class PaymentDaoImpl extends AbstractGenericDao implements PaymentDao {
+public class FeedPaymentDaoImpl extends AbstractGenericDao implements PaymentDao {
 
     private final RowMapper<Payment> paymentRowMapper;
 
     private final RowMapper<CashFlow> cashFlowRowMapper;
 
-    public PaymentDaoImpl(DataSource dataSource) {
+    public FeedPaymentDaoImpl(DataSource dataSource) {
         super(dataSource);
         paymentRowMapper = new RecordRowMapper<>(PAYMENT, Payment.class);
         cashFlowRowMapper = new RecordRowMapper<>(CASH_FLOW, CashFlow.class);

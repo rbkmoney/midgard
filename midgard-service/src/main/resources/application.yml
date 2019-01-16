@@ -24,12 +24,12 @@ clearing-service:
       name: mts
       url: http://mts_clearing_adapter:8022/repo
       networkTimeout: 5000
-      providerId: 1
+      providerId: 100
     test:
       name: test
       url: http://test_clearing_adapter:8022/repo
       networkTimeout: 5000
-      providerId: 11
+      providerId: 101
 
 import:
   trx-pool-size: 100

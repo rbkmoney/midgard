@@ -20,6 +20,6 @@ public interface TransactionsDao extends ClearingDao<ClearingTransaction> {
 
     Integer getProcessedClearingTransactionCount(long clearingId) throws DaoException;
 
-    Long getLastTransactionEventId() throws DaoException;
+    ClearingTransaction getLastTransactionEventId() throws DaoException;
 
 }

@@ -37,10 +37,10 @@ public class RefundsImporter implements Importer {
                 .map(adapterProps -> adapterProps.getProviderId())
                 .collect(Collectors.toList());
 
-        int obtainRufundsSize;
+        int obtainRefundsSize;
         do {
-            obtainRufundsSize = pollRefunds(eventId, providerIds);
-        } while(obtainRufundsSize == poolSize);
+            obtainRefundsSize = pollRefunds(eventId, providerIds);
+        } while(obtainRefundsSize == poolSize);
         log.info("Transaction data import have finished");
     }
 
@@ -54,12 +54,12 @@ public class RefundsImporter implements Importer {
     }
 
     private long getLastTransactionEventId() {
-        Long eventId = clearingRefundDao.getLastTransactionEventId();
-        if (eventId == null) {
+        ClearingRefund clearingRefund = clearingRefundDao.getLastTransactionEvent();
+        if (clearingRefund == null) {
             log.warn("Event ID for clearing refund was not found!");
             return 0L;
         } else {
-            return eventId;
+            return clearingRefund.getEventId();
         }
     }
 

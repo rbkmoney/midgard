@@ -22,6 +22,8 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.jooq.generated.midgard.enums.ClearingTrxType.*;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -67,9 +69,9 @@ public class ClearingEventHandler implements Handler {
 
         List<Transaction> transactions = new ArrayList<>();
         for (ClearingEventTransactionInfo info : trxEventInfo) {
-            if (info.getTransactionType().equals(ClearingTrxType.PAYMENT)) {
+            if (PAYMENT.equals(info.getTransactionType())) {
                 transactions.add(getTransaction(info));
-            } else if (info.getTransactionType().equals(ClearingTrxType.REFUND)) {
+            } else if (REFUND.equals(info.getTransactionType())) {
                 transactions.add(getRefundTransaction(info));
             }
         }
