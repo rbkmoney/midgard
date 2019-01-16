@@ -8,4 +8,6 @@ public interface ClearingRefundDao extends ClearingDao<ClearingRefund> {
 
     ClearingRefund getRefund(String transactionId) throws DaoException;
 
+    Long getLastTransactionEventId() throws DaoException;
+
 }

@@ -1,7 +1,6 @@
 package com.rbkmoney.midgard.service.clearing.dao.clearing_cash_flow;
 
 import com.rbkmoney.midgard.service.clearing.dao.common.AbstractGenericDao;
-import com.rbkmoney.midgard.service.clearing.dao.common.ClearingDao;
 import com.rbkmoney.midgard.service.clearing.dao.common.RecordRowMapper;
 import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import lombok.extern.slf4j.Slf4j;

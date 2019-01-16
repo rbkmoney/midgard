@@ -1,7 +1,7 @@
 package com.rbkmoney.midgard.service.clearing.importers;
 
-import com.rbkmoney.midgard.service.clearing.helpers.refund.RefundHelper;
-import com.rbkmoney.midgard.service.clearing.helpers.transaction.TransactionHelper;
+import com.rbkmoney.midgard.service.clearing.dao.clearing_refund.ClearingRefundDao;
+import com.rbkmoney.midgard.service.clearing.dao.refund.RefundDao;
 import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
 import com.rbkmoney.midgard.service.config.props.AdapterProps;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
 @Component
 public class RefundsImporter implements Importer {
 
-    private final TransactionHelper transactionHelper;
+    private final RefundDao refundDao;
 
-    private final RefundHelper refundHelper;
+    private final ClearingRefundDao clearingRefundDao;
 
     private final List<AdapterProps> adaptersProps;
 
@@ -30,7 +30,7 @@ public class RefundsImporter implements Importer {
 
     @Override
     public void getData() {
-        long eventId = transactionHelper.getLastTransactionEventId();
+        long eventId = getLastTransactionEventId();
         log.info("Refund data import will start with event id {}", eventId);
 
         List<Integer> providerIds = adaptersProps.stream()
@@ -45,12 +45,22 @@ public class RefundsImporter implements Importer {
     }
 
     private int pollRefunds(long eventId, List<Integer> providerIds) {
-        List<Refund> refunds = refundHelper.getRefunds(eventId, providerIds, poolSize);
+        List<Refund> refunds = refundDao.getRefunds(eventId, providerIds, poolSize);
         for (Refund refund : refunds) {
             ClearingRefund clearingRefund = MappingUtils.transformRefund(refund);
-            refundHelper.saveClearingRefund(clearingRefund);
+            clearingRefundDao.save(clearingRefund);
         }
         return refunds.size();
+    }
+
+    private long getLastTransactionEventId() {
+        Long eventId = clearingRefundDao.getLastTransactionEventId();
+        if (eventId == null) {
+            log.warn("Event ID for clearing refund was not found!");
+            return 0L;
+        } else {
+            return eventId;
+        }
     }
 
 }

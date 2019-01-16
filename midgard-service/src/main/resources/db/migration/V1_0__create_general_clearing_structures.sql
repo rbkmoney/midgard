@@ -89,16 +89,16 @@ CREATE TABLE midgard.clearing_transaction_cash_flow(
 /***************************************************************************/
 CREATE TYPE midgard.clearing_event_status AS ENUM ('STARTED', 'EXECUTE', 'SUCCESS', 'FAILED');
 
-CREATE TABLE midgard.clearing_event (
+CREATE TABLE midgard.clearing_event_info (
   id           BIGSERIAL                     NOT NULL,
   event_id     BIGINT                        NOT NULL,
   date         TIMESTAMP WITHOUT TIME ZONE   NOT NULL DEFAULT (now() at time zone 'utc'),
   provider_id  VARCHAR(100)                  NOT NULL,
   status       clearing_event_status         NOT NULL,
-  CONSTRAINT clearing_event_PK PRIMARY KEY (id)
+  CONSTRAINT clearing_event_info_PK PRIMARY KEY (id)
 );
 
-CREATE INDEX clearing_event_idx ON midgard.clearing_event (provider_id, date desc, id);
+CREATE INDEX clearing_event_idx ON midgard.clearing_event_info (provider_id, date desc, id);
 
 
 /***************************************************************************/
@@ -106,17 +106,17 @@ CREATE INDEX clearing_event_idx ON midgard.clearing_event (provider_id, date des
 /***************************************************************************/
 CREATE TYPE midgard.clearing_trx_type AS ENUM ('PAYMENT', 'REFUND');
 
-CREATE TABLE midgard.clearing_transaction_event_info (
+CREATE TABLE midgard.clearing_event_transaction_info (
   clearing_id       BIGINT                        NOT NULL,
   transaction_id    VARCHAR(100)                  NOT NULL,
   transaction_type  clearing_trx_type             NOT NULL,
   row_number        INTEGER                       NOT NULL,
-  CONSTRAINT clearing_event_info_PK PRIMARY KEY (clearing_id, transaction_id)
+  CONSTRAINT clearing_event_transaction_info_PK PRIMARY KEY (clearing_id, transaction_id)
 );
 
-CREATE INDEX clearing_trx_event_info_idx ON midgard.clearing_transaction_event_info (clearing_id, row_number);
+CREATE INDEX clearing_trx_event_info_idx ON midgard.clearing_event_transaction_info (clearing_id, row_number);
 
-CREATE INDEX clearing_trx_event_info_by_type_idx ON midgard.clearing_transaction_event_info (clearing_id, transaction_type);
+CREATE INDEX clearing_trx_event_info_by_type_idx ON midgard.clearing_event_transaction_info (clearing_id, transaction_type);
 
 
 /***************************************************************************/
