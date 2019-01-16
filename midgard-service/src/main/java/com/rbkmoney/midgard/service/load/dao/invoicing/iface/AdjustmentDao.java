@@ -1,7 +1,7 @@
 package com.rbkmoney.midgard.service.load.dao.invoicing.iface;
 
 import com.rbkmoney.midgard.service.clearing.exception.DaoException;
-import com.rbkmoney.midgard.service.clearing.helpers.DAO.common.Dao;
+import com.rbkmoney.midgard.service.clearing.dao.common.Dao;
 import org.jooq.generated.feed.tables.pojos.Adjustment;
 
 public interface AdjustmentDao extends Dao {

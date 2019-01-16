@@ -1,95 +1,89 @@
 package com.rbkmoney.midgard.service.clearing.importers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rbkmoney.midgard.service.clearing.data.TerminalOptionalJson;
-import com.rbkmoney.midgard.service.clearing.data.enums.ImporterType;
-import com.rbkmoney.midgard.service.clearing.helpers.PaymentHelper;
-import com.rbkmoney.midgard.service.clearing.helpers.TerminalHelper;
-import com.rbkmoney.midgard.service.clearing.helpers.TransactionHelper;
+import com.rbkmoney.midgard.service.clearing.dao.clearing_cash_flow.ClearingCashFlowDao;
+import com.rbkmoney.midgard.service.clearing.dao.payment.PaymentDao;
+import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
+import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
+import com.rbkmoney.midgard.service.config.props.AdapterProps;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jooq.generated.feed.tables.pojos.CashFlow;
 import org.jooq.generated.feed.tables.pojos.Payment;
-import org.jooq.generated.feed.tables.pojos.Terminal;
-import org.jooq.generated.midgard.enums.TransactionClearingState;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
+import org.jooq.generated.midgard.tables.pojos.ClearingTransactionCashFlow;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class TransactionImporter implements Importer {
 
-    private final TransactionHelper transactionHelper;
+    private final TransactionsDao transactionsDao;
 
-    private final PaymentHelper paymentHelper;
+    private final PaymentDao paymentDao;
 
-    private final TerminalHelper terminalHelper;
+    private final ClearingCashFlowDao dao;
+
+    private final List<AdapterProps> adaptersProps;
 
     @Value("${import.trx-pool-size}")
     private int poolSize;
 
     @Override
     public void getData() {
-        long eventId = transactionHelper.getLastTransactionEventId();
+        long eventId = getLastTransactionEventId();
         log.info("Transaction data import will start with event id {}", eventId);
-        List<Payment> payments;
+
+        List<Integer> providerIds = adaptersProps.stream()
+                .map(adapterProps -> adapterProps.getProviderId())
+                .collect(Collectors.toList());
+
+        int obtainPaymentsSize;
         do {
-            payments = paymentHelper.getPayments(eventId, poolSize);
-            try {
-                for (Payment payment : payments) {
-                    ClearingTransaction transaction = transformTransaction(payment);
-                    transactionHelper.saveTransaction(transaction);
-                }
-            } catch (IOException ex) {
-                log.error("Error was detected: {}", ex);
-                break;
-            }
-        } while(payments.size() == poolSize);
+            obtainPaymentsSize = pollPayments(eventId, providerIds);
+        } while(obtainPaymentsSize == poolSize);
         log.info("Transaction data import have finished");
     }
 
-    private ClearingTransaction transformTransaction(Payment payment) throws IOException {
-        ClearingTransaction trx = new ClearingTransaction();
-        trx.setEventId(payment.getEventId());
-        trx.setInvoiceId(payment.getInvoiceId());
-        trx.setDocId(payment.getInvoiceId());
-        trx.setProviderId(payment.getRouteProviderId());
-        //TODO: что то придумать с tran_id
-        trx.setTransactionId(payment.getInvoiceId() + "_" + payment.getPaymentId());
-        trx.setTransactionDate(payment.getCreatedAt());
-        trx.setTransactionAmount(payment.getAmount());
-        trx.setTransactionCurrency(payment.getCurrencyCode());
-        //TODO: подумать над тем в какой тип все таки установить транзакцию
-        trx.setTransactionClearingState(TransactionClearingState.CREATED);
-        trx.setPartyId(payment.getPartyId());
-        trx.setShopId(payment.getShopId());
-
-        Terminal terminal = terminalHelper.getTerminal(payment.getRouteTerminalId());
-        String optionsJson = terminal.getOptionsJson();
-        ObjectMapper mapper = new ObjectMapper();
-        TerminalOptionalJson termOptionalJson = mapper.readValue(optionsJson, TerminalOptionalJson.class);
-        trx.setMerchantId(termOptionalJson.getMerchantId());
-        trx.setTerminalId(termOptionalJson.getTerminalId());
-
-        trx.setPayerBankCardToken(payment.getPayerBankCardToken());
-        trx.setPayerBankCardPaymentSystem(payment.getPayerBankCardPaymentSystem());
-        trx.setPayerBankCardBin(payment.getPayerBankCardBin());
-        trx.setPayerBankCardMaskedPan(payment.getPayerBankCardMaskedPan());
-        trx.setPayerBankCardTokenProvider(payment.getPayerBankCardTokenProvider());
-        trx.setFee(payment.getFee());
-        trx.setExternalFee(payment.getExternalFee());
-        trx.setProviderFee(payment.getProviderFee());
-        trx.setExtra(payment.getSessionPayloadTransactionBoundTrxExtraJson());
-        return trx;
+    private int pollPayments(long eventId, List<Integer> providerIds) {
+        List<Payment> payments = paymentDao.getPayments(eventId, providerIds, poolSize);
+        for (Payment payment : payments) {
+            saveTransaction(payment);
+            List<CashFlow> cashFlow = paymentDao.getCashFlow(payment.getId());
+            saveCashFlow(payment, cashFlow);
+        }
+        return payments.size();
     }
 
-    @Override
-    public boolean isInstance(ImporterType type) {
-        return ImporterType.TRANSACTION == type;
+    private void saveCashFlow(Payment payment, List<CashFlow> cashFlow) {
+        List<ClearingTransactionCashFlow> tranCashFlow = cashFlow.stream()
+                .map(flow -> {
+                    ClearingTransactionCashFlow transactionCashFlow = MappingUtils.transformCashFlow(flow);
+                    transactionCashFlow.setSourceEventId(payment.getEventId());
+                    return transactionCashFlow;
+                })
+                .collect(Collectors.toList());
+        dao.save(tranCashFlow);
+    }
+
+    private void saveTransaction(Payment payment) {
+        ClearingTransaction transaction = MappingUtils.transformTransaction(payment);
+        log.debug("Saving a transaction {}", transaction);
+        transactionsDao.save(transaction);
+    }
+
+    private long getLastTransactionEventId() {
+        ClearingTransaction clearingTransaction = transactionsDao.getLastTransactionEventId();
+        if (clearingTransaction == null) {
+            log.warn("Event ID for clearing transactions was not found!");
+            return 0L;
+        } else {
+            return clearingTransaction.getEventId();
+        }
     }
 
 }

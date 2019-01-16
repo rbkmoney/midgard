@@ -16,7 +16,7 @@ public class ClearingAdapterService implements ClearingAdapterSrv.Iface {
 
     @Override
     public void startClearingEvent(long clearingId) throws ClearingAdapterException, TException {
-        //TODO: возможно придется выпилить так как запуск клиринга первым пакетом мне кажется более элегантным...
+        //TODO: возможно придется выпилить так как запуск клиринга первым пакетом мне кажется более элегантным
 
     }
 

@@ -9,49 +9,53 @@ BEGIN
     WITH clearing_trx_cte as (
         SELECT    clearing_id,
                   trx.transaction_id,
-                  trx.merchantId,
-                  CASE WHEN merch.merchantId IS NULL
-                      THEN 'REFUSED'
-                      ELSE 'PROCESSED'
-                  END AS trx_state
+                  'PAYMENT' as trx_type
         FROM      midgard.clearing_transaction trx
-        LEFT JOIN midgard.merchant merch
-               ON merch.status = 'OPEN'
-              AND trx.merchantId = merch.merchantId
         WHERE     trx.provider_id = provider_id
               AND trx.transaction_clearing_state in ('READY', 'FAILED')
     ),
 
+    clearing_refund_trx_cte as (
+        SELECT    clearing_id,
+                  refund_trx.transaction_id,
+                  'REFUND' as trx_type
+        FROM      midgard.clearing_refund refund_trx
+        JOIN      midgard.clearing_transaction trx
+               ON trx.provider_id = provider_id
+              AND refund_trx.invoice_id = trx.invoice_id
+              AND refund_trx.payment_id = trx.payment_id
+        WHERE     refund_trx.transaction_clearing_state in ('READY', 'FAILED')
+    ),
+
     ordered_clearing_trx_cte as (
-        SELECT clearing_id, transaction_id, merchantId, trx_state,
-               row_number() over(partition BY clearing_id ORDER BY trx_state, merchantId, transaction_id) as row_num
-        FROM   clearing_trx_cte cte
+        SELECT clearing_id, transaction_id, trx_type, trx_state,
+               row_number() over(partition BY clearing_id ORDER BY trx_state, transaction_id) as row_num
+        FROM   (
+               SELECT * FROM clearing_trx_cte
+                 UNION ALL
+               SELECT * FROM clearing_refund_trx_cte
+        ) cte
     )
 
-    INSERT INTO midgard.clearing_event_info(clearing_id, transaction_id, merchantId, state,  row_number)
-    SELECT clearing_id, transaction_id, merchantId, trx_state, row_num
+    INSERT INTO midgard.clearing_event_info(clearing_id, transaction_id, transaction_type, state,  row_number)
+    SELECT clearing_id, transaction_id, trx_type, trx_state, row_num
     FROM   ordered_clearing_trx_cte;
-
-    /** Добавление в список сбойных трназаций тех, для которых не найдено соответствующего мерчанта */
-    INSERT INTO midgard.failure_transaction(clearing_id, transaction_id, reason)
-    SELECT clearing_id, transaction_id, 'Not found merchant'
-    FROM   midgard.clearing_event_info cei
-    WHERE  cei.clearing_id = clearing_id AND state = 'REFUSED';
 
     /** Перевести статус добавленных в клиринговый эвент транзакций в статус "ACTIVE" */
     UPDATE midgard.clearing_transaction
     SET    transaction_clearing_state = 'ACTIVE'
     WHERE  transaction_id IN (SELECT transaction_id
                               FROM   midgard.clearing_event_info cei
-                              WHERE  cei.clearing_id = clearing_id and state = 'PROCESSED');
+                              WHERE  cei.clearing_id = clearing_id
+                                 and transaction_type = 'PAYMENT');
 
-    UPDATE midgard.clearing_transaction
-    SET    transaction_clearing_state = 'FAILED'
+    UPDATE midgard.clearing_refund
+    SET    clearing_state = 'ACTIVE'
     WHERE  transaction_id IN (SELECT transaction_id
                               FROM   midgard.clearing_event_info cei
-                              WHERE  cei.clearing_id = clearing_id and state = 'REFUSED');
+                              WHERE  cei.clearing_id = clearing_id
+                                 and transaction_type = 'REFUND');
 
-    --TODO: вохможно имеет смысл удалить REFUSE транзакции, так как информация о них уже существует в failure_transaction
 END;
 $$;
 

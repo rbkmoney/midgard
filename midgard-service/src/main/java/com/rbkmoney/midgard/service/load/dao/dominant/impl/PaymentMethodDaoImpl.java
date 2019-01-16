@@ -2,7 +2,7 @@ package com.rbkmoney.midgard.service.load.dao.dominant.impl;
 
 import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import com.rbkmoney.midgard.service.load.dao.dominant.iface.DomainObjectDao;
-import com.rbkmoney.midgard.service.clearing.helpers.DAO.common.AbstractGenericDao;
+import com.rbkmoney.midgard.service.clearing.dao.common.AbstractGenericDao;
 import org.jooq.Query;
 import org.jooq.generated.feed.tables.pojos.PaymentMethod;
 import org.jooq.generated.feed.tables.records.PaymentMethodRecord;

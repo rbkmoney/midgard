@@ -18,15 +18,23 @@ spring:
 
 clearing-service:
   package-size: 30
-  revision: 3000
+  revision: 30000
   adapters:
     mts:
+      name: mts
       url: http://mts_clearing_adapter:8022/repo
       networkTimeout: 5000
-      providerId: 1
+      providerId: 100
+    test:
+      name: test
+      url: http://test_clearing_adapter:8022/repo
+      networkTimeout: 5000
+      providerId: 101
 
 import:
   trx-pool-size: 100
+  migration:
+    delay: 10000
 
 retry-policy:
   maxAttempts: 10
@@ -54,6 +62,3 @@ dmt:
   polling:
     delay: 3000
     maxQuerySize: 10
-
-migration:
-  delay: 10000

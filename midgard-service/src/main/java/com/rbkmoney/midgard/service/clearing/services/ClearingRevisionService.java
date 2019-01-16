@@ -1,10 +1,11 @@
 package com.rbkmoney.midgard.service.clearing.services;
 
+import com.rbkmoney.midgard.service.clearing.dao.clearing_info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.service.clearing.handlers.ClearingRevisionHandler;
-import com.rbkmoney.midgard.service.clearing.helpers.ClearingInfoHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.generated.midgard.tables.pojos.ClearingEvent;
+import org.jooq.generated.midgard.enums.ClearingEventStatus;
+import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -22,26 +23,25 @@ import java.util.stream.Collectors;
 @Service
 public class ClearingRevisionService implements GenericService {
 
-    private final ClearingInfoHelper clearingInfoHelper;
+    private final ClearingEventInfoDao clearingEventInfoDao;
 
     private final ClearingRevisionHandler revisionHandler;
 
     @Override
     @Scheduled(fixedDelayString = "${clearing-service.revision}")
     public void process() {
+
         log.info("Clearing revision process get started");
-        List<ClearingEvent> clearingEvents = clearingInfoHelper.getAllExecuteClearingEvents();
+        List<ClearingEventInfo> clearingEvents = clearingEventInfoDao.getClearingEventsByStatus(ClearingEventStatus.EXECUTE);
         List<Long> clearingIds = clearingEvents.stream()
                 .map(event -> event.getId())
                 .collect(Collectors.toList());
 
         log.debug("Active clearing event IDs: {}", clearingIds);
 
-        for (ClearingEvent clearingEvent : clearingEvents) {
-            //TODO: передать в обработчик ID события, которое нужно проверить
-            revisionHandler.handle();
+        for (ClearingEventInfo clearingEvent : clearingEvents) {
+            revisionHandler.handle(clearingEvent.getId());
         }
-
         log.info("Clearing revision process was finished");
     }
 
