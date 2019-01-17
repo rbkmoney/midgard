@@ -35,13 +35,16 @@ public class ClearingCashFlowDaoImpl extends AbstractGenericDao implements Clear
             Query query = getDslContext().insertInto(CLEARING_TRANSACTION_CASH_FLOW).set(record);
             executeWithReturn(query, keyHolder);
         }
-        return keyHolder.getKey().longValue();
+        return cashFlowList.stream()
+                .map(cashFlow -> cashFlow.getSourceEventId())
+                .findFirst()
+                .orElse(0L);
     }
 
     @Override
-    public List<ClearingTransactionCashFlow> get(String sourceEventId) throws DaoException {
+    public List<ClearingTransactionCashFlow> get(Long sourceEventId) throws DaoException {
         Query query = getDslContext().selectFrom(CLEARING_TRANSACTION_CASH_FLOW)
-                .where(CLEARING_TRANSACTION_CASH_FLOW.SOURCE_EVENT_ID.eq(Long.parseLong(sourceEventId)));
+                .where(CLEARING_TRANSACTION_CASH_FLOW.SOURCE_EVENT_ID.eq(sourceEventId));
         return fetch(query, cashFlowRowMapper);
     }
 

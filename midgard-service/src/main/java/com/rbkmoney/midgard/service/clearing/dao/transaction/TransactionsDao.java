@@ -8,7 +8,7 @@ import org.jooq.generated.midgard.tables.pojos.FailureTransaction;
 
 import java.util.List;
 
-public interface TransactionsDao extends ClearingDao<ClearingTransaction> {
+public interface TransactionsDao extends ClearingDao<ClearingTransaction, String> {
 
     ClearingTransaction getTransaction(String invoiceId, String paymentId) throws DaoException;
 

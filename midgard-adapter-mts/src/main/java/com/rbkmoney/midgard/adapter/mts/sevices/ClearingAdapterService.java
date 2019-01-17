@@ -1,12 +1,11 @@
 package com.rbkmoney.midgard.adapter.mts.sevices;
 
-import com.rbkmoney.midgard.ClearingAdapterException;
-import com.rbkmoney.midgard.ClearingAdapterSrv;
-import com.rbkmoney.midgard.ClearingDataPackage;
-import com.rbkmoney.midgard.ClearingEventResponse;
+import com.rbkmoney.midgard.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Slf4j
 @Component
@@ -15,17 +14,18 @@ public class ClearingAdapterService implements ClearingAdapterSrv.Iface {
     private static final int FIRST_PACKAGE = 1;
 
     @Override
-    public void startClearingEvent(long clearingId) throws ClearingAdapterException, TException {
+    public String startClearingEvent(long clearingId) throws ClearingAdapterException, TException {
         //TODO: возможно придется выпилить так как запуск клиринга первым пакетом мне кажется более элегантным
 
+        return "1";
     }
 
     @Override
-    public void sendClearingDataPackage(ClearingDataPackage dataPackage) throws ClearingAdapterException, TException {
+    public ClearingDataPackageTag sendClearingDataPackage(String upload_id, ClearingDataPackage dataPackage) throws ClearingAdapterException, TException {
         log.info("Data package have received: {}", dataPackage);
         if (dataPackage == null) {
             log.error("Received empty data package!");
-            return;
+            return new ClearingDataPackageTag();
         }
         if (dataPackage.getPackageNumber() == FIRST_PACKAGE) {
             createXmlFile(dataPackage);
@@ -42,7 +42,14 @@ public class ClearingAdapterService implements ClearingAdapterSrv.Iface {
         }
         log.info("Data package {} for clearing event {} processed", dataPackage.getPackageNumber(),
                 dataPackage.getClearingId());
+        return new ClearingDataPackageTag();
     }
+
+    @Override
+    public void completeClearingEvent(String upload_id, long clearing_id, List<ClearingDataPackageTag> tags) throws ClearingAdapterException, TException {
+
+    }
+
 
     private void createXmlFile(ClearingDataPackage clearingDataPackage) {
         writeHeader(clearingDataPackage.getClearingId());

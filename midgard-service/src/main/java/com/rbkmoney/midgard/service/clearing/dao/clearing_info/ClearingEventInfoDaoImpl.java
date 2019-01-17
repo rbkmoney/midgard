@@ -38,7 +38,7 @@ public class ClearingEventInfoDaoImpl extends AbstractGenericDao implements Clea
     public Long save(ClearingEventInfo clearingEvent) throws DaoException {
         log.debug("Adding new clearing event for provider: {}", clearingEvent.getProviderId());
         ClearingEventInfoRecord record = getDslContext().newRecord(CLEARING_EVENT_INFO, clearingEvent);
-        Query query = getDslContext().insertInto(CLEARING_EVENT_INFO).set(record);
+        Query query = getDslContext().insertInto(CLEARING_EVENT_INFO).set(record).returning(CLEARING_EVENT_INFO.ID);
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         executeWithReturn(query, keyHolder);
         log.debug("Clearing event for provider {} have been added", clearingEvent.getProviderId());
@@ -46,10 +46,10 @@ public class ClearingEventInfoDaoImpl extends AbstractGenericDao implements Clea
     }
 
     @Override
-    public ClearingEventInfo get(String id) throws DaoException {
+    public ClearingEventInfo get(Long id) throws DaoException {
         log.debug("Getting a clearing event info with id {}", id);
         Query query = getDslContext().selectFrom(CLEARING_EVENT_INFO)
-                .where(CLEARING_EVENT_INFO.ID.eq(Long.parseLong(id)));
+                .where(CLEARING_EVENT_INFO.ID.eq(id));
         ClearingEventInfo clearingEvent = fetchOne(query, clearingEventsRowMapper);
         log.debug("Clearing event: {}", clearingEvent);
         return clearingEvent;
@@ -74,18 +74,18 @@ public class ClearingEventInfoDaoImpl extends AbstractGenericDao implements Clea
     }
 
     @Override
-    public List<ClearingEventInfo> getClearingEventsByStatus(ClearingEventStatus status) throws DaoException {
+    public List<ClearingEventInfo> getAllClearingEvents(ClearingEventStatus status) throws DaoException {
         Query query = getDslContext().selectFrom(CLEARING_EVENT_INFO)
                 .where(CLEARING_EVENT_INFO.STATUS.eq(status));
         return fetch(query, clearingEventsRowMapper);
     }
 
     @Override
-    public Long prepareTransactionData(long clearingId, String providerId) {
+    public Long prepareTransactionData(long clearingId, int providerId) {
         PrepareTransactionData prepareTransactionData = new PrepareTransactionData();
-        prepareTransactionData.setClearingId(clearingId);
-        prepareTransactionData.setProviderId(providerId);
-        prepareTransactionData.execute();
+        prepareTransactionData.setSrcClearingId(clearingId);
+        prepareTransactionData.setSrcProviderId(providerId);
+        executeProc(prepareTransactionData);
         return clearingId;
     }
 

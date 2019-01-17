@@ -3,6 +3,7 @@ package com.rbkmoney.midgard.service.clearing.dao.common;
 import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import org.jooq.*;
 import org.jooq.conf.ParamType;
+import org.jooq.impl.AbstractRoutine;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultConfiguration;
 import org.springframework.context.annotation.DependsOn;
@@ -29,11 +30,17 @@ public abstract class AbstractGenericDao extends NamedParameterJdbcDaoSupport im
         setDataSource(dataSource);
         Configuration configuration = new DefaultConfiguration();
         configuration.set(SQLDialect.POSTGRES_9_5);
+        configuration.set(dataSource);
         this.dslContext = DSL.using(configuration);
     }
 
     protected DSLContext getDslContext() {
         return dslContext;
+    }
+
+    @Override
+    public void executeProc(AbstractRoutine<Void> procedure) {
+        procedure.execute(dslContext.configuration());
     }
 
     @Override

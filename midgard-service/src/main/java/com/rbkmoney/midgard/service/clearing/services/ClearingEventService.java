@@ -30,7 +30,7 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
     @Override
     public void startClearingEvent(ClearingEvent clearingEvent) {
         long eventId = clearingEvent.getEventId();
-        String providerId = clearingEvent.getProviderId();
+        int providerId = clearingEvent.getProviderId();
         log.info("Starting clearing event for provider id {}", providerId);
         // Подготовка транзакций для клиринга
         Long clearingId = prepareClearingEvent(eventId, providerId);
@@ -54,14 +54,14 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
     }
 
     @Transactional
-    public Long prepareClearingEvent(long eventId, String providerId) {
+    public Long prepareClearingEvent(long eventId, int providerId) {
         Long clearingId = createNewClearingEvent(eventId, providerId);
         clearingEventInfoDao.prepareTransactionData(clearingId, providerId);
         return clearingId;
     }
 
     //TODO: рассмотреть вариант, когда для банка присутствует незавершенное клиринговое событие.
-    private Long createNewClearingEvent(long eventId, String providerId) {
+    private Long createNewClearingEvent(long eventId, int providerId) {
         log.trace("Creating new clearing event for provider {} by event ", providerId, eventId);
         ClearingEventInfo clearingEvent = new ClearingEventInfo();
         clearingEvent.setProviderId(providerId);

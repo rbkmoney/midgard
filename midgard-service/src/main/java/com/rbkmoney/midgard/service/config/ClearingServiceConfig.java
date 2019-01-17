@@ -1,6 +1,7 @@
 package com.rbkmoney.midgard.service.config;
 
 import com.rbkmoney.midgard.ClearingAdapterSrv;
+import com.rbkmoney.midgard.service.clearing.decorators.ClearingAdapterDecorator;
 import com.rbkmoney.midgard.service.config.props.MtsAdapterProps;
 import com.rbkmoney.woody.thrift.impl.http.THSpawnClientBuilder;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,13 @@ public class ClearingServiceConfig {
                 .withAddress(props.getUrl().getURI())
                 .withNetworkTimeout(props.getNetworkTimeout())
                 .build(ClearingAdapterSrv.Iface.class);
+    }
+
+    @Bean
+    public ClearingAdapterDecorator mtsClearingAdapter(MtsAdapterProps props) throws IOException {
+        return new ClearingAdapterDecorator(mtsClearingAdapterThriftClient(props),
+                props.getName(),
+                props.getProviderId());
     }
 
 }

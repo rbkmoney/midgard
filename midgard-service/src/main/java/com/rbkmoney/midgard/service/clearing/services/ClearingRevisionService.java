@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Service
 public class ClearingRevisionService implements GenericService {
 
-    private final ClearingEventInfoDao clearingEventInfoDao;
+    private final ClearingEventInfoDao eventInfoDao;
 
     private final ClearingRevisionHandler revisionHandler;
 
@@ -32,9 +32,9 @@ public class ClearingRevisionService implements GenericService {
     public void process() {
 
         log.info("Clearing revision process get started");
-        List<ClearingEventInfo> clearingEvents = clearingEventInfoDao.getClearingEventsByStatus(ClearingEventStatus.EXECUTE);
+        List<ClearingEventInfo> clearingEvents = eventInfoDao.getAllClearingEvents(ClearingEventStatus.EXECUTE);
         List<Long> clearingIds = clearingEvents.stream()
-                .map(event -> event.getId())
+                .map(ClearingEventInfo::getId)
                 .collect(Collectors.toList());
 
         log.debug("Active clearing event IDs: {}", clearingIds);

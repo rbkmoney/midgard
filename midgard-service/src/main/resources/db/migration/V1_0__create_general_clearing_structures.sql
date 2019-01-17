@@ -7,7 +7,7 @@ CREATE TABLE midgard.clearing_transaction (
   event_id                        BIGINT                        NOT NULL,
   invoice_id                      CHARACTER VARYING             NOT NULL,
   payment_id                      CHARACTER VARYING             NOT NULL,
-  provider_id                     INT                           NOT NULL,
+  provider_id                     INTEGER                       NOT NULL,
   transaction_id                  CHARACTER VARYING             NOT NULL,
   transaction_date                TIMESTAMP WITHOUT TIME ZONE   NOT NULL,
   transaction_amount              BIGINT                        NOT NULL,
@@ -15,8 +15,6 @@ CREATE TABLE midgard.clearing_transaction (
   transaction_clearing_state      transaction_clearing_state    NOT NULL,
   party_id                        CHARACTER VARYING             NOT NULL,
   shop_id                         CHARACTER VARYING             NOT NULL,
-  terminal_id                     VARCHAR(8)                    NULL,
-  optional_json                   CHARACTER VARYING             NULL,
   mcc                             INTEGER                       NULL,
   payer_bank_card_token           CHARACTER VARYING             NULL,
   payer_bank_card_payment_system  CHARACTER VARYING             NULL,
@@ -24,9 +22,6 @@ CREATE TABLE midgard.clearing_transaction (
   payer_bank_card_masked_pan      CHARACTER VARYING             NULL,
   payer_bank_card_token_provider  CHARACTER VARYING             NULL,
   extra                           CHARACTER VARYING             NULL,
-  fee                             BIGINT                        NULL,
-  provider_fee                    BIGINT                        NULL,
-  external_fee                    BIGINT                        NULL,
   comment                         CHARACTER VARYING             NULL,
   clearing_id                     BIGINT                        NULL,
   last_act_time                   TIMESTAMP WITHOUT TIME ZONE   NOT NULL  DEFAULT (now() at time zone 'utc'),
@@ -63,9 +58,9 @@ CREATE INDEX clearing_refund_state_idx ON midgard.clearing_refund (payment_id, i
 
 
 /***************************************************************************/
-CREATE TYPE midgard.cash_flow_account AS ENUM ('MERCHANT', 'PROVIDER', 'SYSTEM', 'EXTERNAL', 'WALLET');
+CREATE TYPE midgard.cash_flow_account AS ENUM ('merchant', 'provider', 'system', 'external', 'wallet');
 
-CREATE TYPE midgard.payment_change_type AS ENUM ('PAYMENT', 'REFUND', 'ADJUSTMENT', 'PAYOUT');
+CREATE TYPE midgard.payment_change_type AS ENUM ('payment', 'refund', 'adjustment', 'payout');
 
 CREATE TABLE midgard.clearing_transaction_cash_flow(
   id                                 BIGSERIAL                        NOT NULL,
@@ -93,7 +88,7 @@ CREATE TABLE midgard.clearing_event_info (
   id           BIGSERIAL                     NOT NULL,
   event_id     BIGINT                        NOT NULL,
   date         TIMESTAMP WITHOUT TIME ZONE   NOT NULL DEFAULT (now() at time zone 'utc'),
-  provider_id  VARCHAR(100)                  NOT NULL,
+  provider_id  INTEGER                       NOT NULL,
   status       clearing_event_status         NOT NULL,
   CONSTRAINT clearing_event_info_PK PRIMARY KEY (id)
 );

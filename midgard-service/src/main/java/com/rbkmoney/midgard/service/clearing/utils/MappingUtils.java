@@ -11,6 +11,7 @@ import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransactionCashFlow;
 
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,9 +38,6 @@ public final class MappingUtils {
         trx.setPayerBankCardBin(payment.getPayerBankCardBin());
         trx.setPayerBankCardMaskedPan(payment.getPayerBankCardMaskedPan());
         trx.setPayerBankCardTokenProvider(payment.getPayerBankCardTokenProvider());
-        trx.setFee(payment.getFee());
-        trx.setExternalFee(payment.getExternalFee());
-        trx.setProviderFee(payment.getProviderFee());
         trx.setExtra(payment.getSessionPayloadTransactionBoundTrxExtraJson());
         return trx;
     }
@@ -63,10 +61,10 @@ public final class MappingUtils {
         GeneralTransactionInfo generalTranInfo = new GeneralTransactionInfo();
         generalTranInfo.setTransactionId(clrTran.getTransactionId());
         //TODO: перешнать в строку по отпределенному формату
-        generalTranInfo.setTransactionDate(clrTran.getTransactionDate().toString());
+        generalTranInfo.setTransactionDate(clrTran.getTransactionDate().toInstant(ZoneOffset.UTC).toString());
         generalTranInfo.setTransactionAmount(clrTran.getTransactionAmount());
         generalTranInfo.setTransactionCurrency(clrTran.getTransactionCurrency());
-        generalTranInfo.setMcc(clrTran.getMcc());
+        generalTranInfo.setMcc(clrTran.getMcc() == null ? 0 : clrTran.getMcc());
         tran.setGeneralTransactionInfo(generalTranInfo);
 
         TransactionCardInfo tranCardInfo = new TransactionCardInfo();
@@ -98,13 +96,13 @@ public final class MappingUtils {
         tranCashFlow.setAmount(cashFlow.getAmount());
         tranCashFlow.setCurrencyCode(cashFlow.getCurrencyCode());
         tranCashFlow.setSourceAccountId(cashFlow.getSourceAccountId());
-        tranCashFlow.setSourceAccountType(CashFlowAccountType.valueOf(cashFlow.getSourceAccountType().getName()));
+        tranCashFlow.setSourceAccountType(CashFlowAccountType.valueOf(cashFlow.getSourceAccountType().name()));
         tranCashFlow.setSourceAccountTypeValue(cashFlow.getSourceAccountTypeValue());
         tranCashFlow.setDestinationAccountId(cashFlow.getDestinationAccountId());
         tranCashFlow.setDestinationAccountType(
-                CashFlowAccountType.valueOf(cashFlow.getDestinationAccountType().getName()));
+                CashFlowAccountType.valueOf(cashFlow.getDestinationAccountType().name()));
         tranCashFlow.setDestinationAccountTypeValue(cashFlow.getDestinationAccountTypeValue());
-        tranCashFlow.setObjType(CashFlowChangeType.valueOf(cashFlow.getObjType().getName()));
+        tranCashFlow.setObjType(CashFlowChangeType.valueOf(cashFlow.getObjType().name()));
         return tranCashFlow;
     }
 
@@ -113,12 +111,12 @@ public final class MappingUtils {
         tranCashFlow.setAmount(cashFlow.getAmount());
         tranCashFlow.setCurrencyCode(cashFlow.getCurrencyCode());
         tranCashFlow.setSourceAccountId(cashFlow.getSourceAccountId());
-        tranCashFlow.setSourceAccountType(CashFlowAccount.valueOf(cashFlow.getSourceAccountType().getName()));
+        tranCashFlow.setSourceAccountType(CashFlowAccount.valueOf(cashFlow.getSourceAccountType().name()));
         tranCashFlow.setSourceAccountTypeValue(cashFlow.getSourceAccountTypeValue());
         tranCashFlow.setDestinationAccountId(cashFlow.getDestinationAccountId());
-        tranCashFlow.setDestinationAccountType(CashFlowAccount.valueOf(cashFlow.getDestinationAccountType().getName()));
+        tranCashFlow.setDestinationAccountType(CashFlowAccount.valueOf(cashFlow.getDestinationAccountType().name()));
         tranCashFlow.setDestinationAccountTypeValue(cashFlow.getDestinationAccountTypeValue());
-        tranCashFlow.setObjType(PaymentChangeType.valueOf(cashFlow.getObjType().getName()));
+        tranCashFlow.setObjType(PaymentChangeType.valueOf(cashFlow.getObjType().name()));
         return tranCashFlow;
     }
 
