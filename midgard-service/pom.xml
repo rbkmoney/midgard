@@ -16,7 +16,7 @@
     <name>Midgard Clearing Service</name>
     <description>Application for work with clearing data</description>
     <properties>
-        <server.port>8023</server.port>
+        <server.port>8022</server.port>
         <!-- Environment settings -->
         <flyway.version>5.2.4</flyway.version>
         <jooq.version>3.11.7</jooq.version>
