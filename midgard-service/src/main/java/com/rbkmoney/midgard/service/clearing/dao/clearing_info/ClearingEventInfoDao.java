@@ -6,14 +6,14 @@ import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
 
 import java.util.List;
 
-public interface ClearingEventInfoDao extends ClearingDao<ClearingEventInfo> {
+public interface ClearingEventInfoDao extends ClearingDao<ClearingEventInfo, Long> {
 
     ClearingEventInfo getClearingEvent(long eventId);
 
     void updateClearingStatus(Long clearingId, ClearingEventStatus status);
 
-    List<ClearingEventInfo> getClearingEventsByStatus(ClearingEventStatus status);
+    List<ClearingEventInfo> getAllClearingEvents(ClearingEventStatus status);
 
-    Long prepareTransactionData(long clearingId, String providerId);
+    Long prepareTransactionData(long clearingId, int providerId);
 
 }

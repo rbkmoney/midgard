@@ -1,28 +1,25 @@
 package com.rbkmoney.midgard.service.clearing.handlers;
 
-import com.rbkmoney.midgard.ClearingAdapterException;
-import com.rbkmoney.midgard.ClearingAdapterSrv;
-import com.rbkmoney.midgard.ClearingDataPackage;
-import com.rbkmoney.midgard.Transaction;
+import com.rbkmoney.midgard.*;
+import com.rbkmoney.midgard.service.clearing.decorators.ClearingAdapter;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_cash_flow.ClearingCashFlowDao;
+import com.rbkmoney.midgard.service.clearing.dao.clearing_info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_refund.ClearingRefundDao;
 import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
+import com.rbkmoney.midgard.service.clearing.exception.AdapterNotFoundException;
 import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import org.jooq.generated.midgard.enums.ClearingTrxType;
-import org.jooq.generated.midgard.tables.pojos.ClearingEventTransactionInfo;
-import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
-import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
-import org.jooq.generated.midgard.tables.pojos.ClearingTransactionCashFlow;
+import org.jooq.generated.midgard.tables.pojos.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jooq.generated.midgard.enums.ClearingTrxType.*;
+import static org.jooq.generated.midgard.enums.ClearingTrxType.PAYMENT;
+import static org.jooq.generated.midgard.enums.ClearingTrxType.REFUND;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -35,8 +32,9 @@ public class ClearingEventHandler implements Handler {
 
     private final ClearingCashFlowDao cashFlowDao;
 
-    // TODO: адаптеров может быть много. Реализовать выбор из нескольких согласно provider id
-    private final ClearingAdapterSrv.Iface clearingAdapterService;
+    private final ClearingEventInfoDao clearingEventInfoDao;
+
+    private final List<ClearingAdapter> adapters;
 
     @Value("${clearing-service.package-size}")
     private int packageSize;
@@ -45,18 +43,33 @@ public class ClearingEventHandler implements Handler {
 
     @Override
     public void handle(Long clearingId) {
-        int packagesCount = getClearingTransactionPackagesCount(clearingId);
-        for (int packageNumber = INIT_PACKAGE_NUMBER; packageNumber < packagesCount; packageNumber++) {
-            ClearingDataPackage dataPackage = getClearingTransactionPackage(clearingId, packageNumber);
-            try {
-                //TODO: нужно предварительно получить конкретный адаптер из списка
-                clearingAdapterService.sendClearingDataPackage(dataPackage);
-            } catch (ClearingAdapterException ex) {
-                //TODO: придумать обработку ошибки
-                log.error("Error occurred while processing the package by the adapter", ex);
-            } catch (TException ex) {
-                log.error("Вata transfer error", ex);
+        try {
+            ClearingEventInfo clearingEventInfo = clearingEventInfoDao.get(clearingId);
+            int providerId = clearingEventInfo == null ? 0 : clearingEventInfo.getProviderId();
+            ClearingAdapter clearingAdapter = adapters.stream()
+                    .filter(clrAdapter -> clrAdapter.getAdapterId() == providerId)
+                    .findFirst()
+                    .orElseThrow(() ->
+                            new AdapterNotFoundException("Adapter with provider id " + providerId + " not found"));
+            ClearingAdapterSrv.Iface adapter = clearingAdapter.getAdapter();
+
+            String uploadId = adapter.startClearingEvent(clearingId);
+            int packagesCount = getClearingTransactionPackagesCount(clearingId);
+            List<ClearingDataPackageTag> tagList = new ArrayList<>();
+
+            for (int packageNumber = INIT_PACKAGE_NUMBER; packageNumber < packagesCount; packageNumber++) {
+                ClearingDataPackage dataPackage = getClearingTransactionPackage(clearingId, packageNumber);
+                ClearingDataPackageTag tag = adapter.sendClearingDataPackage(uploadId, dataPackage);
+                tagList.add(tag);
             }
+            adapter.completeClearingEvent(uploadId, clearingId, tagList);
+
+        } catch (ClearingAdapterException ex) {
+            log.error("Error occurred while processing the package by the adapter", ex);
+            //TODO: реализовать корректную обработку ошибки
+        } catch (TException e) {
+            log.error("Error communicating with adapter", e);
+            // TODO: реализовать корректную обработку ошибки
         }
     }
 
@@ -83,7 +96,7 @@ public class ClearingEventHandler implements Handler {
     private Transaction getTransaction(ClearingEventTransactionInfo info) {
         ClearingTransaction clearingTransaction = transactionsDao.get(info.getTransactionId());
         List<ClearingTransactionCashFlow> cashFlowList =
-                cashFlowDao.get(clearingTransaction.getEventId().toString());
+                cashFlowDao.get(clearingTransaction.getEventId());
         return MappingUtils.transformClearingTransaction(clearingTransaction, cashFlowList);
     }
 
@@ -92,7 +105,7 @@ public class ClearingEventHandler implements Handler {
         ClearingTransaction clearingTransaction =
                 transactionsDao.getTransaction(refund.getInvoiceId(), refund.getPaymentId());
         List<ClearingTransactionCashFlow> cashFlowList =
-                cashFlowDao.get(clearingTransaction.getEventId().toString());
+                cashFlowDao.get(clearingTransaction.getEventId());
         return MappingUtils.transformRefundTransaction(clearingTransaction, cashFlowList, refund);
     }
 
@@ -104,7 +117,7 @@ public class ClearingEventHandler implements Handler {
 
     private int getClearingTransactionPackagesCount(long clearingId) {
         int packagesCount = transactionsDao.getProcessedClearingTransactionCount(clearingId);
-        return (int) Math.floor((double) packagesCount / packageSize);
+        return (int) Math.ceil((double) packagesCount / packageSize);
     }
 
 }

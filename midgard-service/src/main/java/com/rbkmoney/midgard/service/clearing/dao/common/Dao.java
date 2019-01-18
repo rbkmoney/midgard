@@ -2,6 +2,7 @@ package com.rbkmoney.midgard.service.clearing.dao.common;
 
 import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import org.jooq.Query;
+import org.jooq.impl.AbstractRoutine;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -10,6 +11,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import java.util.List;
 
 public interface Dao {
+
+    void executeProc(AbstractRoutine<Void> procedure);
 
     int execute(Query query);
 
