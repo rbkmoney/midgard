@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ClearingAdapterDecorator {
+public class ClearingAdapter {
 
     private ClearingAdapterSrv.Iface adapter;
 

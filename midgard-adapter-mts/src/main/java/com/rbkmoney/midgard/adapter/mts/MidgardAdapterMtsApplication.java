@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
 @ServletComponentScan
-@SpringBootApplication(scanBasePackages = {"com.rbkmoney.midgard_adapter"})
+@SpringBootApplication(scanBasePackages = {"com.rbkmoney.midgard.adapter.mts"})
 public class MidgardAdapterMtsApplication {
 
     public static void main(String[] args) throws Exception {

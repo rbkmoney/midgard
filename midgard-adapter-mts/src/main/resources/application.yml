@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: @name@
+    name: clearing_adapter_mts
 
 retry-policy:
   maxAttempts: 10

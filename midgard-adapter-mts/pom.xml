@@ -17,7 +17,7 @@
     <description>Clearing adapter for work with MTS bank</description>
 
     <properties>
-        <server.port>8022</server.port>
+        <server.port>8032</server.port>
     </properties>
 
     <dependencies>

@@ -16,7 +16,8 @@ import java.util.List;
 
 public final class TestTransactionsData {
 
-    private static final LocalDateTime dateTIme = LocalDateTime.of(2019, 01, 12, 12, 12, 44);
+    private static final LocalDateTime dateTIme =
+            LocalDateTime.of(2019, 01, 12, 12, 12, 44);
 
     public static Payment getTestPayment() {
         Payment payment = new Payment();
@@ -117,6 +118,7 @@ public final class TestTransactionsData {
 
     public static Transaction getTestProtoTransaction() {
         Transaction trx = new Transaction();
+
         GeneralTransactionInfo generalTranInfo = new GeneralTransactionInfo();
         generalTranInfo.setTransactionId("invoice_1_payment_1");
         generalTranInfo.setTransactionDate(dateTIme.toInstant(ZoneOffset.UTC).toString());
@@ -142,6 +144,7 @@ public final class TestTransactionsData {
         List<TransactionCashFlow> transactionCashFlowList = new ArrayList<>();
         transactionCashFlowList.add(getTestTransactionCashFlow());
         trx.setTransactionCashFlow(transactionCashFlowList);
+
         return trx;
     }
 

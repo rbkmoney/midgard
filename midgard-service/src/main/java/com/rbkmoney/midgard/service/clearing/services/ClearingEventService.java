@@ -60,7 +60,9 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
         return clearingId;
     }
 
-    //TODO: рассмотреть вариант, когда для банка присутствует незавершенное клиринговое событие.
+    // TODO: рассмотреть вариант, когда для банка присутствует незавершенное клиринговое событие.
+    //       Возможно имеет смысл анализировать статус незавершенного события и в зависимости от этого
+    //       завершать зависшее событие и начинать его заново, либо отбивать пришедшее с ошибкой
     private Long createNewClearingEvent(long eventId, int providerId) {
         log.trace("Creating new clearing event for provider {} by event ", providerId, eventId);
         ClearingEventInfo clearingEvent = new ClearingEventInfo();

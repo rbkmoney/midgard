@@ -2,6 +2,8 @@ package com.rbkmoney.midgard.base.tests.unit;
 
 import com.rbkmoney.midgard.Transaction;
 import org.jooq.generated.feed.tables.pojos.Payment;
+import org.jooq.generated.feed.tables.pojos.Refund;
+import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransactionCashFlow;
 import org.junit.Test;
@@ -20,7 +22,7 @@ public class MappingTest {
         Payment payment = getTestPayment();
         ClearingTransaction transaction = transformTransaction(payment);
         ClearingTransaction testClearingTransaction = getTestClearingTransaction();
-        assertEquals("Resulting transaction is not equal to the reference",
+        assertEquals("Resulting clearing transaction is not equal to the reference",
                 transaction, testClearingTransaction);
 
         List<ClearingTransactionCashFlow> clearingTransactionCashFlowList = new ArrayList<>();
@@ -29,6 +31,15 @@ public class MappingTest {
         Transaction testProtoTransaction = getTestProtoTransaction();
         assertEquals("Resulting transaction is not equal to the reference",
                 protoTransaction, testProtoTransaction);
+    }
+
+    @Test
+    public void refundTransactionTest() {
+        Refund testRefund = getTestRefund();
+        ClearingRefund clearingRefund = transformRefund(testRefund);
+        ClearingRefund testClearingRefund = getTestClearingRefund();
+        assertEquals("Resulting clearing refund transaction is not equal to the reference",
+                clearingRefund, testClearingRefund);
     }
 
 }

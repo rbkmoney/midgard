@@ -1,11 +1,12 @@
 package com.rbkmoney.midgard.service.clearing.handlers;
 
 import com.rbkmoney.midgard.*;
-import com.rbkmoney.midgard.service.clearing.decorators.ClearingAdapterDecorator;
+import com.rbkmoney.midgard.service.clearing.decorators.ClearingAdapter;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_cash_flow.ClearingCashFlowDao;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_refund.ClearingRefundDao;
 import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
+import com.rbkmoney.midgard.service.clearing.exception.AdapterNotFoundException;
 import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +34,7 @@ public class ClearingEventHandler implements Handler {
 
     private final ClearingEventInfoDao clearingEventInfoDao;
 
-    private final List<ClearingAdapterDecorator> adapters;
+    private final List<ClearingAdapter> adapters;
 
     @Value("${clearing-service.package-size}")
     private int packageSize;
@@ -45,11 +46,12 @@ public class ClearingEventHandler implements Handler {
         try {
             ClearingEventInfo clearingEventInfo = clearingEventInfoDao.get(clearingId);
             int providerId = clearingEventInfo == null ? 0 : clearingEventInfo.getProviderId();
-            ClearingAdapterDecorator clearingAdapterDecorator = adapters.stream()
+            ClearingAdapter clearingAdapter = adapters.stream()
                     .filter(clrAdapter -> clrAdapter.getAdapterId() == providerId)
                     .findFirst()
-                    .orElseThrow();
-            ClearingAdapterSrv.Iface adapter = clearingAdapterDecorator.getAdapter();
+                    .orElseThrow(() ->
+                            new AdapterNotFoundException("Adapter with provider id " + providerId + " not found"));
+            ClearingAdapterSrv.Iface adapter = clearingAdapter.getAdapter();
 
             String uploadId = adapter.startClearingEvent(clearingId);
             int packagesCount = getClearingTransactionPackagesCount(clearingId);

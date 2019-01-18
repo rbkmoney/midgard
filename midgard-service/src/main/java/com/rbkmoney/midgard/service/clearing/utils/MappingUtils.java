@@ -24,12 +24,13 @@ public final class MappingUtils {
         trx.setInvoiceId(payment.getInvoiceId());
         trx.setPaymentId(payment.getPaymentId());
         trx.setProviderId(payment.getRouteProviderId());
-        //TODO: что то придумать с tran_id
+
         trx.setTransactionId(payment.getInvoiceId() + "_" + payment.getPaymentId());
         trx.setTransactionDate(payment.getCreatedAt());
         trx.setTransactionAmount(payment.getAmount());
         trx.setTransactionCurrency(payment.getCurrencyCode());
         trx.setTransactionClearingState(TransactionClearingState.READY);
+
         trx.setPartyId(payment.getPartyId());
         trx.setShopId(payment.getShopId());
 
@@ -60,7 +61,7 @@ public final class MappingUtils {
         Transaction tran = new Transaction();
         GeneralTransactionInfo generalTranInfo = new GeneralTransactionInfo();
         generalTranInfo.setTransactionId(clrTran.getTransactionId());
-        //TODO: перешнать в строку по отпределенному формату
+        //TODO: проверить корректность получения даты на адаптере
         generalTranInfo.setTransactionDate(clrTran.getTransactionDate().toInstant(ZoneOffset.UTC).toString());
         generalTranInfo.setTransactionAmount(clrTran.getTransactionAmount());
         generalTranInfo.setTransactionCurrency(clrTran.getTransactionCurrency());
@@ -78,6 +79,7 @@ public final class MappingUtils {
         Content additionalTranData = new Content();
         additionalTranData.setType("String");
         //TODO: Возможно так же стоит передавать строку, но не факт
+        //TODO: проверить на конкретном extra
         additionalTranData.setData(clrTran.getExtra().getBytes());
 
         tran.setAdditionalTransactionData(additionalTranData);
@@ -93,30 +95,34 @@ public final class MappingUtils {
 
     private static TransactionCashFlow transformCashFlow(ClearingTransactionCashFlow cashFlow) {
         TransactionCashFlow tranCashFlow = new TransactionCashFlow();
+        tranCashFlow.setObjType(CashFlowChangeType.valueOf(cashFlow.getObjType().name()));
         tranCashFlow.setAmount(cashFlow.getAmount());
         tranCashFlow.setCurrencyCode(cashFlow.getCurrencyCode());
+
         tranCashFlow.setSourceAccountId(cashFlow.getSourceAccountId());
         tranCashFlow.setSourceAccountType(CashFlowAccountType.valueOf(cashFlow.getSourceAccountType().name()));
         tranCashFlow.setSourceAccountTypeValue(cashFlow.getSourceAccountTypeValue());
+
         tranCashFlow.setDestinationAccountId(cashFlow.getDestinationAccountId());
         tranCashFlow.setDestinationAccountType(
                 CashFlowAccountType.valueOf(cashFlow.getDestinationAccountType().name()));
         tranCashFlow.setDestinationAccountTypeValue(cashFlow.getDestinationAccountTypeValue());
-        tranCashFlow.setObjType(CashFlowChangeType.valueOf(cashFlow.getObjType().name()));
         return tranCashFlow;
     }
 
     public static ClearingTransactionCashFlow transformCashFlow(CashFlow cashFlow) {
         ClearingTransactionCashFlow tranCashFlow = new ClearingTransactionCashFlow();
+        tranCashFlow.setObjType(PaymentChangeType.valueOf(cashFlow.getObjType().name()));
         tranCashFlow.setAmount(cashFlow.getAmount());
         tranCashFlow.setCurrencyCode(cashFlow.getCurrencyCode());
+
         tranCashFlow.setSourceAccountId(cashFlow.getSourceAccountId());
         tranCashFlow.setSourceAccountType(CashFlowAccount.valueOf(cashFlow.getSourceAccountType().name()));
         tranCashFlow.setSourceAccountTypeValue(cashFlow.getSourceAccountTypeValue());
+
         tranCashFlow.setDestinationAccountId(cashFlow.getDestinationAccountId());
         tranCashFlow.setDestinationAccountType(CashFlowAccount.valueOf(cashFlow.getDestinationAccountType().name()));
         tranCashFlow.setDestinationAccountTypeValue(cashFlow.getDestinationAccountTypeValue());
-        tranCashFlow.setObjType(PaymentChangeType.valueOf(cashFlow.getObjType().name()));
         return tranCashFlow;
     }
 
