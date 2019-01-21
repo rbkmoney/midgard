@@ -42,9 +42,6 @@ public abstract class AbstractIntegrationTest {
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-        @Parameter(defaultValue = "${project.build.directory}")
-        private static String projectBuildDir;
-
         private static final int port = 15432;
 
         private static final String dbName = "midgard";
@@ -77,7 +74,7 @@ public abstract class AbstractIntegrationTest {
             try {
                 log.info("The PG server is starting...");
                 EmbeddedPostgres.Builder builder = EmbeddedPostgres.builder();
-                String dbDir = prepareDbDir(projectBuildDir);
+                String dbDir = prepareDbDir();
                 log.info("Dir for PG files: " + dbDir);
                 builder.setDataDirectory(dbDir);
                 builder.setPort(port);
@@ -113,10 +110,10 @@ public abstract class AbstractIntegrationTest {
             }
         }
 
-        private String prepareDbDir(String projectBuildDir) {
+        private String prepareDbDir() {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
             String currentDate = dateFormat.format(new Date());
-            String dir = projectBuildDir + File.separator + "pgdata_" + currentDate;
+            String dir = "target" + File.separator + "pgdata_" + currentDate;
             log.info("Postgres source files in {}", dir);
             return dir;
         }

@@ -1,9 +1,0 @@
-server:
-  port: @server.port@
-
-spring:
-  application:
-    name: clearing_adapter_mts
-
-retry-policy:
-  maxAttempts: 10
