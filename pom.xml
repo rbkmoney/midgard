@@ -14,7 +14,7 @@
     <artifactId>midgard-service</artifactId>
     <version>1.0.0</version>
 
-    <name>Midgard Clearing Service</name>
+    <name>Midgard</name>
     <description>Application for work with clearing data</description>
 
     <properties>
