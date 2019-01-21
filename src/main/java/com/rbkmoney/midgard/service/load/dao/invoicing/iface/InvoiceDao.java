@@ -6,7 +6,7 @@ import org.jooq.generated.feed.tables.pojos.Invoice;
 
 public interface InvoiceDao extends Dao {
 
-    Long getLastEventId() throws DaoException;
+    Long getLastEventId(int div, int mod) throws DaoException;
 
     Long save(Invoice invoice) throws DaoException;
 
