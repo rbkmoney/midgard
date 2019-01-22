@@ -40,10 +40,10 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
             log.error("Command from external system is empty");
         } else {
             Long eventId = clearingEvent.getEventId();
-            if (checkEventExisting(eventId)) {
-                log.error("For a event with id " + eventId + " a clearing event already exists");
-            } else {
+            if (clearingEventInfoDao.getClearingEvent(eventId) == null) {
                 runClearingEvent(clearingEvent);
+            } else {
+                log.warn("For a event with id " + eventId + " a clearing event already exists");
             }
         }
     }
@@ -69,15 +69,6 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
             throw new ProviderNotFound();
         } catch (Exception ex) {
             log.error("Error during clearing event execution", ex);
-        }
-    }
-
-    private boolean checkEventExisting(long eventId) {
-        ClearingEventInfo eventInfo = clearingEventInfoDao.getClearingEvent(eventId);
-        if (eventInfo == null) {
-            return false;
-        } else {
-            return true;
         }
     }
 
