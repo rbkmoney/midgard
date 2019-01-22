@@ -19,7 +19,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class ClearingRevisionHandler implements Handler {
+public class ClearingRevisionHandler implements Handler<Long> {
 
     private final TransactionsDao transactionsDao;
 

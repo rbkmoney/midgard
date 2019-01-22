@@ -1,7 +1,7 @@
 package com.rbkmoney.midgard.service.config;
 
 import com.rbkmoney.midgard.ClearingAdapterSrv;
-import com.rbkmoney.midgard.service.clearing.decorators.ClearingAdapter;
+import com.rbkmoney.midgard.service.clearing.data.ClearingAdapter;
 import com.rbkmoney.midgard.service.config.props.MtsAdapterProps;
 import com.rbkmoney.woody.thrift.impl.http.THSpawnClientBuilder;
 import org.springframework.context.annotation.Bean;

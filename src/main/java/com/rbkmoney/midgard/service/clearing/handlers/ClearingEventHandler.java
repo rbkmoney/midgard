@@ -1,17 +1,18 @@
 package com.rbkmoney.midgard.service.clearing.handlers;
 
 import com.rbkmoney.midgard.*;
-import com.rbkmoney.midgard.service.clearing.decorators.ClearingAdapter;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_cash_flow.ClearingCashFlowDao;
-import com.rbkmoney.midgard.service.clearing.dao.clearing_info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_refund.ClearingRefundDao;
 import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
-import com.rbkmoney.midgard.service.clearing.exception.AdapterNotFoundException;
+import com.rbkmoney.midgard.service.clearing.data.ClearingProcessingEvent;
 import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import org.jooq.generated.midgard.tables.pojos.*;
+import org.jooq.generated.midgard.tables.pojos.ClearingEventTransactionInfo;
+import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
+import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
+import org.jooq.generated.midgard.tables.pojos.ClearingTransactionCashFlow;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +25,7 @@ import static org.jooq.generated.midgard.enums.ClearingTrxType.REFUND;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class ClearingEventHandler implements Handler {
+public class ClearingEventHandler implements Handler<ClearingProcessingEvent> {
 
     private final TransactionsDao transactionsDao;
 
@@ -32,26 +33,16 @@ public class ClearingEventHandler implements Handler {
 
     private final ClearingCashFlowDao cashFlowDao;
 
-    private final ClearingEventInfoDao clearingEventInfoDao;
-
-    private final List<ClearingAdapter> adapters;
-
     @Value("${clearing-service.package-size}")
     private int packageSize;
 
     private static final int INIT_PACKAGE_NUMBER = 0;
 
     @Override
-    public void handle(Long clearingId) {
+    public void handle(ClearingProcessingEvent event) throws Exception {
         try {
-            ClearingEventInfo clearingEventInfo = clearingEventInfoDao.get(clearingId);
-            int providerId = clearingEventInfo == null ? 0 : clearingEventInfo.getProviderId();
-            ClearingAdapter clearingAdapter = adapters.stream()
-                    .filter(clrAdapter -> clrAdapter.getAdapterId() == providerId)
-                    .findFirst()
-                    .orElseThrow(() ->
-                            new AdapterNotFoundException("Adapter with provider id " + providerId + " not found"));
-            ClearingAdapterSrv.Iface adapter = clearingAdapter.getAdapter();
+            Long clearingId = event.getClearingId();
+            ClearingAdapterSrv.Iface adapter = event.getClearingAdapter().getAdapter();
 
             String uploadId = adapter.startClearingEvent(clearingId);
             int packagesCount = getClearingTransactionPackagesCount(clearingId);
@@ -66,10 +57,10 @@ public class ClearingEventHandler implements Handler {
 
         } catch (ClearingAdapterException ex) {
             log.error("Error occurred while processing the package by the adapter", ex);
-            //TODO: реализовать корректную обработку ошибки
-        } catch (TException e) {
-            log.error("Error communicating with adapter", e);
-            // TODO: реализовать корректную обработку ошибки
+            throw ex;
+        } catch (TException ex) {
+            log.error("Data transfer error", ex);
+            throw ex;
         }
     }
 

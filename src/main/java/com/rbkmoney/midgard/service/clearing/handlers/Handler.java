@@ -1,7 +1,7 @@
 package com.rbkmoney.midgard.service.clearing.handlers;
 
-public interface Handler {
+public interface Handler<T> {
 
-    void handle(Long id);
+    void handle(T data) throws Exception;
 
 }
