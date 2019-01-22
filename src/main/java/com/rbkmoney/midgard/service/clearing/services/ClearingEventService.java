@@ -65,7 +65,7 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
             clearingEventHandler.handle(event);
             log.info("Clearing event for provider id {} finished", providerId);
         } catch (AdapterNotFoundException ex) {
-            log.error("Error in identification a provider", ex);
+            log.error("Error in identification of a provider", ex);
             throw new ProviderNotFound();
         } catch (Exception ex) {
             log.error("Error during clearing event execution", ex);

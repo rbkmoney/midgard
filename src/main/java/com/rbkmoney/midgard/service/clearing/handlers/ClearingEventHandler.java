@@ -60,7 +60,7 @@ public class ClearingEventHandler implements Handler<ClearingProcessingEvent> {
             throw ex;
         } catch (TException ex) {
             log.error("Data transfer error", ex);
-            throw ex;
+            throw new Exception(ex);
         }
     }
 
