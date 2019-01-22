@@ -26,8 +26,9 @@
         <fistful-proto.version>1.8-37ccefb</fistful-proto.version>
         <shared.resources.version>0.3.3</shared.resources.version>
         <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
-        <!-- port for connection -->
+        <!-- Ports -->
         <server.port>8022</server.port>
+        <exposed.ports>${server.port}</exposed.ports>
         <!-- Environment settings -->
         <flyway.version>5.2.4</flyway.version>
         <jooq.version>3.11.7</jooq.version>
