@@ -1,5 +1,5 @@
 #!groovy
-build('midgard', 'java-maven') {
+build('midgard-service', 'java-maven') {
     checkoutRepo()
     loadBuildUtils()
 
@@ -10,7 +10,6 @@ build('midgard', 'java-maven') {
 
     def serviceName = env.REPO_NAME
     def mvnArgs = '-DjvmArgs="-Xmx256m"'
-    def useJava11 = false
 
     javaServicePipeline(serviceName, useJava11, mvnArgs)
 }
