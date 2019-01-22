@@ -29,7 +29,7 @@ public class ClearingRevisionHandler implements Handler<Long> {
 
     @Override
     @Transactional
-    public void handle(Long clearingId) {
+    public void handle(Long clearingId) throws Exception {
         try {
             ClearingEventResponse response = clearingAdapterService.getBankResponse(clearingId);
             ClearingEventState clearingState = response.getClearingState();

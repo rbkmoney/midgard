@@ -30,19 +30,22 @@ public class ClearingRevisionService implements GenericService {
     @Override
     @Scheduled(fixedDelayString = "${clearing-service.revision}")
     public void process() {
+        try {
+            log.info("Clearing revision process get started");
+            List<ClearingEventInfo> clearingEvents = eventInfoDao.getAllClearingEvents(ClearingEventStatus.EXECUTE);
+            List<Long> clearingIds = clearingEvents.stream()
+                    .map(ClearingEventInfo::getId)
+                    .collect(Collectors.toList());
 
-        log.info("Clearing revision process get started");
-        List<ClearingEventInfo> clearingEvents = eventInfoDao.getAllClearingEvents(ClearingEventStatus.EXECUTE);
-        List<Long> clearingIds = clearingEvents.stream()
-                .map(ClearingEventInfo::getId)
-                .collect(Collectors.toList());
+            log.debug("Active clearing event IDs: {}", clearingIds);
 
-        log.debug("Active clearing event IDs: {}", clearingIds);
-
-        for (ClearingEventInfo clearingEvent : clearingEvents) {
-            revisionHandler.handle(clearingEvent.getId());
+            for (ClearingEventInfo clearingEvent : clearingEvents) {
+                revisionHandler.handle(clearingEvent.getId());
+            }
+            log.info("Clearing revision process was finished");
+        } catch (Exception ex) {
+            log.error("Error during a clering revision", ex);
         }
-        log.info("Clearing revision process was finished");
     }
 
 }
