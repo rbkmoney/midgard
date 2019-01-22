@@ -2,6 +2,9 @@ package com.rbkmoney.midgard.service.clearing.services;
 
 import com.rbkmoney.midgard.*;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_info.ClearingEventInfoDao;
+import com.rbkmoney.midgard.service.clearing.data.ClearingAdapter;
+import com.rbkmoney.midgard.service.clearing.data.ClearingProcessingEvent;
+import com.rbkmoney.midgard.service.clearing.exception.AdapterNotFoundException;
 import com.rbkmoney.midgard.service.clearing.handlers.Handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +12,8 @@ import org.apache.thrift.TException;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.jooq.generated.midgard.enums.ClearingEventStatus.STARTED;
 
@@ -27,16 +32,44 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
 
     private final Handler clearingEventHandler;
 
+    private final List<ClearingAdapter> adapters;
+
     @Override
-    public void startClearingEvent(ClearingEvent clearingEvent) {
-        long eventId = clearingEvent.getEventId();
-        int providerId = clearingEvent.getProviderId();
-        log.info("Starting clearing event for provider id {}", providerId);
-        // Подготовка транзакций для клиринга
-        Long clearingId = prepareClearingEvent(eventId, providerId);
-        // Передача транзакций в клиринговый адаптер
-        clearingEventHandler.handle(clearingId);
-        log.info("Clearing event for provider id {} finished", providerId);
+    public void startClearingEvent(ClearingEvent clearingEvent) throws ProviderNotFound {
+        if (clearingEvent == null) {
+            log.error("Command from external system is empty");
+        } else {
+            Long eventId = clearingEvent.getEventId();
+            if (clearingEventInfoDao.getClearingEvent(eventId) == null) {
+                runClearingEvent(clearingEvent);
+            } else {
+                log.warn("For a event with id " + eventId + " a clearing event already exists");
+            }
+        }
+    }
+
+    private void runClearingEvent(ClearingEvent clearingEvent) throws ProviderNotFound {
+        try {
+            long eventId = clearingEvent.getEventId();
+            int providerId = clearingEvent.getProviderId();
+            log.info("Starting clearing event for provider id {}", providerId);
+            ClearingAdapter clearingAdapter = adapters.stream()
+                    .filter(clrAdapter -> clrAdapter.getAdapterId() == providerId)
+                    .findFirst()
+                    .orElseThrow(() ->
+                            new AdapterNotFoundException("Adapter with provider id " + providerId + " not found"));
+            // Подготовка транзакций для клиринга
+            Long clearingId = prepareClearingEvent(eventId, providerId);
+            // Передача транзакций в клиринговый адаптер
+            ClearingProcessingEvent event = new ClearingProcessingEvent(clearingAdapter, clearingId);
+            clearingEventHandler.handle(event);
+            log.info("Clearing event for provider id {} finished", providerId);
+        } catch (AdapterNotFoundException ex) {
+            log.error("Error in identification of a provider", ex);
+            throw new ProviderNotFound();
+        } catch (Exception ex) {
+            log.error("Error during clearing event execution", ex);
+        }
     }
 
     @Override
@@ -60,9 +93,6 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
         return clearingId;
     }
 
-    // TODO: рассмотреть вариант, когда для банка присутствует незавершенное клиринговое событие.
-    //       Возможно имеет смысл анализировать статус незавершенного события и в зависимости от этого
-    //       завершать зависшее событие и начинать его заново, либо отбивать пришедшее с ошибкой
     private Long createNewClearingEvent(long eventId, int providerId) {
         log.trace("Creating new clearing event for provider {} by event ", providerId, eventId);
         ClearingEventInfo clearingEvent = new ClearingEventInfo();

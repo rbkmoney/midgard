@@ -19,7 +19,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class ClearingRevisionHandler implements Handler {
+public class ClearingRevisionHandler implements Handler<Long> {
 
     private final TransactionsDao transactionsDao;
 
@@ -29,7 +29,7 @@ public class ClearingRevisionHandler implements Handler {
 
     @Override
     @Transactional
-    public void handle(Long clearingId) {
+    public void handle(Long clearingId) throws Exception {
         try {
             ClearingEventResponse response = clearingAdapterService.getBankResponse(clearingId);
             ClearingEventState clearingState = response.getClearingState();

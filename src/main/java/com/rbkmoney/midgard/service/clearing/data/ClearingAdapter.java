@@ -1,4 +1,4 @@
-package com.rbkmoney.midgard.service.clearing.decorators;
+package com.rbkmoney.midgard.service.clearing.data;
 
 import com.rbkmoney.midgard.ClearingAdapterSrv;
 import lombok.AllArgsConstructor;
