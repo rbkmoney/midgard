@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: @name@
+    name: @project.name@
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: org.postgresql.Driver
@@ -63,3 +63,5 @@ dmt:
   polling:
     delay: 3000
     maxQuerySize: 10
+
+management.metrics.export.statsd.flavor: etsy
