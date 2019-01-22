@@ -1,5 +1,5 @@
 #!groovy
-build('midgard-service', 'java-maven') {
+build('midgard', 'java-maven') {
     checkoutRepo()
     loadBuildUtils()
 
