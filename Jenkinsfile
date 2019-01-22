@@ -10,7 +10,7 @@ build('midgard', 'java-maven') {
 
     def serviceName = env.REPO_NAME
     def mvnArgs = '-DjvmArgs="-Xmx256m"'
-    def useJava11 = false
+    def useJava11 = true
 
     javaServicePipeline(serviceName, useJava11, mvnArgs)
 }
