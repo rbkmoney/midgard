@@ -122,9 +122,10 @@ public final class MappingUtils {
         return tranCashFlow;
     }
 
-    public static List<ClearingTransactionCashFlow> transformCashFlow(List<CashFlow> cashFlow, Long sourceEventId) {
+    public static List<ClearingTransactionCashFlow> transformCashFlow(List<CashFlow> cashFlowList,
+                                                                      Long sourceEventId) {
         List<ClearingTransactionCashFlow> transactionCashFlowList = new ArrayList<>();
-        for (CashFlow flow : cashFlow) {
+        for (CashFlow flow : cashFlowList) {
             transactionCashFlowList.add(transformCashFlow(flow, sourceEventId));
         }
         return transactionCashFlowList;
