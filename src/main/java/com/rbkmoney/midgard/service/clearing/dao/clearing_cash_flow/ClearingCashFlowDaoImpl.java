@@ -35,9 +35,7 @@ public class ClearingCashFlowDaoImpl extends AbstractGenericDao implements Clear
                 .map(cashFlow -> cashFlow.getSourceEventId())
                 .findFirst()
                 .orElse(0L);
-        Integer cashFlowBlockId = getLastCashFlowBlockId(sourceEventId) + 1;
         for (ClearingTransactionCashFlow cashFlow : cashFlowList) {
-            cashFlow.setId(cashFlowBlockId);
             ClearingTransactionCashFlowRecord record = getDslContext().newRecord(CLEARING_TRANSACTION_CASH_FLOW, cashFlow);
             Query query = getDslContext().insertInto(CLEARING_TRANSACTION_CASH_FLOW).set(record);
             executeWithReturn(query, keyHolder);
@@ -47,19 +45,9 @@ public class ClearingCashFlowDaoImpl extends AbstractGenericDao implements Clear
 
     @Override
     public List<ClearingTransactionCashFlow> get(Long sourceEventId) throws DaoException {
-        Integer cashFlowBlockId = getLastCashFlowBlockId(sourceEventId);
         Query query = getDslContext().selectFrom(CLEARING_TRANSACTION_CASH_FLOW)
-                .where(CLEARING_TRANSACTION_CASH_FLOW.SOURCE_EVENT_ID.eq(sourceEventId))
-                .and(CLEARING_TRANSACTION_CASH_FLOW.ID.eq(cashFlowBlockId));
+                .where(CLEARING_TRANSACTION_CASH_FLOW.SOURCE_EVENT_ID.eq(sourceEventId));
         return fetch(query, cashFlowRowMapper);
-    }
-
-    private Integer getLastCashFlowBlockId(Long sourceEventId) {
-        Integer id = getDslContext().select(DSL.max(CLEARING_TRANSACTION_CASH_FLOW.ID).as("id"))
-                .from(CLEARING_TRANSACTION_CASH_FLOW)
-                .where(CLEARING_TRANSACTION_CASH_FLOW.SOURCE_EVENT_ID.eq(sourceEventId))
-                .fetchOne("id", Integer.class);
-        return id == null ? 0 : id;
     }
 
 }
