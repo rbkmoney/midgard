@@ -31,9 +31,11 @@ BEGIN
         SELECT clearing_id, transaction_id, trx_type,
                row_number() over(partition BY clearing_id ORDER BY trx_type, transaction_id) as row_num
         FROM   (
-               SELECT * FROM clearing_trx_cte
+               SELECT clearing_id, transaction_id, trx_type
+               FROM clearing_trx_cte
                  UNION ALL
-               SELECT * FROM clearing_refund_trx_cte
+               SELECT clearing_id, transaction_id, trx_type
+               FROM clearing_refund_trx_cte
         ) cte
     )
 

@@ -39,6 +39,7 @@ public final class TestTransactionsData {
         payment.setPayerBankCardMaskedPan("4545 45** **** 9809");
         payment.setPayerBankCardTokenProvider("provider_1");
         payment.setSessionPayloadTransactionBoundTrxExtraJson("extra json");
+        payment.setSessionPayloadTransactionBoundTrxId("invoice_1_payment_1");
 
         return payment;
     }
@@ -124,7 +125,7 @@ public final class TestTransactionsData {
         generalTranInfo.setTransactionDate(dateTIme.toInstant(ZoneOffset.UTC).toString());
         generalTranInfo.setTransactionAmount(1000L);
         generalTranInfo.setTransactionCurrency("RUB");
-        generalTranInfo.setMcc(0);
+        generalTranInfo.setTransactionType("PAYMENT");
         trx.setGeneralTransactionInfo(generalTranInfo);
 
         TransactionCardInfo tranCardInfo = new TransactionCardInfo();
@@ -136,7 +137,7 @@ public final class TestTransactionsData {
         trx.setTransactionCardInfo(tranCardInfo);
 
         Content additionalTranData = new Content();
-        additionalTranData.setType("String");
+        additionalTranData.setType("application/json");
         //TODO: Возможно так же стоит передавать строку, но не факт
         additionalTranData.setData("extra json".getBytes());
 
@@ -154,6 +155,7 @@ public final class TestTransactionsData {
         refund.setEventId(3L);
         refund.setInvoiceId("invoice_3");
         refund.setPaymentId("payment_3");
+        refund.setSessionPayloadTransactionBoundTrxId("tran_id_3");
         refund.setPartyId("pt_3");
         refund.setShopId("sh_3");
         refund.setCreatedAt(dateTIme);
@@ -161,6 +163,7 @@ public final class TestTransactionsData {
         refund.setCurrencyCode("RUB");
         refund.setReason("some reason");
         refund.setDomainRevision(1L);
+        refund.setSessionPayloadTransactionBoundTrxExtraJson("extra json");
 
         return refund;
     }
@@ -171,6 +174,7 @@ public final class TestTransactionsData {
         clearingRefund.setEventId(3L);
         clearingRefund.setInvoiceId("invoice_3");
         clearingRefund.setPaymentId("payment_3");
+        clearingRefund.setTransactionId("tran_id_3");
         clearingRefund.setPartyId("pt_3");
         clearingRefund.setShopId("sh_3");
         clearingRefund.setCreatedAt(dateTIme);
@@ -179,6 +183,7 @@ public final class TestTransactionsData {
         clearingRefund.setReason("some reason");
         clearingRefund.setDomainRevision(1L);
         clearingRefund.setClearingState(TransactionClearingState.READY);
+        clearingRefund.setExtra("extra json");
 
         return clearingRefund;
     }

@@ -51,6 +51,7 @@ CREATE TABLE midgard.clearing_refund (
   amount                             BIGINT                               NULL,
   currency_code                      CHARACTER VARYING                    NULL,
   reason                             CHARACTER VARYING                    NULL,
+  extra                              CHARACTER VARYING                    NULL,
   CONSTRAINT clearing_refund_pkey PRIMARY KEY (event_id)
 );
 

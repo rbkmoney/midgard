@@ -25,7 +25,7 @@ public final class MappingUtils {
         trx.setPaymentId(payment.getPaymentId());
         trx.setProviderId(payment.getRouteProviderId());
 
-        trx.setTransactionId(payment.getInvoiceId() + "_" + payment.getPaymentId());
+        trx.setTransactionId(payment.getSessionPayloadTransactionBoundTrxId());
         trx.setTransactionDate(payment.getCreatedAt());
         trx.setTransactionAmount(payment.getAmount());
         trx.setTransactionCurrency(payment.getCurrencyCode());
@@ -46,51 +46,63 @@ public final class MappingUtils {
     public static Transaction transformRefundTransaction(ClearingTransaction clrTran,
                                                          List<ClearingTransactionCashFlow> cashFlowList,
                                                          ClearingRefund refund) {
-        Transaction transaction = transformClearingTransaction(clrTran, cashFlowList);
-
-        GeneralTransactionInfo generalTranInfo = transaction.getGeneralTransactionInfo();
+        GeneralTransactionInfo generalTranInfo = new GeneralTransactionInfo();
+        generalTranInfo.setTransactionId(refund.getTransactionId());
         generalTranInfo.setTransactionDate(refund.getCreatedAt().toString());
         generalTranInfo.setTransactionAmount(refund.getAmount());
         generalTranInfo.setTransactionCurrency(refund.getCurrencyCode());
+        generalTranInfo.setTransactionType("REFUND");
 
-        return transaction;
+        return fillAdditionalInfo(generalTranInfo, clrTran, refund.getExtra(), cashFlowList);
     }
 
     public static Transaction transformClearingTransaction(ClearingTransaction clrTran,
                                                            List<ClearingTransactionCashFlow> cashFlowList) {
-        Transaction tran = new Transaction();
         GeneralTransactionInfo generalTranInfo = new GeneralTransactionInfo();
         generalTranInfo.setTransactionId(clrTran.getTransactionId());
-        //TODO: проверить корректность получения даты на адаптере
         generalTranInfo.setTransactionDate(clrTran.getTransactionDate().toInstant(ZoneOffset.UTC).toString());
         generalTranInfo.setTransactionAmount(clrTran.getTransactionAmount());
         generalTranInfo.setTransactionCurrency(clrTran.getTransactionCurrency());
-        generalTranInfo.setMcc(clrTran.getMcc() == null ? 0 : clrTran.getMcc());
-        tran.setGeneralTransactionInfo(generalTranInfo);
+        generalTranInfo.setTransactionType("PAYMENT");
 
+        return fillAdditionalInfo(generalTranInfo, clrTran, clrTran.getExtra(), cashFlowList);
+    }
+
+    private static Transaction fillAdditionalInfo(GeneralTransactionInfo generalTranInfo,
+                                                  ClearingTransaction clrTran,
+                                                  String extra,
+                                                  List<ClearingTransactionCashFlow> cashFlowList) {
+        Transaction transaction = new Transaction();
+        transaction.setGeneralTransactionInfo(generalTranInfo);
+        transaction.setTransactionCardInfo(getTransactionCardInfo(clrTran));
+        transaction.setAdditionalTransactionData(transformContent(extra));
+        transaction.setTransactionCashFlow(transformTranCashFlow(cashFlowList));
+        return transaction;
+    }
+
+    private static Content transformContent(String extra) {
+        Content additionalTranData = new Content();
+        additionalTranData.setType("application/json");
+        additionalTranData.setData(extra.getBytes());
+        return additionalTranData;
+    }
+
+    private static TransactionCardInfo getTransactionCardInfo(ClearingTransaction clrTran) {
         TransactionCardInfo tranCardInfo = new TransactionCardInfo();
         tranCardInfo.setPayerBankCardToken(clrTran.getPayerBankCardToken());
         tranCardInfo.setPayerBankCardBin(clrTran.getPayerBankCardBin());
         tranCardInfo.setPayerBankCardMaskedPan(clrTran.getPayerBankCardMaskedPan());
         tranCardInfo.setPayerBankCardPaymentSystem(clrTran.getPayerBankCardPaymentSystem());
         tranCardInfo.setPayerBankCardTokenProvider(clrTran.getPayerBankCardTokenProvider());
-        tran.setTransactionCardInfo(tranCardInfo);
+        return tranCardInfo;
+    }
 
-        Content additionalTranData = new Content();
-        additionalTranData.setType("String");
-        //TODO: Возможно так же стоит передавать строку, но не факт
-        //TODO: проверить на конкретном extra
-        additionalTranData.setData(clrTran.getExtra().getBytes());
-
-        tran.setAdditionalTransactionData(additionalTranData);
-
+    private static List<TransactionCashFlow> transformTranCashFlow(List<ClearingTransactionCashFlow> cashFlowList) {
         List<TransactionCashFlow> transactionCashFlowList = new ArrayList<>();
         for (ClearingTransactionCashFlow cashFlow : cashFlowList) {
             transactionCashFlowList.add(transformCashFlow(cashFlow));
         }
-        tran.setTransactionCashFlow(transactionCashFlowList);
-
-        return tran;
+        return transactionCashFlowList;
     }
 
     private static TransactionCashFlow transformCashFlow(ClearingTransactionCashFlow cashFlow) {
@@ -110,8 +122,19 @@ public final class MappingUtils {
         return tranCashFlow;
     }
 
-    public static ClearingTransactionCashFlow transformCashFlow(CashFlow cashFlow) {
+    public static List<ClearingTransactionCashFlow> transformCashFlow(List<CashFlow> cashFlowList,
+                                                                      Long sourceEventId) {
+        List<ClearingTransactionCashFlow> transactionCashFlowList = new ArrayList<>();
+        for (CashFlow flow : cashFlowList) {
+            transactionCashFlowList.add(transformCashFlow(flow, sourceEventId));
+        }
+        return transactionCashFlowList;
+    }
+
+    public static ClearingTransactionCashFlow transformCashFlow(CashFlow cashFlow, Long sourceEventId) {
         ClearingTransactionCashFlow tranCashFlow = new ClearingTransactionCashFlow();
+
+        tranCashFlow.setSourceEventId(sourceEventId);
         tranCashFlow.setObjType(PaymentChangeType.valueOf(cashFlow.getObjType().name()));
         tranCashFlow.setAmount(cashFlow.getAmount());
         tranCashFlow.setCurrencyCode(cashFlow.getCurrencyCode());
@@ -131,6 +154,7 @@ public final class MappingUtils {
         clearingRefund.setEventId(refund.getEventId());
         clearingRefund.setInvoiceId(refund.getInvoiceId());
         clearingRefund.setPaymentId(refund.getPaymentId());
+        clearingRefund.setTransactionId(refund.getSessionPayloadTransactionBoundTrxId());
         clearingRefund.setPartyId(refund.getPartyId());
         clearingRefund.setShopId(refund.getShopId());
         clearingRefund.setCreatedAt(refund.getCreatedAt());
@@ -138,6 +162,7 @@ public final class MappingUtils {
         clearingRefund.setCurrencyCode(refund.getCurrencyCode());
         clearingRefund.setReason(refund.getReason());
         clearingRefund.setDomainRevision(refund.getDomainRevision());
+        clearingRefund.setExtra(refund.getSessionPayloadTransactionBoundTrxExtraJson());
         clearingRefund.setClearingState(TransactionClearingState.READY);
         return clearingRefund;
     }
