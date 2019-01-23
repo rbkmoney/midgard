@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -86,7 +87,7 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
         return response;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public Long prepareClearingEvent(long eventId, int providerId) {
         Long clearingId = createNewClearingEvent(eventId, providerId);
         clearingEventInfoDao.prepareTransactionData(clearingId, providerId);

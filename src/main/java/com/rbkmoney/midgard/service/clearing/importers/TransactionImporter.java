@@ -13,6 +13,8 @@ import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransactionCashFlow;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,27 +55,28 @@ public class TransactionImporter implements Importer {
         List<Payment> payments = paymentDao.getPayments(eventId, providerIds, poolSize);
         for (Payment payment : payments) {
             saveTransaction(payment);
-            List<CashFlow> cashFlow = paymentDao.getCashFlow(payment.getId());
-            saveCashFlow(payment, cashFlow);
         }
         return payments.size();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void saveTransaction(Payment payment) {
+        ClearingTransaction transaction = MappingUtils.transformTransaction(payment);
+        log.debug("Saving a transaction {}", transaction);
+        transactionsDao.save(transaction);
+        List<CashFlow> cashFlow = paymentDao.getCashFlow(payment.getId());
+        saveCashFlow(payment, cashFlow);
     }
 
     private void saveCashFlow(Payment payment, List<CashFlow> cashFlow) {
         List<ClearingTransactionCashFlow> tranCashFlow = cashFlow.stream()
                 .map(flow -> {
-                    ClearingTransactionCashFlow transactionCashFlow = MappingUtils.transformCashFlow(flow);
-                    transactionCashFlow.setSourceEventId(payment.getEventId());
+                    ClearingTransactionCashFlow transactionCashFlow =
+                            MappingUtils.transformCashFlow(flow, payment.getEventId());
                     return transactionCashFlow;
                 })
                 .collect(Collectors.toList());
         dao.save(tranCashFlow);
-    }
-
-    private void saveTransaction(Payment payment) {
-        ClearingTransaction transaction = MappingUtils.transformTransaction(payment);
-        log.debug("Saving a transaction {}", transaction);
-        transactionsDao.save(transaction);
     }
 
     private long getLastTransactionEventId() {

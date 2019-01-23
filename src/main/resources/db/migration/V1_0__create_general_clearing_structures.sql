@@ -51,6 +51,7 @@ CREATE TABLE midgard.clearing_refund (
   amount                             BIGINT                               NULL,
   currency_code                      CHARACTER VARYING                    NULL,
   reason                             CHARACTER VARYING                    NULL,
+  extra                              CHARACTER VARYING                    NULL,
   CONSTRAINT clearing_refund_pkey PRIMARY KEY (event_id)
 );
 
@@ -63,8 +64,8 @@ CREATE TYPE midgard.cash_flow_account AS ENUM ('merchant', 'provider', 'system',
 CREATE TYPE midgard.payment_change_type AS ENUM ('payment', 'refund', 'adjustment', 'payout');
 
 CREATE TABLE midgard.clearing_transaction_cash_flow(
-  id                                 BIGSERIAL                        NOT NULL,
   source_event_id                    BIGINT                           NOT NULL,
+  id                                 INTEGER                          NOT NULL,
   obj_type                           midgard.payment_change_type      NOT NULL,
   source_account_type                midgard.cash_flow_account        NOT NULL,
   source_account_type_value          CHARACTER VARYING                NOT NULL,

@@ -95,8 +95,7 @@ public class ClearingEventHandler implements Handler<ClearingProcessingEvent> {
         ClearingRefund refund = clearingRefundDao.getRefund(info.getTransactionId());
         ClearingTransaction clearingTransaction =
                 transactionsDao.getTransaction(refund.getInvoiceId(), refund.getPaymentId());
-        List<ClearingTransactionCashFlow> cashFlowList =
-                cashFlowDao.get(clearingTransaction.getEventId());
+        List<ClearingTransactionCashFlow> cashFlowList = cashFlowDao.get(refund.getEventId());
         return MappingUtils.transformRefundTransaction(clearingTransaction, cashFlowList, refund);
     }
 

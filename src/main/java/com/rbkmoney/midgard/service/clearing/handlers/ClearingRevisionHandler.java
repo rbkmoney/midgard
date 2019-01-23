@@ -12,6 +12,7 @@ import org.apache.thrift.TException;
 import org.jooq.generated.midgard.enums.ClearingEventStatus;
 import org.jooq.generated.midgard.tables.pojos.FailureTransaction;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class ClearingRevisionHandler implements Handler<Long> {
     private final ClearingAdapterSrv.Iface clearingAdapterService;
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public void handle(Long clearingId) throws Exception {
         try {
             ClearingEventResponse response = clearingAdapterService.getBankResponse(clearingId);

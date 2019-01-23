@@ -43,7 +43,7 @@ bm:
   pollingEnabled: true
   invoicing:
     url: http://localhost:8026/repo
-    workersCount: 5
+    workersCount: 10
     polling:
       delay: 10000
       retryDelay: 1000
