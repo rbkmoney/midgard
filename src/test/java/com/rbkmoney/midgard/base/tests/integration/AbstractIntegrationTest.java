@@ -3,7 +3,6 @@ package com.rbkmoney.midgard.base.tests.integration;
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 import com.rbkmoney.midgard.service.MidgardClearingApplication;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -19,6 +18,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -40,19 +42,90 @@ import static org.springframework.boot.test.util.TestPropertyValues.Type.MAP;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public abstract class AbstractIntegrationTest {
 
+    private static final int PORT = 15432;
+
+    private static final String dbName = "midgard";
+
+    private static final String dbUser = "postgres";
+
+    private static final String dbPassword = "postgres";
+
+    private static final String jdbcUrl = "jdbc:postgresql://localhost:" + PORT + "/" + dbName;
+
+    private static final String FILE_NAME = "target/test-classes/InsertFeedInitialData.sql";
+
+    private static EmbeddedPostgres postgres;
+
+    @Before
+    public void init() throws Exception {
+        initDb();
+    }
+
+    @After
+    public void destroy() throws IOException {
+        if (postgres != null) {
+            postgres.close();
+            postgres = null;
+        }
+    }
+
+    private static void startPgServer() {
+        try {
+            log.info("The PG server is starting...");
+            EmbeddedPostgres.Builder builder = EmbeddedPostgres.builder();
+            String dbDir = prepareDbDir();
+            log.info("Dir for PG files: " + dbDir);
+            builder.setDataDirectory(dbDir);
+            builder.setPort(PORT);
+            postgres = builder.start();
+            log.info("The PG server was started!");
+        } catch (IOException e) {
+            log.error("An error occurred while starting server ", e);
+            e.printStackTrace();
+        }
+    }
+
+    private static void createDatabase() {
+        try (Connection conn = postgres.getPostgresDatabase().getConnection()) {
+            Statement statement = conn.createStatement();
+            statement.execute("CREATE DATABASE " + dbName);
+            statement.close();
+        } catch (SQLException e) {
+            log.error("An error occurred while creating the database "+ dbName, e);
+            e.printStackTrace();
+        }
+    }
+
+    private static String prepareDbDir() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        String currentDate = dateFormat.format(new Date());
+        String dir = "target" + File.separator + "pgdata_" + currentDate;
+        log.info("Postgres source files in {}", dir);
+        return dir;
+    }
+
+    private void initDb() throws SQLException, IOException {
+        try (Connection connection = getDataSource().getConnection()) {
+            Statement statement = connection.createStatement();
+            Path path = Paths.get(FILE_NAME);
+            String insertScript = Files.readString(path);
+            statement.execute(insertScript);
+            statement.close();
+            log.info("Initial data was inserted");
+        } catch (IOException ex) {
+            log.error("I/O exception while inserting data", ex);
+            throw ex;
+        } catch (SQLException ex) {
+            log.error("Error while inserting data");
+            throw ex;
+        }
+    }
+
+    private DataSource getDataSource() {
+        return postgres.getDatabase(dbUser, dbName);
+    }
+
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-
-        private static final int port = 15432;
-
-        private static final String dbName = "midgard";
-
-        private static final String dbUser = "postgres";
-
-        private static final String dbPassword = "postgres";
-
-        private static final String jdbcUrl = "jdbc:postgresql://localhost:" + port + "/" + dbName;
-
-        private EmbeddedPostgres postgres;
 
         @Override
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
@@ -67,62 +140,6 @@ public abstract class AbstractIntegrationTest {
             if (postgres == null) {
                 startPgServer();
                 createDatabase();
-            }
-        }
-
-        private void startPgServer() {
-            try {
-                log.info("The PG server is starting...");
-                EmbeddedPostgres.Builder builder = EmbeddedPostgres.builder();
-                String dbDir = prepareDbDir();
-                log.info("Dir for PG files: " + dbDir);
-                builder.setDataDirectory(dbDir);
-                builder.setPort(port);
-                postgres = builder.start();
-                log.info("The PG server was started!");
-            } catch (IOException e) {
-                log.error("An error occurred while starting server ", e);
-                e.printStackTrace();
-            }
-        }
-
-        private void createDatabase() {
-            try (Connection conn = postgres.getPostgresDatabase().getConnection()) {
-                Statement statement = conn.createStatement();
-                statement.execute("CREATE DATABASE " + dbName);
-                statement.close();
-            } catch (SQLException e) {
-                log.error("An error occurred while creating the database "+ dbName, e);
-                e.printStackTrace();
-            }
-        }
-
-        private void dropScheme(String schemaName) {
-            log.debug("Delete {} scheme", schemaName);
-            DataSource database = postgres.getDatabase(dbUser, dbName);
-            try (Connection connection = database.getConnection()) {
-                Statement statement = connection.createStatement();
-                statement.execute("DROP SCHEMA " + schemaName + " CASCADE");
-                statement.close();
-            } catch (SQLException ex) {
-                log.error("An error occurred while drop the schema " + schemaName);
-                ex.printStackTrace();
-            }
-        }
-
-        private String prepareDbDir() {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-            String currentDate = dateFormat.format(new Date());
-            String dir = "target" + File.separator + "pgdata_" + currentDate;
-            log.info("Postgres source files in {}", dir);
-            return dir;
-        }
-
-        @After
-        public void destroy() throws IOException {
-            if (postgres != null) {
-                postgres.close();
-                postgres = null;
             }
         }
 

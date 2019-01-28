@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -33,9 +32,8 @@ public class MigrationDataService implements GenericService {
     //TODO: по-хорошему нужно вынести в отдельный класс получения блокировки по имени, но каждый случай
     //      использования блокировки нужно отдельно продумать
     private final static ReentrantLock lock = new ReentrantLock();
-    //TODO: В данном случае можно и нужно запускать импортеры в параллельном режиме, но получение
-    //      инстанса далеко не факт, что должно быть здесь
-    private final ExecutorService executor = Executors.newCachedThreadPool();
+
+    private final ExecutorService commonExecutorService;
 
     private final List<Importer> importers;
 
@@ -64,7 +62,7 @@ public class MigrationDataService implements GenericService {
 
     private void runImporters(List<Importer> importers) throws Exception {
         List<Future<?>> importTasks = importers.stream()
-                .map(importer -> executor.submit(importer::getData))
+                .map(importer -> commonExecutorService.submit(importer::getData))
                 .collect(Collectors.toList());
         try {
             for (Future<?> task : importTasks) {

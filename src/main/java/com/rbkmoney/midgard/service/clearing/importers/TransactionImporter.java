@@ -80,7 +80,7 @@ public class TransactionImporter implements Importer {
     }
 
     private long getLastTransactionEventId() {
-        ClearingTransaction clearingTransaction = transactionsDao.getLastTransactionEventId();
+        ClearingTransaction clearingTransaction = transactionsDao.getLastTransaction();
         if (clearingTransaction == null) {
             log.warn("Event ID for clearing transactions was not found!");
             return 0L;

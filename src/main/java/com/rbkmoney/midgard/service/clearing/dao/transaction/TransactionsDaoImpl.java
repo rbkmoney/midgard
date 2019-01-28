@@ -104,7 +104,7 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
     }
 
     @Override
-    public ClearingTransaction getLastTransactionEventId() throws DaoException {
+    public ClearingTransaction getLastTransaction() throws DaoException {
         Query query = getDslContext().selectFrom(CLEARING_TRANSACTION)
                 .orderBy(CLEARING_TRANSACTION.EVENT_ID.desc())
                 .limit(1);
