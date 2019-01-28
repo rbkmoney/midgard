@@ -2,6 +2,7 @@ package com.rbkmoney.midgard.service.clearing.handlers;
 
 import com.rbkmoney.midgard.*;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_cash_flow.ClearingCashFlowDao;
+import com.rbkmoney.midgard.service.clearing.dao.clearing_info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_refund.ClearingRefundDao;
 import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
 import com.rbkmoney.midgard.service.clearing.data.ClearingProcessingEvent;
@@ -9,6 +10,7 @@ import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
+import org.jooq.generated.midgard.enums.ClearingEventStatus;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventTransactionInfo;
 import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
@@ -25,13 +27,15 @@ import static org.jooq.generated.midgard.enums.ClearingTrxType.REFUND;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class ClearingEventHandler implements Handler<ClearingProcessingEvent> {
+public class ClearingDataTransferHandler implements Handler<ClearingProcessingEvent> {
 
     private final TransactionsDao transactionsDao;
 
     private final ClearingRefundDao clearingRefundDao;
 
     private final ClearingCashFlowDao cashFlowDao;
+
+    private final ClearingEventInfoDao eventInfoDao;
 
     @Value("${clearing-service.package-size}")
     private int packageSize;
@@ -40,10 +44,9 @@ public class ClearingEventHandler implements Handler<ClearingProcessingEvent> {
 
     @Override
     public void handle(ClearingProcessingEvent event) throws Exception {
+        Long clearingId = event.getClearingId();
         try {
-            Long clearingId = event.getClearingId();
             ClearingAdapterSrv.Iface adapter = event.getClearingAdapter().getAdapter();
-
             String uploadId = adapter.startClearingEvent(clearingId);
             int packagesCount = getClearingTransactionPackagesCount(clearingId);
             List<ClearingDataPackageTag> tagList = new ArrayList<>();
@@ -54,12 +57,15 @@ public class ClearingEventHandler implements Handler<ClearingProcessingEvent> {
                 tagList.add(tag);
             }
             adapter.completeClearingEvent(uploadId, clearingId, tagList);
+            eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.EXECUTE);
 
         } catch (ClearingAdapterException ex) {
-            log.error("Error occurred while processing the package by the adapter", ex);
+            log.error("Error occurred while processing clearing event {}", clearingId, ex);
+            eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.FAILED);
             throw ex;
         } catch (TException ex) {
-            log.error("Data transfer error", ex);
+            log.error("Data transfer error while processing clearing event {}", clearingId, ex);
+            eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.FAILED);
             throw new Exception(ex);
         }
     }

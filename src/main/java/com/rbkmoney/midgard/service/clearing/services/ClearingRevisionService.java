@@ -1,7 +1,9 @@
 package com.rbkmoney.midgard.service.clearing.services;
 
 import com.rbkmoney.midgard.service.clearing.dao.clearing_info.ClearingEventInfoDao;
-import com.rbkmoney.midgard.service.clearing.handlers.ClearingRevisionHandler;
+import com.rbkmoney.midgard.service.clearing.data.ClearingAdapter;
+import com.rbkmoney.midgard.service.clearing.data.ClearingProcessingEvent;
+import com.rbkmoney.midgard.service.clearing.handlers.Handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.midgard.enums.ClearingEventStatus;
@@ -10,7 +12,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.concurrent.locks.ReentrantLock;
+
+import static com.rbkmoney.midgard.service.clearing.utils.ClearingAdaptersUtils.getClearingAdapter;
 
 /** Сервис проверки статуса клиринговых событий
  *
@@ -25,26 +29,51 @@ public class ClearingRevisionService implements GenericService {
 
     private final ClearingEventInfoDao eventInfoDao;
 
-    private final ClearingRevisionHandler revisionHandler;
+    private final Handler eventStateRevisionHandler;
+
+    private final Handler clearingDataTransferHandler;
+
+    private final List<ClearingAdapter> adapters;
+
+    //TODO: переделать в сервис именованных блокировок
+    private final static ReentrantLock lock = new ReentrantLock();
 
     @Override
     @Scheduled(fixedDelayString = "${clearing-service.revision}")
     public void process() {
-        try {
-            log.info("Clearing revision process get started");
-            List<ClearingEventInfo> clearingEvents = eventInfoDao.getAllClearingEvents(ClearingEventStatus.EXECUTE);
-            List<Long> clearingIds = clearingEvents.stream()
-                    .map(ClearingEventInfo::getId)
-                    .collect(Collectors.toList());
+        log.info("Clearing revision process get started");
+        if (lock.tryLock()) {
+            try {
+                lock.lock();
+                List<ClearingEventInfo> startedEvents = eventInfoDao.getAllClearingEvents(ClearingEventStatus.STARTED);
+                log.debug("Count of started clearing event is {}", startedEvents.size());
+                runRevision(startedEvents, clearingDataTransferHandler);
 
-            log.debug("Active clearing event IDs: {}", clearingIds);
+                List<ClearingEventInfo> executeEvents = eventInfoDao.getAllClearingEvents(ClearingEventStatus.EXECUTE);
+                log.debug("Count of executed clearing event is {}", executeEvents.size());
+                runRevision(executeEvents, eventStateRevisionHandler);
 
-            for (ClearingEventInfo clearingEvent : clearingEvents) {
-                revisionHandler.handle(clearingEvent.getId());
+            } finally {
+                lock.unlock();
             }
-            log.info("Clearing revision process was finished");
+        } else {
+            log.debug("Clearing revision is running. New task is not started");
+        }
+
+        log.info("Clearing revision is finished");
+
+    }
+
+    private void runRevision(List<ClearingEventInfo> events, Handler<ClearingProcessingEvent> handler) {
+        try {
+            for (ClearingEventInfo event : events) {
+                ClearingAdapter clearingAdapter = getClearingAdapter(adapters, event.getProviderId());
+                ClearingProcessingEvent processingEvent =
+                        new ClearingProcessingEvent(clearingAdapter, event.getId());
+                handler.handle(processingEvent);
+            }
         } catch (Exception ex) {
-            log.error("Error during a clering revision", ex);
+            log.error("Error during a revision", ex);
         }
     }
 

@@ -6,6 +6,7 @@ import com.rbkmoney.midgard.ClearingEventState;
 import com.rbkmoney.midgard.FailureTransactionData;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
+import com.rbkmoney.midgard.service.clearing.data.ClearingProcessingEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
@@ -20,19 +21,20 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class ClearingRevisionHandler implements Handler<Long> {
+public class EventStateRevisionHandler implements Handler<ClearingProcessingEvent> {
 
     private final TransactionsDao transactionsDao;
 
     private final ClearingEventInfoDao clearingEventInfoDao;
 
-    private final ClearingAdapterSrv.Iface clearingAdapterService;
-
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void handle(Long clearingId) throws Exception {
+    public void handle(ClearingProcessingEvent event) throws Exception {
+        Long clearingId = event.getClearingId();
+
         try {
-            ClearingEventResponse response = clearingAdapterService.getBankResponse(clearingId);
+            ClearingAdapterSrv.Iface adapter = event.getClearingAdapter().getAdapter();
+            ClearingEventResponse response = adapter.getBankResponse(clearingId);
             ClearingEventState clearingState = response.getClearingState();
             if (clearingState == ClearingEventState.SUCCESS || clearingState == ClearingEventState.FAILED) {
                 setClearingEventState(clearingId, clearingState);
