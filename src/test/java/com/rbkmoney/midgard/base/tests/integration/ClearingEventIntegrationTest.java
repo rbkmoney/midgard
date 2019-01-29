@@ -152,7 +152,7 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
 
     private void waitingFillingTable(Supplier supplier, int threshold, String tableName) throws Exception {
         int count = 0;
-        do {
+        while(count < RETRY_COUNT) {
             count++;
             int size = (int) supplier.get();
             if (size >= threshold) {
@@ -163,7 +163,7 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
             if (count == RETRY_COUNT) {
                 throw new Exception(tableName + " table is empty. Current count of elements " + size);
             }
-        } while(count < RETRY_COUNT);
+        }
     }
 
 }
