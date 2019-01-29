@@ -7,7 +7,8 @@ import java.util.List;
 
 public final class ClearingAdaptersUtils {
 
-    public static ClearingAdapter getClearingAdapter(List<ClearingAdapter> adapters, int providerId) {
+    public static ClearingAdapter getClearingAdapter(List<ClearingAdapter> adapters, int providerId)
+            throws AdapterNotFoundException {
         return adapters.stream()
                 .filter(clrAdapter -> clrAdapter.getAdapterId() == providerId)
                 .findFirst()

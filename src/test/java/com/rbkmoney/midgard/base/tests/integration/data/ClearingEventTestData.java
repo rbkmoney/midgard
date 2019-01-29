@@ -2,6 +2,8 @@ package com.rbkmoney.midgard.base.tests.integration.data;
 
 import com.rbkmoney.midgard.ClearingDataPackageTag;
 import com.rbkmoney.midgard.ClearingEvent;
+import com.rbkmoney.midgard.ClearingEventResponse;
+import com.rbkmoney.midgard.ClearingEventState;
 
 public class ClearingEventTestData {
 
@@ -18,6 +20,13 @@ public class ClearingEventTestData {
         clearingEvent.setEventId(eventId);
         clearingEvent.setProviderId(providerId);
         return clearingEvent;
+    }
+
+    public static ClearingEventResponse getSuccessClearingEventTestRespornse(long clearingId) {
+        ClearingEventResponse response = new ClearingEventResponse();
+        response.setClearingId(clearingId);
+        response.setClearingState(ClearingEventState.SUCCESS);
+        return response;
     }
 
 }

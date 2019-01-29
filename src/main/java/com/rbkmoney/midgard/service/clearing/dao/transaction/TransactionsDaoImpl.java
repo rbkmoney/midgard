@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jooq.Field;
 import org.jooq.Query;
 import org.jooq.Record1;
+import org.jooq.generated.midgard.enums.TransactionClearingState;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventTransactionInfo;
 import org.jooq.generated.midgard.tables.pojos.FailureTransaction;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
@@ -109,6 +110,25 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
                 .orderBy(CLEARING_TRANSACTION.EVENT_ID.desc())
                 .limit(1);
         return fetchOne(query, transactionRowMapper);
+    }
+
+    @Override
+    public List<ClearingTransaction> getAllTransactionsByState(long clearingId,
+                                                         TransactionClearingState state) {
+        Query query = getDslContext().selectFrom(CLEARING_TRANSACTION)
+                .where(CLEARING_TRANSACTION.CLEARING_ID.eq(clearingId))
+                .and(CLEARING_TRANSACTION.TRANSACTION_CLEARING_STATE.eq(state));
+        return fetch(query, transactionRowMapper);
+    }
+
+    @Override
+    public Integer getReadyClearingTransactionsCount(int providerId) throws DaoException {
+        Field<Integer> rowCount = count(CLEARING_TRANSACTION.TRANSACTION_ID).as("rowCount");
+        Record1<Integer> record = getDslContext().select(rowCount)
+                .from(CLEARING_TRANSACTION)
+                .where(CLEARING_TRANSACTION.PROVIDER_ID.eq(providerId))
+                .fetchOne();
+        return record.value1();
     }
 
 }

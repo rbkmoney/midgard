@@ -3,7 +3,6 @@ package com.rbkmoney.midgard.service.clearing.handlers;
 import com.rbkmoney.midgard.ClearingEvent;
 import com.rbkmoney.midgard.ProviderNotFound;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_info.ClearingEventInfoDao;
-import com.rbkmoney.midgard.service.clearing.data.ClearingAdapter;
 import com.rbkmoney.midgard.service.clearing.exception.AdapterNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,9 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
-import static com.rbkmoney.midgard.service.clearing.utils.ClearingAdaptersUtils.getClearingAdapter;
 import static org.jooq.generated.midgard.enums.ClearingEventStatus.STARTED;
 
 @Slf4j
@@ -24,15 +20,12 @@ public class PrepareClearingDataHandler implements Handler<ClearingEvent> {
 
     private final ClearingEventInfoDao clearingEventInfoDao;
 
-    private final List<ClearingAdapter> adapters;
-
     @Override
-    public void handle(ClearingEvent clearingEvent) throws Exception {
+    public void handle(ClearingEvent clearingEvent) throws ProviderNotFound {
         int providerId = clearingEvent.getProviderId();
         try {
             long eventId = clearingEvent.getEventId();
             log.info("Starting clearing event for provider id {} started", providerId);
-            getClearingAdapter(adapters, providerId);
             // Подготовка транзакций для клиринга
             prepareClearingEvent(eventId, providerId);
             log.info("Clearing data for provider id {} prepared", providerId);
