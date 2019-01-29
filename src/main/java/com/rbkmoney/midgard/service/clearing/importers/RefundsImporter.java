@@ -43,7 +43,7 @@ public class RefundsImporter implements Importer {
     @Override
     public void getData() {
         long eventId = getLastTransactionEventId();
-        log.info("Refund data import will start with event id {}", eventId);
+        log.info("Refunds data import will start with event id {}", eventId);
 
         List<Integer> providerIds = adaptersProps.stream()
                 .map(adapterProps -> adapterProps.getProviderId())
@@ -53,7 +53,7 @@ public class RefundsImporter implements Importer {
         do {
             obtainRefundsSize = pollRefunds(eventId, providerIds);
         } while(obtainRefundsSize == poolSize);
-        log.info("Transaction data import have finished");
+        log.info("Refunds data import have finished");
     }
 
     private int pollRefunds(long eventId, List<Integer> providerIds) {

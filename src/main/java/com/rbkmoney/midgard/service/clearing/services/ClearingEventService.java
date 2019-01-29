@@ -2,12 +2,18 @@ package com.rbkmoney.midgard.service.clearing.services;
 
 import com.rbkmoney.midgard.*;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_info.ClearingEventInfoDao;
+import com.rbkmoney.midgard.service.clearing.data.ClearingAdapter;
+import com.rbkmoney.midgard.service.clearing.exception.AdapterNotFoundException;
 import com.rbkmoney.midgard.service.clearing.handlers.Handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+import static com.rbkmoney.midgard.service.clearing.utils.ClearingAdaptersUtils.getClearingAdapter;
 
 /** Сервис запуска клирингового события
  *
@@ -24,6 +30,8 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
 
     private final Handler prepareClearingDataHandler;
 
+    private final List<ClearingAdapter> adapters;
+
     @Override
     public void startClearingEvent(ClearingEvent clearingEvent) throws ProviderNotFound {
         try {
@@ -32,11 +40,15 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
             } else {
                 Long eventId = clearingEvent.getEventId();
                 if (clearingEventInfoDao.getClearingEvent(eventId) == null) {
+                    getClearingAdapter(adapters, clearingEvent.getProviderId());
                     prepareClearingDataHandler.handle(clearingEvent);
                 } else {
                     log.warn("For a event with id " + eventId + " a clearing event already exists");
                 }
             }
+        } catch (AdapterNotFoundException ex) {
+            log.error("Error in identification of a provider", ex);
+            throw new ProviderNotFound();
         } catch (Exception ex) {
             log.error("Error preparing clearing data for provider with id " + clearingEvent.getProviderId(), ex);
         }

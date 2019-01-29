@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jooq.Field;
 import org.jooq.Query;
 import org.jooq.Record1;
+import org.jooq.generated.midgard.enums.TransactionClearingState;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventTransactionInfo;
 import org.jooq.generated.midgard.tables.pojos.FailureTransaction;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;

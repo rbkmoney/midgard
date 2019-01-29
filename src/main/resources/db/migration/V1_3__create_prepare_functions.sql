@@ -45,7 +45,8 @@ BEGIN
 
     /** Перевести статус добавленных в клиринговый эвент транзакций в статус "ACTIVE" */
     UPDATE midgard.clearing_transaction
-    SET    transaction_clearing_state = cast('ACTIVE' as midgard.transaction_clearing_state)
+    SET    transaction_clearing_state = cast('ACTIVE' as midgard.transaction_clearing_state),
+           clearing_id = src_clearing_id
     WHERE  transaction_id IN (SELECT transaction_id
                               FROM   midgard.clearing_event_transaction_info cei
                               WHERE  cei.clearing_id = src_clearing_id

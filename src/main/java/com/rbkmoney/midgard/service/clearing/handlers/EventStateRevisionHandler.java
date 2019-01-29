@@ -45,6 +45,7 @@ public class EventStateRevisionHandler implements Handler<ClearingProcessingEven
             }
         } catch (TException ex) {
             log.error("Error while getting response for clearing event with id " + clearingId, ex);
+            throw new Exception(ex);
         }
     }
 
@@ -60,6 +61,9 @@ public class EventStateRevisionHandler implements Handler<ClearingProcessingEven
     }
 
     private void saveFailureTransactions(long clearingEventId, List<FailureTransactionData> failureTransactions) {
+        if (failureTransactions == null) {
+            return;
+        }
         for (FailureTransactionData failureTransaction : failureTransactions) {
             FailureTransaction transaction = new FailureTransaction();
             transaction.setTransactionId(failureTransaction.getTransactionId());
