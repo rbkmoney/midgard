@@ -2,7 +2,6 @@ package com.rbkmoney.midgard.service.clearing.dao.transaction;
 
 import com.rbkmoney.midgard.service.clearing.dao.common.ClearingDao;
 import com.rbkmoney.midgard.service.clearing.exception.DaoException;
-import org.jooq.generated.midgard.enums.TransactionClearingState;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventTransactionInfo;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
 import org.jooq.generated.midgard.tables.pojos.FailureTransaction;
@@ -22,9 +21,5 @@ public interface TransactionsDao extends ClearingDao<ClearingTransaction, String
     Integer getProcessedClearingTransactionCount(long clearingId) throws DaoException;
 
     ClearingTransaction getLastTransaction() throws DaoException;
-
-    List<ClearingTransaction> getAllTransactionsByState(long clearingId, TransactionClearingState state);
-
-    Integer getReadyClearingTransactionsCount(int providerId) throws DaoException;
 
 }

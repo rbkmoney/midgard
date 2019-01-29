@@ -3,6 +3,7 @@ package com.rbkmoney.midgard.base.tests.integration;
 import com.rbkmoney.midgard.ClearingAdapterSrv;
 import com.rbkmoney.midgard.ClearingDataPackage;
 import com.rbkmoney.midgard.ProviderNotFound;
+import com.rbkmoney.midgard.base.tests.integration.dao.TestTransactionsDao;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.service.clearing.dao.payment.PaymentDao;
 import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
@@ -19,6 +20,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -30,6 +32,9 @@ import static org.mockito.Mockito.when;
 
 @Slf4j
 public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
+
+    @Autowired
+    private DataSource dataSource;
 
     @Autowired
     private ClearingEventService clearingEventService;
@@ -49,6 +54,8 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private List<ClearingAdapter> adapters;
 
+    private TestTransactionsDao testTransactionsDao;
+
     private static final int PROVIDER_ID = 1;
 
     private static final int FAIL_PROVIDER_ID = 111;
@@ -66,7 +73,10 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void clearingEventIntegrationTest() throws Exception {
+        testTransactionsDao = new TestTransactionsDao(dataSource);
+
         prepareTestEnvironment();
+
         long outerEventId = 1L;
         ClearingEventInfo clearingEventInfo = initClearingEventTest(outerEventId);
 
@@ -99,7 +109,7 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
         assertNotNull("Table with transactions is empty", lastTransaction);
 
         List<ClearingTransaction> activeTransactions =
-                transactionsDao.getAllTransactionsByState(clearingId, TransactionClearingState.ACTIVE);
+                testTransactionsDao.getAllTransactionsByState(clearingId, TransactionClearingState.ACTIVE);
         assertEquals("Count of the active clearing transactions is not equal to the target",
                 CLEARING_TRX_COUNT, activeTransactions.size());
 
@@ -136,7 +146,7 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
         Supplier paymentSupplier = () -> paymentDao.getPayments(0, providerIds, 100).size();
         waitingFillingTable(paymentSupplier, CLEARING_TRX_COUNT, "Payment");
 
-        Supplier trxSupplier = () -> transactionsDao.getReadyClearingTransactionsCount(PROVIDER_ID);
+        Supplier trxSupplier = () -> testTransactionsDao.getReadyClearingTransactionsCount(PROVIDER_ID);
         waitingFillingTable(trxSupplier, CLEARING_TRX_COUNT, "ClearingTransactions");
     }
 

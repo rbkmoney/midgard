@@ -112,23 +112,4 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
         return fetchOne(query, transactionRowMapper);
     }
 
-    @Override
-    public List<ClearingTransaction> getAllTransactionsByState(long clearingId,
-                                                         TransactionClearingState state) {
-        Query query = getDslContext().selectFrom(CLEARING_TRANSACTION)
-                .where(CLEARING_TRANSACTION.CLEARING_ID.eq(clearingId))
-                .and(CLEARING_TRANSACTION.TRANSACTION_CLEARING_STATE.eq(state));
-        return fetch(query, transactionRowMapper);
-    }
-
-    @Override
-    public Integer getReadyClearingTransactionsCount(int providerId) throws DaoException {
-        Field<Integer> rowCount = count(CLEARING_TRANSACTION.TRANSACTION_ID).as("rowCount");
-        Record1<Integer> record = getDslContext().select(rowCount)
-                .from(CLEARING_TRANSACTION)
-                .where(CLEARING_TRANSACTION.PROVIDER_ID.eq(providerId))
-                .fetchOne();
-        return record.value1();
-    }
-
 }
