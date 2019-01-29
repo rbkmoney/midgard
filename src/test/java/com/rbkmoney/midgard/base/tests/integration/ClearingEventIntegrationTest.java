@@ -2,7 +2,6 @@ package com.rbkmoney.midgard.base.tests.integration;
 
 import com.rbkmoney.midgard.ClearingAdapterSrv;
 import com.rbkmoney.midgard.ClearingDataPackage;
-import com.rbkmoney.midgard.ProviderNotFound;
 import com.rbkmoney.midgard.base.tests.integration.dao.TestTransactionsDao;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.service.clearing.dao.payment.PaymentDao;
@@ -81,8 +80,6 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
         ClearingEventInfo clearingEventInfo = initClearingEventTest(outerEventId);
 
         revisionTest(outerEventId, clearingEventInfo.getId());
-
-        testInvalidProviderId();
     }
 
     private ClearingEventInfo initClearingEventTest(long outerEventId) throws Exception {
@@ -118,16 +115,6 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
                 ClearingEventStatus.EXECUTE, clearingEvent.getStatus());
     }
 
-    private void testInvalidProviderId() {
-        boolean isThrownProviderNotFoundException = false;
-        try {
-            clearingEventService.startClearingEvent(getClearingEvent(200, FAIL_PROVIDER_ID));
-        } catch (ProviderNotFound providerNotFound) {
-            isThrownProviderNotFoundException = true;
-        }
-        assertTrue("The exception was not thrown", isThrownProviderNotFoundException);
-    }
-
     private void prepareTestEnvironment() throws Exception {
         ClearingAdapterSrv.Iface adapterSrv = mock(ClearingAdapterSrv.Iface.class);
         for (int clearingId = 1; clearingId <= CLEARING_EVENTS_COUNT; clearingId++) {
@@ -135,7 +122,7 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
             when(adapterSrv.startClearingEvent(clearingId)).thenReturn(uploadId);
             when(adapterSrv.sendClearingDataPackage(Mockito.any(String.class), Mockito.any(ClearingDataPackage.class)))
                     .thenReturn(getDataPackageTag(1L, "tag_1"));
-            when(adapterSrv.getBankResponse(clearingId)).thenReturn(getSuccessClearingEventTestRespornse(clearingId));
+            when(adapterSrv.getBankResponse(clearingId)).thenReturn(getSuccessClearingEventTestResponse(clearingId));
         }
 
         adapters.forEach(clearingAdapter -> clearingAdapter.setAdapter(adapterSrv));

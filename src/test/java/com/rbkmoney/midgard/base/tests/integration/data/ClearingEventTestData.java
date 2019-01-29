@@ -7,8 +7,7 @@ import com.rbkmoney.midgard.ClearingEventState;
 
 public class ClearingEventTestData {
 
-    public static ClearingDataPackageTag getDataPackageTag(Long packageNumber,
-                                                           String tagName) {
+    public static ClearingDataPackageTag getDataPackageTag(Long packageNumber, String tagName) {
         ClearingDataPackageTag tag = new ClearingDataPackageTag();
         tag.setPackageNumber(packageNumber);
         tag.setPackageTagId(tagName);
@@ -22,7 +21,7 @@ public class ClearingEventTestData {
         return clearingEvent;
     }
 
-    public static ClearingEventResponse getSuccessClearingEventTestRespornse(long clearingId) {
+    public static ClearingEventResponse getSuccessClearingEventTestResponse(long clearingId) {
         ClearingEventResponse response = new ClearingEventResponse();
         response.setClearingId(clearingId);
         response.setClearingState(ClearingEventState.SUCCESS);
