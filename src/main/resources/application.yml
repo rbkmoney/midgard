@@ -22,12 +22,12 @@ clearing-service:
   adapters:
     mts:
       name: mts
-      url: http://mts_clearing_adapter:8022/repo
+      url: http://clearing:8023/v1/clearing/mts
       networkTimeout: 5000
       providerId: 1
     test:
       name: test
-      url: http://test_clearing_adapter:8022/repo
+      url: http://clearing:8023/v1/clearing/test
       networkTimeout: 5000
       providerId: 101
 
@@ -42,7 +42,7 @@ retry-policy:
 bm:
   pollingEnabled: true
   invoicing:
-    url: http://localhost:8026/repo
+    url: http://bustermaze:8022/repo
     workersCount: 5
     polling:
       delay: 10000
@@ -50,7 +50,7 @@ bm:
       maxPoolSize: 1
       maxQuerySize: 300
   partyManagement:
-    url: http://localhost:8026/repo
+    url: http://bustermaze:8022/repo
     polling:
       delay: 10000
       retryDelay: 1000
@@ -58,7 +58,7 @@ bm:
       maxQuerySize: 300
 
 dmt:
-  url: http://localhost:8025/v1/domain/repository
+  url: http://dominant:8022/v1/domain/repository
   networkTimeout: 5000
   polling:
     delay: 3000
