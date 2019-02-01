@@ -37,7 +37,7 @@ public class EventStateRevisionHandler implements Handler<ClearingProcessingEven
             ClearingEventResponse response = adapter.getBankResponse(clearingId);
             ClearingEventState clearingState = response.getClearingState();
             if (clearingState == ClearingEventState.SUCCESS || clearingState == ClearingEventState.FAILED) {
-                setClearingEventState(clearingId, clearingState);
+                setClearingEventState(response);
                 List<FailureTransactionData> failureTransactions = response.getFailureTransactions();
                 saveFailureTransactions(clearingId, failureTransactions);
             } else {
@@ -49,14 +49,17 @@ public class EventStateRevisionHandler implements Handler<ClearingProcessingEven
         }
     }
 
-    private void setClearingEventState(long clearingEventId, ClearingEventState state) {
-        switch (state) {
-            case SUCCESS:
-                clearingEventInfoDao.updateClearingStatus(clearingEventId, ClearingEventStatus.SUCCESS);
-                break;
-            case FAILED:
-                clearingEventInfoDao.updateClearingStatus(clearingEventId, ClearingEventStatus.FAILED);
-                break;
+    private void setClearingEventState(ClearingEventResponse response) {
+        long clearingEventId = response.getClearingId();
+
+        if (response.getClearingState() == ClearingEventState.SUCCESS) {
+            if (response.getFailureTransactions() == null || response.getFailureTransactions().isEmpty()) {
+                clearingEventInfoDao.updateClearingStatus(clearingEventId, ClearingEventStatus.COMPLETE);
+            } else {
+                clearingEventInfoDao.updateClearingStatus(clearingEventId, ClearingEventStatus.COMPLETE_WITH_ERRORS);
+            }
+        } else if (response.getClearingState() == ClearingEventState.SUCCESS) {
+            clearingEventInfoDao.updateClearingStatus(clearingEventId, ClearingEventStatus.FAILED);
         }
     }
 
