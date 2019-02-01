@@ -61,11 +61,11 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
 
         } catch (ClearingAdapterException ex) {
             log.error("Error occurred while processing clearing event {}", clearingId, ex);
-            eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.FAILED);
+            eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.ADAPTER_FAULT);
             throw ex;
         } catch (TException ex) {
             log.error("Data transfer error while processing clearing event {}", clearingId, ex);
-            eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.FAILED);
+            eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.ADAPTER_FAULT);
             throw new Exception(ex);
         }
     }
