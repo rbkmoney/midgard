@@ -154,6 +154,7 @@ public final class MappingUtils {
         clearingRefund.setEventId(refund.getEventId());
         clearingRefund.setInvoiceId(refund.getInvoiceId());
         clearingRefund.setPaymentId(refund.getPaymentId());
+        clearingRefund.setRefundId(refund.getRefundId());
         clearingRefund.setTransactionId(refund.getSessionPayloadTransactionBoundTrxId());
         clearingRefund.setPartyId(refund.getPartyId());
         clearingRefund.setShopId(refund.getShopId());
