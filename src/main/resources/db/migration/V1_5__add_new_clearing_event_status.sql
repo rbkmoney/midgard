@@ -1,1 +1,0 @@
-ALTER TYPE midgard.clearing_event_status RENAME VALUE 'SUCCESS' TO 'COMPLETE';
