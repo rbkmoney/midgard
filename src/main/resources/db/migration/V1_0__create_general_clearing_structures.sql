@@ -83,7 +83,7 @@ CREATE TABLE midgard.clearing_transaction_cash_flow(
 /***************************************************************************/
 /**        Список клиринговых событий, полученных от внешних систем        */
 /***************************************************************************/
-CREATE TYPE midgard.clearing_event_status AS ENUM ('STARTED', 'EXECUTE', 'SUCCESS', 'FAILED');
+CREATE TYPE midgard.clearing_event_status AS ENUM ('STARTED', 'EXECUTE', 'COMPLETE', 'FAILED');
 
 CREATE TABLE midgard.clearing_event_info (
   id           BIGSERIAL                     NOT NULL,
