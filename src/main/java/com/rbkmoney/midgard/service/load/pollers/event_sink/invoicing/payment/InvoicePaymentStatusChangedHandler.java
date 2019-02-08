@@ -45,6 +45,16 @@ public class InvoicePaymentStatusChangedHandler extends AbstractInvoicingHandler
     }
 
     @Override
+    public boolean accept(InvoiceChange change) {
+        return getFilter().match(change) &&
+                !change.getInvoicePaymentChange()
+                        .getPayload()
+                        .getInvoicePaymentStatusChanged()
+                        .getStatus()
+                        .isSetRefunded();
+    }
+
+    @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void handle(InvoiceChange invoiceChange, Event event) throws DaoException {
         InvoicePaymentStatus invoicePaymentStatus = invoiceChange.getInvoicePaymentChange().getPayload().getInvoicePaymentStatusChanged().getStatus();
