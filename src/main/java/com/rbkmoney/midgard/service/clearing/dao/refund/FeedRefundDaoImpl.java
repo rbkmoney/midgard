@@ -28,7 +28,7 @@ public class FeedRefundDaoImpl extends AbstractGenericDao implements RefundDao {
 
     @Override
     public List<Refund> getRefunds(long eventId, List<Integer> providerIds, int poolSize) throws DaoException {
-        Query query = getDslContext().select()
+        Query query = getDslContext().select(REFUND.fields())
                 .from(REFUND)
                 .join(PAYMENT).on(REFUND.INVOICE_ID.eq(PAYMENT.INVOICE_ID))
                 .and(REFUND.PAYMENT_ID.eq(PAYMENT.PAYMENT_ID))
