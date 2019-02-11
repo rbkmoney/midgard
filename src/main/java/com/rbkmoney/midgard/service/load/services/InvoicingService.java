@@ -46,11 +46,11 @@ public class InvoicingService implements EventService<Event, EventPayload> {
     public Optional<Long> getLastEventId(int div, int mod) throws DaoException {
         Optional<Long> lastEventId = Optional.ofNullable(invoiceDao.getLastEventId(div, mod));
         log.info("Last invoicing eventId={}", lastEventId);
-        if (lastEventId.orElse(0L) == 0L) {
+        if (lastEventId.isPresent()) {
+            return lastEventId;
+        } else {
             log.debug("Last invoicing eventId will set to {}", initLastEventId);
             return Optional.of(initLastEventId);
-        } else {
-            return lastEventId;
         }
     }
 
