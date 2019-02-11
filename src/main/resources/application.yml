@@ -35,6 +35,7 @@ import:
   trx-pool-size: 100
   migration:
     delay: 10000
+  init-last-event-id: 140637618
 
 retry-policy:
   maxAttempts: 10
