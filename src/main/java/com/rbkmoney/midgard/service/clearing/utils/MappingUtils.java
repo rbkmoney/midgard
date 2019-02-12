@@ -48,7 +48,7 @@ public final class MappingUtils {
                                                          ClearingRefund refund) {
         GeneralTransactionInfo generalTranInfo = new GeneralTransactionInfo();
         generalTranInfo.setTransactionId(refund.getTransactionId());
-        generalTranInfo.setTransactionDate(refund.getCreatedAt().toString());
+        generalTranInfo.setTransactionDate(refund.getCreatedAt().toInstant(ZoneOffset.UTC).toString());
         generalTranInfo.setTransactionAmount(refund.getAmount());
         generalTranInfo.setTransactionCurrency(refund.getCurrencyCode());
         generalTranInfo.setTransactionType("REFUND");
