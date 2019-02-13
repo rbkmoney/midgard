@@ -50,8 +50,11 @@ public class InvoicePaymentCashFlowChangedHandler extends AbstractInvoicingHandl
         log.info("Start handling payment cashflow change, eventId='{}', invoiceId='{}', paymentId='{}'", event.getId(), invoiceId, paymentId);
         Payment paymentSource = paymentDao.get(invoiceId, paymentId);
         if (paymentSource == null) {
-            throw new NotFoundException(String.format("Payment not found, invoiceId='%s', paymentId='%s'",
-                    invoiceId, paymentId));
+            // TODO: исправить после того как прольется БД
+            log.error("Payment not found, invoiceId='{}', paymentId='{}'", invoiceId, paymentId);
+            return;
+            //throw new NotFoundException(String.format("Payment not found, invoiceId='%s', paymentId='%s'",
+            //        invoiceId, paymentId));
         }
         paymentSource.setId(null);
         paymentSource.setWtime(null);

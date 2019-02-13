@@ -67,7 +67,10 @@ public class InvoicePaymentStatusChangedHandler extends AbstractInvoicingHandler
 
         Payment paymentSource = paymentDao.get(invoiceId, paymentId);
         if (paymentSource == null) {
-            throw new NotFoundException(String.format("Payment not found, invoiceId='%s', paymentId='%s'", invoiceId, paymentId));
+            // TODO: исправить после того как прольется БД
+            log.error("Invoice payment not found, invoiceId='{}', paymentId='{}'", invoiceId, paymentId);
+            return;
+            //throw new NotFoundException(String.format("Payment not found, invoiceId='%s', paymentId='%s'", invoiceId, paymentId));
         }
         Long paymentSourceId = paymentSource.getId();
         paymentSource.setId(null);

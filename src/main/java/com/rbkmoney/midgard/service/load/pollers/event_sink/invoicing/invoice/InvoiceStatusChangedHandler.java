@@ -49,7 +49,10 @@ public class InvoiceStatusChangedHandler extends AbstractInvoicingHandler {
 
         Invoice invoiceSource = invoiceDao.get(event.getSource().getInvoiceId());
         if (invoiceSource == null) {
-            throw new NotFoundException(String.format("Invoice not found, invoiceId='%s'", event.getSource().getInvoiceId()));
+            // TODO: исправить после того как прольется БД
+            log.error("Invoice not found, invoiceId='{}'", event.getSource().getInvoiceId());
+            return;
+            //throw new NotFoundException(String.format("Invoice not found, invoiceId='%s'", event.getSource().getInvoiceId()));
         }
         log.info("Start invoice status changed handling, eventId={}, invoiceId={}, partyId={}, shopId={}, status={}",
                 eventId, invoiceSource.getInvoiceId(), invoiceSource.getPartyId(), invoiceSource.getShopId(), invoiceStatus.getSetField().getFieldName());
