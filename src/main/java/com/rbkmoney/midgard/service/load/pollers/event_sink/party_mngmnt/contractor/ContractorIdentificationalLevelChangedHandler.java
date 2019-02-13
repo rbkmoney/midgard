@@ -36,7 +36,10 @@ public class ContractorIdentificationalLevelChangedHandler extends AbstractClaim
             log.info("Start identificational level changed handling, eventId={}, partyId={}, contractorId={}", eventId, partyId, contractorId);
             Contractor contractorSource = contractorDao.get(partyId, contractorId);
             if (contractorSource == null) {
-                throw new NotFoundException(String.format("Contractor not found, contractorId='%s'", contractorId));
+                // TODO: исправить после того как прольется БД
+                log.error("Contractor not found, contractorId='{}'", contractorId);
+                return;
+                //throw new NotFoundException(String.format("Contractor not found, contractorId='%s'", contractorId));
             }
             contractorSource.setId(null);
             contractorSource.setWtime(null);

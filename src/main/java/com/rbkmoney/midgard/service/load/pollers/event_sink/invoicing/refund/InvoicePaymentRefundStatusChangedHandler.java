@@ -65,8 +65,12 @@ public class InvoicePaymentRefundStatusChangedHandler extends AbstractInvoicingH
                 eventId, invoiceId, paymentId, refundId, invoicePaymentRefundStatus.getSetField().getFieldName());
         Refund refundSource = refundDao.get(invoiceId, paymentId, refundId);
         if (refundSource == null) {
-            throw new NotFoundException(String.format("Refund not found, invoiceId='%s', paymentId='%s', refundId='%s'",
-                    invoiceId, paymentId, refundId));
+            // TODO: исправить после того как прольется БД
+            log.error("Refund not found, invoiceId='{}', paymentId='{}', refundId='{}'",
+                    invoiceId, paymentId, refundId);
+            return;
+            //throw new NotFoundException(String.format("Refund not found, invoiceId='%s', paymentId='%s', refundId='%s'",
+            //        invoiceId, paymentId, refundId));
         }
         Long refundSourceId = refundSource.getId();
         refundSource.setId(null);
