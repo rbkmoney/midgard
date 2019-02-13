@@ -20,7 +20,7 @@
     <properties>
         <project.maintainer>Dmitrii Baikov &lt;d.baykov@rbkmoney.com&gt;</project.maintainer>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dockerfile.base.service.tag>4f3b89c6381373923f5fdea18b08741b9bada1e6</dockerfile.base.service.tag>
+        <dockerfile.base.service.tag>0d28a0d8a1074fbe7b1555ef195cbccf7f4f8806</dockerfile.base.service.tag>
         <!-- RBK.Money environment settings -->
         <damsel.version>1.267-5711f53</damsel.version>
         <fistful-proto.version>1.8-37ccefb</fistful-proto.version>
