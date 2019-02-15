@@ -12,7 +12,7 @@
 
     <groupId>com.rbkmoney</groupId>
     <artifactId>midgard</artifactId>
-    <version>1.1.9</version>
+    <version>1.2.0</version>
 
     <name>midgard</name>
     <description>Application for work with clearing data</description>
