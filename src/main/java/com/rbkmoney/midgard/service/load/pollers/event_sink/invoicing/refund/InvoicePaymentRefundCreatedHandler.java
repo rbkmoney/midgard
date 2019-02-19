@@ -79,12 +79,8 @@ public class InvoicePaymentRefundCreatedHandler extends AbstractInvoicingHandler
 
         Payment payment = paymentDao.get(invoiceId, paymentId);
         if (payment == null) {
-            // TODO: исправить после того как прольется БД
-            log.error("Payment on refund not found, invoiceId='{}', " +
-                    "paymentId='{}', refundId='{}'", invoiceId, paymentId, refundId);
-            return;
-            //throw new NotFoundException(String.format("Payment on refund not found, invoiceId='%s', " +
-            //                "paymentId='%s', refundId='%s'", invoiceId, paymentId, refundId));
+            throw new NotFoundException(String.format("Payment on refund not found, invoiceId='%s', " +
+                            "paymentId='%s', refundId='%s'", invoiceId, paymentId, refundId));
         }
 
         refund.setPartyId(payment.getPartyId());

@@ -64,12 +64,8 @@ public class InvoicePaymentAdjustmentStatusChangedHandler extends AbstractInvoic
                 eventId, invoiceId, paymentId, adjustmentId, invoicePaymentAdjustmentStatus.getSetField().getFieldName());
         Adjustment adjustmentSource = adjustmentDao.get(invoiceId, paymentId, adjustmentId);
         if (adjustmentSource == null) {
-            // TODO: исправить после того как прольется БД
-            log.error("Adjustment not found, invoiceId='{}', paymentId='{}', adjustmentId='{}'",
-                            invoiceId, paymentId, adjustmentId);
-            return;
-            //throw new NotFoundException(String.format("Adjustment not found, invoiceId='%s', paymentId='%s', adjustmentId='%s'",
-            //        invoiceId, paymentId, adjustmentId));
+            throw new NotFoundException(String.format("Adjustment not found, invoiceId='%s', paymentId='%s', adjustmentId='%s'",
+                    invoiceId, paymentId, adjustmentId));
         }
         Long adjustmentSourceId = adjustmentSource.getId();
         adjustmentSource.setId(null);

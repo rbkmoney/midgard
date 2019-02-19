@@ -35,10 +35,7 @@ public class ShopPayoutScheduleChangedHandler extends AbstractClaimChangedHandle
             log.info("Start shop payoutScheduleChanged handling, eventId={}, partyId={}, shopId={}", eventId, partyId, shopId);
             Shop shopSource = shopDao.get(partyId, shopId);
             if (shopSource == null) {
-                // TODO: исправить после того как прольется БД
-                log.error("Shop not found, shopId='{}'", shopId);
-                return;
-                //throw new NotFoundException(String.format("Shop not found, shopId='%s'", shopId));
+                throw new NotFoundException(String.format("Shop not found, shopId='%s'", shopId));
             }
             shopSource.setId(null);
             shopSource.setWtime(null);
