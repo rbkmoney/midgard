@@ -56,11 +56,8 @@ public class InvoicePaymentSessionChangeTransactionBoundHandler extends Abstract
                 event.getId(), invoiceId, paymentId);
         Payment paymentSource = paymentDao.get(invoiceId, paymentId);
         if (paymentSource == null) {
-            // TODO: исправить после того как прольется БД
-            log.error("Invoice payment not found, invoiceId='{}', paymentId='{}'", invoiceId, paymentId);
-            return;
-            //throw new NotFoundException(String.format("Invoice payment not found, invoiceId='%s', paymentId='%s'",
-            //        invoiceId, paymentId));
+            throw new NotFoundException(String.format("Invoice payment not found, invoiceId='%s', paymentId='%s'",
+                    invoiceId, paymentId));
         }
         Long paymentSourceId = paymentSource.getId();
         paymentSource.setId(null);

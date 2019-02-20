@@ -74,11 +74,8 @@ public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
 
         Invoice invoice = invoiceDao.get(invoiceId);
         if (invoice == null) {
-            // TODO: исправить после того как прольется БД
-            log.error("Invoice on payment not found, invoiceId='{}', paymentId='{}'", invoiceId, invoicePayment.getId());
-            return;
-            //throw new NotFoundException(String.format("Invoice on payment not found, invoiceId='%s', paymentId='%s'",
-            //        invoiceId, invoicePayment.getId()));
+            throw new NotFoundException(String.format("Invoice on payment not found, invoiceId='%s', paymentId='%s'",
+                    invoiceId, invoicePayment.getId()));
         }
 
         payment.setPartyId(invoice.getPartyId());
