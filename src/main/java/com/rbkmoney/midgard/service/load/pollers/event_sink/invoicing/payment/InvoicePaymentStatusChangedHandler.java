@@ -1,5 +1,6 @@
 package com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.payment;
 
+import com.rbkmoney.damsel.domain.Cash;
 import com.rbkmoney.damsel.domain.InvoicePaymentStatus;
 import com.rbkmoney.damsel.payment_processing.Event;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
@@ -83,6 +84,11 @@ public class InvoicePaymentStatusChangedHandler extends AbstractInvoicingHandler
             paymentSource.setStatusCapturedReason(null);
             paymentSource.setStatusFailedFailure(null);
         } else if (invoicePaymentStatus.isSetCaptured()) {
+            if (invoicePaymentStatus.getCaptured().isSetCost()) {
+                Cash cost = invoicePaymentStatus.getCaptured().getCost();
+                paymentSource.setAmount(cost.getAmount());
+                paymentSource.setCurrencyCode(cost.getCurrency().getSymbolicCode());
+            }
             paymentSource.setStatusCancelledReason(null);
             paymentSource.setStatusCapturedReason(invoicePaymentStatus.getCaptured().getReason());
             paymentSource.setStatusFailedFailure(null);
