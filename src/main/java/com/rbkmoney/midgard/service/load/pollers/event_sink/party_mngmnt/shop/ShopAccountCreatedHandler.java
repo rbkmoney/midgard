@@ -36,7 +36,10 @@ public class ShopAccountCreatedHandler extends AbstractClaimChangedHandler {
             log.info("Start shop accountCreated handling, eventId={}, partyId={}, shopId={}", eventId, partyId, shopId);
             Shop shopSource = shopDao.get(partyId, shopId);
             if (shopSource == null) {
-                throw new NotFoundException(String.format("Shop not found, shopId='%s'", shopId));
+                // TODO: исправить после того как прольется БД
+                log.error("Shop not found, shopId='{}'", shopId);
+                return;
+                //throw new NotFoundException(String.format("Shop not found, shopId='%s'", shopId));
             }
             shopSource.setId(null);
             shopSource.setWtime(null);
