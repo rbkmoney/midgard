@@ -42,7 +42,10 @@ public class PartyBlockingHandler extends AbstractPartyManagementHandler {
         log.info("Start party blocking handling, eventId={}, partyId={}", eventId, partyId);
         Party partySource = partyDao.get(partyId);
         if (partySource == null) {
-            throw new NotFoundException(String.format("Party not found, partyId='%s'", partyId));
+            // TODO: исправить после того как прольется БД
+            log.error("Party not found, partyId='{}'", partyId);
+            return;
+            //throw new NotFoundException(String.format("Party not found, partyId='%s'", partyId));
         }
         partySource.setId(null);
         partySource.setWtime(null);

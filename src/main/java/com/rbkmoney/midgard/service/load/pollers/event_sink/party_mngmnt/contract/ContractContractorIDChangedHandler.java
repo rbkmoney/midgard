@@ -45,7 +45,10 @@ public class ContractContractorIDChangedHandler extends AbstractClaimChangedHand
                     eventId, partyId, contractId);
             Contract contractSource = contractDao.get(partyId, contractId);
             if (contractSource == null) {
-                throw new NotFoundException(String.format("Contract not found, contractId='%s'", contractId));
+                // TODO: исправить после того как прольется БД
+                log.error("Contract not found, contractId='{}'", contractId);
+                return;
+                //throw new NotFoundException(String.format("Contract not found, contractId='%s'", contractId));
             }
             Long contractSourceId = contractSource.getId();
             contractSource.setId(null);
