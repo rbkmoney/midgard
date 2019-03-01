@@ -43,8 +43,7 @@ public class ContractorCreatedHandler extends AbstractClaimChangedHandler {
             if (partySource == null) {
                 throw new NotFoundException(String.format("Party not found, partyId='%s'", partyId));
             }
-            Contractor contractor = ContractorUtil.convertContractor(eventId, event.getCreatedAt(),
-                    partyId, partySource.getRevision(), contractorCreated, contractorId);
+            Contractor contractor = ContractorUtil.convertContractor(eventId, event.getCreatedAt(), partyId, contractorCreated, contractorId);
             contractor.setIdentificationalLevel(partyContractor.getStatus().name());
             contractorDao.save(contractor);
             log.info("Contract contractor has been saved, eventId={}, partyId={}, contractorId={}",

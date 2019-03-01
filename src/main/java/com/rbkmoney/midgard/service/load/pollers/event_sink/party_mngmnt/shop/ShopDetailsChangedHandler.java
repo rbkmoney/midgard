@@ -41,6 +41,7 @@ public class ShopDetailsChangedHandler extends AbstractClaimChangedHandler {
                 //throw new NotFoundException(String.format("Shop not found, shopId='%s'", shopId));
             }
             shopSource.setId(null);
+            shopSource.setRevision(null);
             shopSource.setWtime(null);
             shopSource.setEventId(eventId);
             shopSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));

@@ -42,6 +42,7 @@ public class ContractorIdentificationalLevelChangedHandler extends AbstractClaim
                 //throw new NotFoundException(String.format("Contractor not found, contractorId='%s'", contractorId));
             }
             contractorSource.setId(null);
+            contractorSource.setRevision(null);
             contractorSource.setWtime(null);
             contractorSource.setEventId(eventId);
             contractorSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));

@@ -5,7 +5,6 @@ import com.rbkmoney.midgard.service.clearing.dao.clearing_refund.ClearingRefundD
 import com.rbkmoney.midgard.service.clearing.dao.payment.PaymentDao;
 import com.rbkmoney.midgard.service.clearing.dao.refund.RefundDao;
 import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
-import com.rbkmoney.midgard.service.config.props.AdapterProps;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
@@ -18,7 +17,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.rbkmoney.midgard.service.clearing.utils.MappingUtils.transformCashFlow;
 
@@ -35,28 +33,20 @@ public class RefundsImporter implements Importer {
 
     private final ClearingCashFlowDao clearingCashFlowDao;
 
-    private final List<AdapterProps> adaptersProps;
-
     @Value("${import.trx-pool-size}")
     private int poolSize;
 
     @Override
-    public void getData() {
-        long eventId = getLastTransactionEventId();
-        log.info("Refunds data import will start with event id {}", eventId);
+    public void getData(List<Integer> providerIds) {
+        log.info("Refunds data import will start with event id {}", getLastTransactionEventId());
 
-        List<Integer> providerIds = adaptersProps.stream()
-                .map(adapterProps -> adapterProps.getProviderId())
-                .collect(Collectors.toList());
+        while(pollRefunds(getLastTransactionEventId(), providerIds) == poolSize);
 
-        int obtainRefundsSize;
-        do {
-            obtainRefundsSize = pollRefunds(eventId, providerIds);
-        } while(obtainRefundsSize == poolSize);
         log.info("Refunds data import have finished");
     }
 
-    private int pollRefunds(long eventId, List<Integer> providerIds) {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public int pollRefunds(long eventId, List<Integer> providerIds) {
         List<Refund> refunds = refundDao.getRefunds(eventId, providerIds, poolSize);
         for (Refund refund : refunds) {
             saveClearingRefundData(refund);
@@ -64,8 +54,7 @@ public class RefundsImporter implements Importer {
         return refunds.size();
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void saveClearingRefundData(Refund refund) {
+    private void saveClearingRefundData(Refund refund) {
         ClearingRefund clearingRefund = MappingUtils.transformRefund(refund);
         clearingRefundDao.save(clearingRefund);
         List<CashFlow> cashFlow = paymentDao.getCashFlow(refund.getId());

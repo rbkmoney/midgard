@@ -97,6 +97,8 @@ public class ContractUtil {
                     );
                 }
             }
+        } else if (pt.getPayoutToolInfo().isSetWalletInfo()) {
+            payoutTool.setPayoutToolInfoWalletInfoWalletId(pt.getPayoutToolInfo().getWalletInfo().getWalletId());
         }
         return payoutTool;
     }

@@ -54,6 +54,7 @@ public class ContractPayoutToolCreatedHandler extends AbstractClaimChangedHandle
             }
             Long contractSourceId = contractSource.getId();
             contractSource.setId(null);
+            contractSource.setRevision(null);
             contractSource.setWtime(null);
             contractSource.setEventId(eventId);
             contractSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
