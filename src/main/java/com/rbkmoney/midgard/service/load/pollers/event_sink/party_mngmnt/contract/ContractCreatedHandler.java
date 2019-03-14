@@ -54,7 +54,6 @@ public class ContractCreatedHandler extends AbstractClaimChangedHandler {
             if (partySource == null) {
                 throw new NotFoundException(String.format("Party not found, partyId='%s'", partyId));
             }
-            contract.setRevision(partySource.getRevision());
             contract.setContractId(contractId);
             contract.setPartyId(partyId);
             if (contractCreated.isSetPaymentInstitution()) {
@@ -93,8 +92,7 @@ public class ContractCreatedHandler extends AbstractClaimChangedHandler {
             long cntrctId = contractDao.save(contract);
 
             if (contractCreated.isSetContractor()) {
-                Contractor contractor = ContractorUtil.convertContractor(eventId, event.getCreatedAt(),
-                        partyId, partySource.getRevision(), contractCreated.getContractor(), contractorId);
+                Contractor contractor = ContractorUtil.convertContractor(eventId, event.getCreatedAt(), partyId, contractCreated.getContractor(), contractorId);
                 contractorDao.save(contractor);
             }
 

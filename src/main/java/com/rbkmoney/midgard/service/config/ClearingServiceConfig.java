@@ -29,9 +29,4 @@ public class ClearingServiceConfig {
                 props.getProviderId());
     }
 
-    @Bean
-    public ExecutorService commonExecutorService() {
-        return Executors.newCachedThreadPool();
-    }
-
 }

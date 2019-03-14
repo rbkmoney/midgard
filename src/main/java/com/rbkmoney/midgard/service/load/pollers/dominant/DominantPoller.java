@@ -31,7 +31,8 @@ public class DominantPoller {
         this.maxQuerySize = maxQuerySize;
     }
 
-    @Scheduled(fixedDelayString = "${dmt.polling.delay}")
+    // TODO: включить по необходимости
+    //@Scheduled(fixedDelayString = "${dmt.polling.delay}")
     public void process() {
         Map<Long, Commit> pullRange;
         final AtomicLong versionId = new AtomicLong();

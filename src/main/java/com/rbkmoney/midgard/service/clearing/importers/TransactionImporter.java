@@ -4,7 +4,6 @@ import com.rbkmoney.midgard.service.clearing.dao.clearing_cash_flow.ClearingCash
 import com.rbkmoney.midgard.service.clearing.dao.payment.PaymentDao;
 import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
 import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
-import com.rbkmoney.midgard.service.config.props.AdapterProps;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
@@ -30,28 +29,20 @@ public class TransactionImporter implements Importer {
 
     private final ClearingCashFlowDao dao;
 
-    private final List<AdapterProps> adaptersProps;
-
     @Value("${import.trx-pool-size}")
     private int poolSize;
 
     @Override
-    public void getData() {
-        long eventId = getLastTransactionEventId();
-        log.info("Transaction data import will start with event id {}", eventId);
+    public void getData(List<Integer> providerIds) {
+        log.info("Transaction data import will start with event id {}", getLastTransactionEventId());
 
-        List<Integer> providerIds = adaptersProps.stream()
-                .map(adapterProps -> adapterProps.getProviderId())
-                .collect(Collectors.toList());
+        while(pollPayments(getLastTransactionEventId(), providerIds) == poolSize);
 
-        int obtainPaymentsSize;
-        do {
-            obtainPaymentsSize = pollPayments(eventId, providerIds);
-        } while(obtainPaymentsSize == poolSize);
-        log.info("Transaction data import have finished");
+        log.info("Transaction data import was finished");
     }
 
-    private int pollPayments(long eventId, List<Integer> providerIds) {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public int pollPayments(long eventId, List<Integer> providerIds) {
         List<Payment> payments = paymentDao.getPayments(eventId, providerIds, poolSize);
         for (Payment payment : payments) {
             saveTransaction(payment);
@@ -59,8 +50,7 @@ public class TransactionImporter implements Importer {
         return payments.size();
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void saveTransaction(Payment payment) {
+    private void saveTransaction(Payment payment) {
         ClearingTransaction transaction = MappingUtils.transformTransaction(payment);
         log.debug("Saving a transaction {}", transaction);
         transactionsDao.save(transaction);

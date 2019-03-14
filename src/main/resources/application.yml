@@ -32,9 +32,9 @@ clearing-service:
       providerId: 101
 
 import:
-  trx-pool-size: 100
+  trx-pool-size: 75
   migration:
-    delay: 10000
+    delay: 30000
   init-last-event-id: 140637618
 
 retry-policy:

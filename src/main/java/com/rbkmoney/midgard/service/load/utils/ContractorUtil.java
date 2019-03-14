@@ -15,13 +15,11 @@ public class ContractorUtil {
     public static Contractor convertContractor(long eventId,
                                                String eventCreatedAt,
                                                String partyId,
-                                               long partyRevision,
                                                com.rbkmoney.damsel.domain.Contractor contractorSource,
                                                String contractorId) {
         Contractor contractor = new Contractor();
         contractor.setEventId(eventId);
         contractor.setEventCreatedAt(TypeUtil.stringToLocalDateTime(eventCreatedAt));
-        contractor.setRevision(partyRevision);
         contractor.setPartyId(partyId);
         contractor.setContractorId(contractorId);
         contractor.setType(TBaseUtil.unionFieldToEnum(contractorSource, ContractorType.class));

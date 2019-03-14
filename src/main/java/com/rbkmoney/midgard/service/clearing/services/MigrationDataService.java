@@ -1,16 +1,16 @@
 package com.rbkmoney.midgard.service.clearing.services;
 
 import com.rbkmoney.midgard.service.clearing.importers.Importer;
+import com.rbkmoney.midgard.service.config.props.AdapterProps;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
@@ -29,52 +29,41 @@ import java.util.stream.Collectors;
 @Service
 public class MigrationDataService implements GenericService {
 
-    //TODO: по-хорошему нужно вынести в отдельный класс получения блокировки по имени, но каждый случай
-    //      использования блокировки нужно отдельно продумать
-    private final static ReentrantLock lock = new ReentrantLock();
+    private final Importer transactionImporter;
 
-    private final ExecutorService commonExecutorService;
+    private final Importer refundsImporter;
 
-    private final List<Importer> importers;
+    private final List<AdapterProps> adaptersProps;
+
+    private static final int THREADS_COUNT = 2;
 
     @Override
     @Scheduled(fixedDelayString = "${import.migration.delay}")
     public void process() {
-        if (lock.tryLock()) {
-            try {
-                lock.lock();
-                log.debug("Migration data get started");
+        log.debug("Migration data get started");
 
-                runImporters(importers);
+        ExecutorService executorService = Executors.newFixedThreadPool(THREADS_COUNT);
+        List<Integer> providerIds = adaptersProps.stream()
+                .map(adapterProps -> adapterProps.getProviderId())
+                .collect(Collectors.toList());
 
-                log.debug("Migration data finished");
-            } catch (Exception ex) {
-                log.error("Error detected during data migration", ex);
-            } finally {
-                lock.unlock();
+        try {
+            Future<?> trxFuture = executorService.submit(() -> transactionImporter.getData(providerIds));
+            Future<?> refundFuture = executorService.submit(() -> refundsImporter.getData(providerIds));
+
+            trxFuture.get();
+            refundFuture.get();
+        } catch (InterruptedException e) {
+            log.error("InterruptedException was received during the migration", e);
+        } catch (Exception ex) {
+            log.error("Error detected during data migration", ex);
+        } finally {
+            if (!executorService.isShutdown()) {
+                executorService.shutdown();
             }
-        } else {
-            log.debug("Migration data is running. New task is not started");
         }
 
         log.debug("Data migration is finished!");
-    }
-
-    private void runImporters(List<Importer> importers) throws Exception {
-        List<Future<?>> importTasks = importers.stream()
-                .map(importer -> commonExecutorService.submit(importer::getData))
-                .collect(Collectors.toList());
-        try {
-            for (Future<?> task : importTasks) {
-                task.get();
-            }
-        } catch (InterruptedException e) {
-            log.error("InterruptedException was received during the migration", e);
-            throw new Exception(e);
-        } catch (ExecutionException e) {
-            log.error("ExecutionException was received during the migration", e);
-            throw e;
-        }
     }
 
 }

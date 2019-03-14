@@ -50,7 +50,6 @@ public class ShopCreatedHandler extends AbstractClaimChangedHandler {
                 return;
                 //throw new NotFoundException(String.format("Party not found, partyId='%s'", partyId));
             }
-            shop.setRevision(partySource.getRevision());
             shop.setShopId(shopId);
             shop.setPartyId(partyId);
             shop.setCreatedAt(TypeUtil.stringToLocalDateTime(shopCreated.getCreatedAt()));
