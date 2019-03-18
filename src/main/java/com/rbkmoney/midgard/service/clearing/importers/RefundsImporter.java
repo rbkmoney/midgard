@@ -50,7 +50,8 @@ public class RefundsImporter implements Importer {
         log.info("Refunds data import have finished");
     }
 
-    private int pollRefunds(long eventId, List<Integer> providerIds) throws DaoException {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public int pollRefunds(long eventId, List<Integer> providerIds) throws DaoException {
         List<Refund> refunds = refundDao.getRefunds(eventId, providerIds, poolSize);
         for (Refund refund : refunds) {
             saveClearingRefundData(refund);
@@ -58,8 +59,7 @@ public class RefundsImporter implements Importer {
         return refunds.size();
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void saveClearingRefundData(Refund refund) throws DaoException {
+    private void saveClearingRefundData(Refund refund) throws DaoException {
         ClearingRefund clearingRefund = MappingUtils.transformRefund(refund);
         clearingRefundDao.save(clearingRefund);
         List<CashFlow> cashFlow = paymentDao.getCashFlow(refund.getId());

@@ -46,7 +46,8 @@ public class TransactionImporter implements Importer {
         log.info("Transaction data import was finished");
     }
 
-    private int pollPayments(long eventId, List<Integer> providerIds) throws DaoException {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public int pollPayments(long eventId, List<Integer> providerIds) throws DaoException {
         List<Payment> payments = paymentDao.getPayments(eventId, providerIds, poolSize);
         for (Payment payment : payments) {
             saveTransaction(payment);
@@ -54,8 +55,7 @@ public class TransactionImporter implements Importer {
         return payments.size();
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void saveTransaction(Payment payment) throws DaoException {
+    private void saveTransaction(Payment payment) throws DaoException {
         ClearingTransaction transaction = MappingUtils.transformTransaction(payment);
         log.debug("Saving a transaction {}", transaction);
         transactionsDao.save(transaction);
