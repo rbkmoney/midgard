@@ -3,6 +3,7 @@ package com.rbkmoney.midgard.service.clearing.importers;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_cash_flow.ClearingCashFlowDao;
 import com.rbkmoney.midgard.service.clearing.dao.payment.PaymentDao;
 import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
+import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,16 +34,19 @@ public class TransactionImporter implements Importer {
     private int poolSize;
 
     @Override
-    public void getData(List<Integer> providerIds) {
+    public void getData(List<Integer> providerIds) throws DaoException {
         log.info("Transaction data import will start with event id {}", getLastTransactionEventId());
 
-        while(pollPayments(getLastTransactionEventId(), providerIds) == poolSize);
+        try {
+            while(pollPayments(getLastTransactionEventId(), providerIds) == poolSize);
+        } catch (DaoException ex) {
+            log.error("Error saving transaction import data", ex);
+        }
 
         log.info("Transaction data import was finished");
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public int pollPayments(long eventId, List<Integer> providerIds) {
+    private int pollPayments(long eventId, List<Integer> providerIds) throws DaoException {
         List<Payment> payments = paymentDao.getPayments(eventId, providerIds, poolSize);
         for (Payment payment : payments) {
             saveTransaction(payment);
@@ -50,7 +54,8 @@ public class TransactionImporter implements Importer {
         return payments.size();
     }
 
-    private void saveTransaction(Payment payment) {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void saveTransaction(Payment payment) throws DaoException {
         ClearingTransaction transaction = MappingUtils.transformTransaction(payment);
         log.debug("Saving a transaction {}", transaction);
         transactionsDao.save(transaction);

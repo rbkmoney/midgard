@@ -78,8 +78,12 @@ public class InvoicePaymentAdjustmentCreatedHandler extends AbstractInvoicingHan
         adjustment.setInvoiceId(invoiceId);
         Payment payment = paymentDao.get(invoiceId, paymentId);
         if (payment == null) {
-            throw new NotFoundException(String.format("Payment on adjustment not found, invoiceId='%s', paymentId='%s', adjustmentId='%s'",
-                    invoiceId, paymentId, adjustmentId));
+            // TODO: исправить после того как прольется БД
+            log.error("Payment on adjustment not found, invoiceId='{}', paymentId='{}', adjustmentId='{}'",
+                    invoiceId, paymentId, adjustmentId);
+            return;
+            //throw new NotFoundException(String.format("Payment on adjustment not found, invoiceId='%s', paymentId='%s', adjustmentId='%s'",
+            //        invoiceId, paymentId, adjustmentId));
         }
         adjustment.setPartyId(payment.getPartyId());
         adjustment.setShopId(payment.getShopId());

@@ -4,6 +4,7 @@ import com.rbkmoney.midgard.service.clearing.dao.clearing_cash_flow.ClearingCash
 import com.rbkmoney.midgard.service.clearing.dao.clearing_refund.ClearingRefundDao;
 import com.rbkmoney.midgard.service.clearing.dao.payment.PaymentDao;
 import com.rbkmoney.midgard.service.clearing.dao.refund.RefundDao;
+import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,13 +41,16 @@ public class RefundsImporter implements Importer {
     public void getData(List<Integer> providerIds) {
         log.info("Refunds data import will start with event id {}", getLastTransactionEventId());
 
-        while(pollRefunds(getLastTransactionEventId(), providerIds) == poolSize);
+        try {
+            while(pollRefunds(getLastTransactionEventId(), providerIds) == poolSize);
+        } catch (DaoException ex) {
+            log.error("Error saving refund import data", ex);
+        }
 
         log.info("Refunds data import have finished");
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public int pollRefunds(long eventId, List<Integer> providerIds) {
+    private int pollRefunds(long eventId, List<Integer> providerIds) throws DaoException {
         List<Refund> refunds = refundDao.getRefunds(eventId, providerIds, poolSize);
         for (Refund refund : refunds) {
             saveClearingRefundData(refund);
@@ -54,7 +58,8 @@ public class RefundsImporter implements Importer {
         return refunds.size();
     }
 
-    private void saveClearingRefundData(Refund refund) {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void saveClearingRefundData(Refund refund) throws DaoException {
         ClearingRefund clearingRefund = MappingUtils.transformRefund(refund);
         clearingRefundDao.save(clearingRefund);
         List<CashFlow> cashFlow = paymentDao.getCashFlow(refund.getId());
