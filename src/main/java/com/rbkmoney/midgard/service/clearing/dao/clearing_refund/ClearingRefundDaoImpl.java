@@ -5,17 +5,23 @@ import com.rbkmoney.midgard.service.clearing.dao.common.RecordRowMapper;
 import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.Query;
+import org.jooq.generated.feed.tables.pojos.CashFlow;
 import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
 import org.jooq.generated.midgard.tables.records.ClearingRefundRecord;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
+
+import java.sql.SQLException;
+import java.util.List;
 
 import static org.jooq.generated.midgard.tables.ClearingRefund.CLEARING_REFUND;
 
 @Slf4j
-@Component
+@Repository
 public class ClearingRefundDaoImpl extends AbstractGenericDao implements ClearingRefundDao {
 
     private final RowMapper<ClearingRefund> clearingRefundRowMapper;
@@ -26,6 +32,13 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
     }
 
     @Override
+    public Long save(ClearingRefund clearingRefund, List<CashFlow> cashFlow) throws DaoException {
+
+        return null;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {SQLException.class, DaoException.class, Exception.class})
     public Long save(ClearingRefund clearingRefund) throws DaoException {
         log.debug("Adding new clearing refund: {}", clearingRefund);
         ClearingRefundRecord record = getDslContext().newRecord(CLEARING_REFUND, clearingRefund);
