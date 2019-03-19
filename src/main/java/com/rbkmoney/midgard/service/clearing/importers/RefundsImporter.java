@@ -8,17 +8,14 @@ import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.DSLContext;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
 import org.jooq.generated.feed.tables.pojos.Refund;
 import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransactionCashFlow;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import static com.rbkmoney.midgard.service.clearing.utils.MappingUtils.transformCashFlow;
@@ -40,48 +37,33 @@ public class RefundsImporter implements Importer {
     private int poolSize;
 
     @Override
-    public void getData(List<Integer> providerIds) {
-        long lastTransactionEventId = getLastTransactionEventId();
-        log.info("Refunds data import will start with event id {}", lastTransactionEventId);
-
-        try {
-            while(pollRefunds(lastTransactionEventId, providerIds) == poolSize) {
-                lastTransactionEventId = getLastTransactionEventId();
-            }
-        } catch (DaoException ex) {
-            log.error("Error saving refund import data", ex);
-        }
-
-        log.info("Refunds data import have finished");
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {SQLException.class, DaoException.class, Exception.class})
-    public int pollRefunds(long eventId, List<Integer> providerIds) {
-        List<Refund> refunds = refundDao.getRefunds(eventId, providerIds, poolSize);
+    @Transactional
+    public boolean importData(List<Integer> providerIds) throws DaoException {
+        List<Refund> refunds = refundDao.getRefunds(getLastTransactionEventId(), providerIds, poolSize);
         for (Refund refund : refunds) {
             saveClearingRefundData(refund);
         }
-        return refunds.size();
+        return refunds.size() == poolSize;
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {SQLException.class, DaoException.class, Exception.class})
-    public void saveClearingRefundData(Refund refund) throws DaoException {
+    private void saveClearingRefundData(Refund refund) throws DaoException {
         ClearingRefund clearingRefund = MappingUtils.transformRefund(refund);
+        clearingRefundDao.save(clearingRefund);
+
         List<CashFlow> cashFlow = paymentDao.getCashFlow(refund.getId());
         List<ClearingTransactionCashFlow> transactionCashFlowList =
                 transformCashFlow(cashFlow, clearingRefund.getEventId());
-
-        clearingRefundDao.save(clearingRefund);
-
         clearingCashFlowDao.save(transactionCashFlowList);
     }
 
-    private long getLastTransactionEventId() {
+    @Override
+    public long getLastTransactionEventId() {
         ClearingRefund clearingRefund = clearingRefundDao.getLastTransactionEvent();
         if (clearingRefund == null) {
             log.warn("Event ID for clearing refund was not found!");
             return 0L;
         } else {
+            log.info("Last refund event id {}", clearingRefund.getEventId());
             return clearingRefund.getEventId();
         }
     }

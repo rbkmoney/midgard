@@ -24,7 +24,7 @@ public class DominantService {
 
     private final List<DominantHandler> handlers;
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void processCommit(long versionId, Map.Entry<Long, Commit> e) {
         List<Operation> operations = e.getValue().getOps();
         operations.forEach(op -> handlers.forEach(h -> {

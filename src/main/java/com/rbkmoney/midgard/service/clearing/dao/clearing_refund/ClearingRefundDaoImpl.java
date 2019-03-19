@@ -10,12 +10,8 @@ import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
 import org.jooq.generated.midgard.tables.records.ClearingRefundRecord;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-
-import java.sql.SQLException;
 import java.util.List;
 
 import static org.jooq.generated.midgard.tables.ClearingRefund.CLEARING_REFUND;
@@ -38,7 +34,6 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {SQLException.class, DaoException.class, Exception.class})
     public Long save(ClearingRefund clearingRefund) throws DaoException {
         log.debug("Adding new clearing refund: {}", clearingRefund);
         ClearingRefundRecord record = getDslContext().newRecord(CLEARING_REFUND, clearingRefund);

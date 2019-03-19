@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.jooq.generated.midgard.enums.ClearingEventStatus.STARTED;
@@ -21,27 +20,23 @@ public class PrepareClearingDataHandler implements Handler<ClearingEvent> {
     private final ClearingEventInfoDao clearingEventInfoDao;
 
     @Override
+    @Transactional
     public void handle(ClearingEvent clearingEvent) throws ProviderNotFound {
         int providerId = clearingEvent.getProviderId();
         try {
             long eventId = clearingEvent.getEventId();
             log.info("Starting clearing event for provider id {} started", providerId);
             // Подготовка транзакций для клиринга
-            prepareClearingEvent(eventId, providerId);
-            log.info("Clearing data for provider id {} prepared", providerId);
+            Long clearingId = createNewClearingEvent(eventId, providerId);
+            clearingEventInfoDao.prepareTransactionData(clearingId, providerId);
+            log.info("Clearint event {} was created. Clearing data for provider id {} prepared",
+                    clearingId, providerId);
         } catch (AdapterNotFoundException ex) {
             log.error("Error in identification of a provider", ex);
             throw new ProviderNotFound();
         } catch (Exception ex) {
             log.error("Error during clearing event execution", ex);
         }
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    public Long prepareClearingEvent(long eventId, int providerId) {
-        Long clearingId = createNewClearingEvent(eventId, providerId);
-        clearingEventInfoDao.prepareTransactionData(clearingId, providerId);
-        return clearingId;
     }
 
     private Long createNewClearingEvent(long eventId, int providerId) {

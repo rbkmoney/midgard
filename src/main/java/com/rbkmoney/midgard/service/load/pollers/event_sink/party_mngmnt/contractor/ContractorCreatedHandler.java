@@ -27,7 +27,7 @@ public class ContractorCreatedHandler extends AbstractClaimChangedHandler {
     private final PartyDao partyDao;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void handle(PartyChange change, Event event) {
         long eventId = event.getId();
         getClaimStatus(change).getAccepted().getEffects().stream()

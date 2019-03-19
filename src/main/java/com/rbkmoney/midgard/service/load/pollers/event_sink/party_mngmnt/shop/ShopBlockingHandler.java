@@ -34,7 +34,7 @@ public class ShopBlockingHandler extends AbstractPartyManagementHandler {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void handle(PartyChange change, Event event) {
         long eventId = event.getId();
         Blocking blocking = change.getShopBlocking().getBlocking();

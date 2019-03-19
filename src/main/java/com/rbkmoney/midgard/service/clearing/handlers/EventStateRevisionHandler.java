@@ -28,7 +28,7 @@ public class EventStateRevisionHandler implements Handler<ClearingProcessingEven
     private final ClearingEventInfoDao clearingEventInfoDao;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void handle(ClearingProcessingEvent event) throws Exception {
         Long clearingId = event.getClearingId();
 

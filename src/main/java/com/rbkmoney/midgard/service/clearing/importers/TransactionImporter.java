@@ -28,31 +28,19 @@ public class TransactionImporter implements Importer {
 
     private final PaymentDao paymentDao;
 
-    private final ClearingCashFlowDao dao;
+    private final ClearingCashFlowDao cashFlowDao   ;
 
     @Value("${import.trx-pool-size}")
     private int poolSize;
 
     @Override
-    public void getData(List<Integer> providerIds) throws DaoException {
-        log.info("Transaction data import will start with event id {}", getLastTransactionEventId());
-
-        try {
-            while(pollPayments(getLastTransactionEventId(), providerIds) == poolSize);
-        } catch (DaoException ex) {
-            log.error("Error saving transaction import data", ex);
-        }
-
-        log.info("Transaction data import was finished");
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    public int pollPayments(long eventId, List<Integer> providerIds) throws DaoException {
-        List<Payment> payments = paymentDao.getPayments(eventId, providerIds, poolSize);
+    @Transactional
+    public boolean importData(List<Integer> providerIds) throws DaoException {
+        List<Payment> payments = paymentDao.getPayments(getLastTransactionEventId(), providerIds, poolSize);
         for (Payment payment : payments) {
             saveTransaction(payment);
         }
-        return payments.size();
+        return payments.size() == poolSize;
     }
 
     private void saveTransaction(Payment payment) throws DaoException {
@@ -71,15 +59,17 @@ public class TransactionImporter implements Importer {
                     return transactionCashFlow;
                 })
                 .collect(Collectors.toList());
-        dao.save(tranCashFlow);
+        cashFlowDao.save(tranCashFlow);
     }
 
-    private long getLastTransactionEventId() {
+    @Override
+    public long getLastTransactionEventId() {
         ClearingTransaction clearingTransaction = transactionsDao.getLastTransaction();
         if (clearingTransaction == null) {
             log.warn("Event ID for clearing transactions was not found!");
             return 0L;
         } else {
+            log.info("Last payment event id {}", clearingTransaction.getEventId());
             return clearingTransaction.getEventId();
         }
     }

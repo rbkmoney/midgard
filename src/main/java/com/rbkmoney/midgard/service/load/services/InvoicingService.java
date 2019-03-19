@@ -32,7 +32,7 @@ public class InvoicingService implements EventService<Event, EventPayload> {
     private long initLastEventId;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void handleEvents(Event processingEvent, EventPayload payload) {
         if (payload.isSetInvoiceChanges()) {
             payload.getInvoiceChanges().forEach(cc -> invoicingHandlers.forEach(ph -> {

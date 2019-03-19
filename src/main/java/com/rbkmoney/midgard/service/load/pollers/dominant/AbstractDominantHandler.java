@@ -29,6 +29,7 @@ public abstract class AbstractDominantHandler<T, C, I> implements DominantHandle
     public abstract C convertToDatabaseObject(T object, Long versionId, boolean current);
 
     @Override
+    @Transactional
     public void handle(Operation operation, Long versionId) {
         T object = getObject();
         if (operation.isSetInsert()) {
@@ -56,23 +57,20 @@ public abstract class AbstractDominantHandler<T, C, I> implements DominantHandle
         return acceptDomainObject();
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void insertDomainObject(T object, Long versionId) {
+    private void insertDomainObject(T object, Long versionId) {
         log.info("Start to insert '{}' with id={}, versionId={}", object.getClass().getSimpleName(), getObjectRefId(), versionId);
         getDomainObjectDao().save(convertToDatabaseObject(object, versionId, true));
         log.info("End to insert '{}' with id={}, versionId={}", object.getClass().getSimpleName(), getObjectRefId(), versionId);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void updateDomainObject(T object, Long versionId) {
+    private void updateDomainObject(T object, Long versionId) {
         log.info("Start to update '{}' with id={}, versionId={}", object.getClass().getSimpleName(), getObjectRefId(), versionId);
         getDomainObjectDao().updateNotCurrent(getObjectRefId());
         getDomainObjectDao().save(convertToDatabaseObject(object, versionId, true));
         log.info("End to update '{}' with id={}, versionId={}", object.getClass().getSimpleName(), getObjectRefId(), versionId);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void removeDomainObject(T object, Long versionId) {
+    private void removeDomainObject(T object, Long versionId) {
         log.info("Start to remove '{}' with id={}, versionId={}", object.getClass().getSimpleName(), getObjectRefId(), versionId);
         getDomainObjectDao().updateNotCurrent(getObjectRefId());
         getDomainObjectDao().save(convertToDatabaseObject(object, versionId, false));

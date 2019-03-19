@@ -37,7 +37,7 @@ public class ContractCreatedHandler extends AbstractClaimChangedHandler {
     private final PayoutToolDao payoutToolDao;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void handle(PartyChange change, Event event) {
         long eventId = event.getId();
         getClaimStatus(change).getAccepted().getEffects().stream()

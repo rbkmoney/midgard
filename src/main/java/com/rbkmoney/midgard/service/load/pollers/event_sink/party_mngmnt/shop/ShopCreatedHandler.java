@@ -30,7 +30,7 @@ public class ShopCreatedHandler extends AbstractClaimChangedHandler {
     private final PartyDao partyDao;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void handle(PartyChange change, Event event) {
         getClaimStatus(change).getAccepted().getEffects().stream()
                 .filter(e -> e.isSetShopEffect() && e.getShopEffect().getEffect().isSetCreated()).forEach(e -> {

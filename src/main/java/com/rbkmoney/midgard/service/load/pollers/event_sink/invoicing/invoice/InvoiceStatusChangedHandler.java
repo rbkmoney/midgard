@@ -42,7 +42,7 @@ public class InvoiceStatusChangedHandler extends AbstractInvoicingHandler {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void handle(InvoiceChange invoiceChange, Event event) throws DaoException {
         InvoiceStatus invoiceStatus = invoiceChange.getInvoiceStatusChanged().getStatus();
         long eventId = event.getId();
