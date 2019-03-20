@@ -40,6 +40,7 @@ public class MigrationDataService implements GenericService {
 
         try {
             for (Importer importer : importers) {
+                // Импорт данных будет производится пока importData не вернет false
                 while (importer.importData(providerIds));
             }
         } catch (Exception ex) {

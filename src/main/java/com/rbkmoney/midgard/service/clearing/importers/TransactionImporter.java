@@ -33,6 +33,18 @@ public class TransactionImporter implements Importer {
     @Value("${import.trx-pool-size}")
     private int poolSize;
 
+    /**
+     * Метод производит импорт данных из схемы с сырыми данными feed в целевые таблицы клирингового сервиса midgard.
+     * Из таблицы feed.payments забирается определенное количество записей. Далее они преобразовываются и добавляются в
+     * таблицу midgard.clearing_transaction.
+     *
+     * Примечание: Импорт производится до тех пор пока количество полученных из таблицы схемы feed данных равно
+     *             значению poolSize. Как только условие перестает выполнятся импорт завершается.
+     *
+     * @param providerIds список провайдеров
+     * @return возвращает {@code true}, когда количество полученных из БД элементов равно максимальному размеру
+     *         пачки; иначе {@code false}
+     */
     @Override
     @Transactional
     public boolean importData(List<Integer> providerIds) throws DaoException {
