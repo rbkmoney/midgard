@@ -1,15 +1,13 @@
 package com.rbkmoney.midgard.service.config;
 
 import com.rbkmoney.damsel.domain_config.RepositorySrv;
-import com.rbkmoney.damsel.payment_processing.Event;
-import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.eventstock.client.EventPublisher;
 import com.rbkmoney.eventstock.client.poll.PollingEventPublisherBuilder;
 import com.rbkmoney.midgard.service.config.props.InvoicingProperties;
 import com.rbkmoney.midgard.service.config.props.PartyManagementProperties;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.InvoicingEventStockHandler;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.PartyManagementEventStockHandler;
-import com.rbkmoney.midgard.service.load.services.EventService;
+import com.rbkmoney.midgard.service.load.services.InvoicingService;
 import com.rbkmoney.woody.thrift.impl.http.THSpawnClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -40,7 +38,7 @@ public class DataLoadConfig {
 
     @Bean
     public List<InvoicingEventStockHandler> invoicingEventStockHandlers(
-            EventService<Event, EventPayload> invoicingService,
+            InvoicingService invoicingService,
             @Value("${bm.invoicing.workersCount}") int workersCount){
         List<InvoicingEventStockHandler> invoicingEventStockHandlers = new ArrayList<>();
         for (int i = 0; i < workersCount; ++i) {

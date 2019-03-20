@@ -5,7 +5,6 @@ import com.rbkmoney.damsel.payment_processing.Event;
 import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.eventstock.client.EventAction;
 import com.rbkmoney.eventstock.client.EventHandler;
-import com.rbkmoney.midgard.service.load.services.EventService;
 import com.rbkmoney.midgard.service.load.services.InvoicingService;
 import com.rbkmoney.midgard.service.load.utils.HashUtil;
 import lombok.Getter;
@@ -17,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class InvoicingEventStockHandler implements EventHandler<StockEvent> {
 
-    private final EventService<Event, EventPayload> invoicingService;
+    private final InvoicingService invoicingService;
 
     private final int divider;
 
