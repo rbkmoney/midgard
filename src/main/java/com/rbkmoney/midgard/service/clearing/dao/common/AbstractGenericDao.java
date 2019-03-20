@@ -189,7 +189,10 @@ public abstract class AbstractGenericDao extends NamedParameterJdbcDaoSupport im
     }
 
     @Override
-    public int execute(String namedSql, SqlParameterSource parameterSource, int expectedRowsAffected, NamedParameterJdbcTemplate namedParameterJdbcTemplate) throws DaoException {
+    public int execute(String namedSql,
+                       SqlParameterSource parameterSource,
+                       int expectedRowsAffected,
+                       NamedParameterJdbcTemplate namedParameterJdbcTemplate) throws DaoException {
         try {
             int rowsAffected = namedParameterJdbcTemplate.update(
                     namedSql,

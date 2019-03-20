@@ -4,6 +4,7 @@ import com.rbkmoney.midgard.service.clearing.dao.clearing_cash_flow.ClearingCash
 import com.rbkmoney.midgard.service.clearing.dao.clearing_refund.ClearingRefundDao;
 import com.rbkmoney.midgard.service.clearing.dao.payment.PaymentDao;
 import com.rbkmoney.midgard.service.clearing.dao.refund.RefundDao;
+import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,6 @@ import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransactionCashFlow;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -36,39 +36,46 @@ public class RefundsImporter implements Importer {
     @Value("${import.trx-pool-size}")
     private int poolSize;
 
+    /**
+     * Метод производит импорт данных из схемы с сырыми данными feed в целевые таблицы клирингового сервиса midgard.
+     * Из таблицы feed.refunds забирается определенное количество записей, преобразовываются и добавляются в
+     * таблицу midgard.clearing_refund.
+     *
+     * Примечание: Импорт производится до тех пор пока количество полученных из таблицы схемы feed данных равно
+     *             значению poolSize. Как только условие перестает выполнятся импорт завершается.
+     *
+     * @param providerIds список провайдеров
+     * @return возвращает {@code true}, когда количество полученных из БД элементов равно максимальному размеру
+     *         пачки; иначе {@code false}
+     */
     @Override
-    public void getData(List<Integer> providerIds) {
-        log.info("Refunds data import will start with event id {}", getLastTransactionEventId());
-
-        while(pollRefunds(getLastTransactionEventId(), providerIds) == poolSize);
-
-        log.info("Refunds data import have finished");
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    public int pollRefunds(long eventId, List<Integer> providerIds) {
-        List<Refund> refunds = refundDao.getRefunds(eventId, providerIds, poolSize);
+    @Transactional
+    public boolean importData(List<Integer> providerIds) throws DaoException {
+        List<Refund> refunds = refundDao.getRefunds(getLastTransactionEventId(), providerIds, poolSize);
         for (Refund refund : refunds) {
             saveClearingRefundData(refund);
         }
-        return refunds.size();
+        return refunds.size() == poolSize;
     }
 
-    private void saveClearingRefundData(Refund refund) {
+    private void saveClearingRefundData(Refund refund) throws DaoException {
         ClearingRefund clearingRefund = MappingUtils.transformRefund(refund);
         clearingRefundDao.save(clearingRefund);
+
         List<CashFlow> cashFlow = paymentDao.getCashFlow(refund.getId());
         List<ClearingTransactionCashFlow> transactionCashFlowList =
                 transformCashFlow(cashFlow, clearingRefund.getEventId());
         clearingCashFlowDao.save(transactionCashFlowList);
     }
 
-    private long getLastTransactionEventId() {
+    @Override
+    public long getLastTransactionEventId() {
         ClearingRefund clearingRefund = clearingRefundDao.getLastTransactionEvent();
         if (clearingRefund == null) {
             log.warn("Event ID for clearing refund was not found!");
             return 0L;
         } else {
+            log.info("Last refund event id {}", clearingRefund.getEventId());
             return clearingRefund.getEventId();
         }
     }

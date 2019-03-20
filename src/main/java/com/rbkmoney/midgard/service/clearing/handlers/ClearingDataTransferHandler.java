@@ -74,7 +74,8 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
         List<ClearingEventTransactionInfo> trxEventInfo = getActualClearingTransactionsInfo(clearingId, packageNumber);
         ClearingDataPackage dataPackage = new ClearingDataPackage();
         dataPackage.setClearingId(clearingId);
-        dataPackage.setPackageNumber(packageNumber + 1);
+        // TODO: возможно LONG слишком большое значение для номера пакета. По-хорошему переделать на INT
+        dataPackage.setPackageNumber((long) packageNumber + 1);
         dataPackage.setFinalPackage(trxEventInfo.size() == packageSize ? false : true);
 
         List<Transaction> transactions = new ArrayList<>();

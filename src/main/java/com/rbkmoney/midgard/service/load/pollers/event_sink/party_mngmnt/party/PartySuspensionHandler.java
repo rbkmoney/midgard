@@ -34,7 +34,7 @@ public class PartySuspensionHandler extends AbstractPartyManagementHandler {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void handle(PartyChange change, Event event) {
         long eventId = event.getId();
         Suspension partySuspension = change.getPartySuspension();

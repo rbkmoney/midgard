@@ -34,17 +34,21 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
 
     @Override
     public void startClearingEvent(ClearingEvent clearingEvent) throws ProviderNotFound {
+        if (clearingEvent == null) {
+            log.error("Command from external system is empty");
+        } else {
+            executeClearingEvent(clearingEvent);
+        }
+    }
+
+    private void executeClearingEvent(ClearingEvent clearingEvent) throws ProviderNotFound {
         try {
-            if (clearingEvent == null) {
-                log.error("Command from external system is empty");
+            Long eventId = clearingEvent.getEventId();
+            if (clearingEventInfoDao.getClearingEvent(eventId) == null) {
+                getClearingAdapter(adapters, clearingEvent.getProviderId());
+                prepareClearingDataHandler.handle(clearingEvent);
             } else {
-                Long eventId = clearingEvent.getEventId();
-                if (clearingEventInfoDao.getClearingEvent(eventId) == null) {
-                    getClearingAdapter(adapters, clearingEvent.getProviderId());
-                    prepareClearingDataHandler.handle(clearingEvent);
-                } else {
-                    log.warn("For a event with id " + eventId + " a clearing event already exists");
-                }
+                log.warn("For a event with id " + eventId + " a clearing event already exists");
             }
         } catch (AdapterNotFoundException ex) {
             log.error("Error in identification of a provider", ex);

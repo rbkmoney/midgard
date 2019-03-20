@@ -45,7 +45,7 @@ public class InvoiceCreatedHandler extends AbstractInvoicingHandler {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void handle(InvoiceChange invoiceChange, Event event) throws DaoException {
         com.rbkmoney.damsel.domain.Invoice invoice = invoiceChange.getInvoiceCreated().getInvoice();
         long eventId = event.getId();

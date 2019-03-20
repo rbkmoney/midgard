@@ -24,7 +24,7 @@ public class PartyManagementService implements EventService<Event, EventPayload>
     private final List<AbstractPartyManagementHandler> partyManagementHandlers;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void handleEvents(Event processingEvent, EventPayload payload) {
         if (payload.isSetPartyChanges()) {
             payload.getPartyChanges().forEach(cc -> partyManagementHandlers.forEach(ph -> {

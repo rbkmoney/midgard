@@ -49,7 +49,7 @@ public class InvoicePaymentRefundStatusChangedHandler extends AbstractInvoicingH
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void handle(InvoiceChange invoiceChange, Event event) {
         long eventId = event.getId();
         String invoiceId = event.getSource().getInvoiceId();

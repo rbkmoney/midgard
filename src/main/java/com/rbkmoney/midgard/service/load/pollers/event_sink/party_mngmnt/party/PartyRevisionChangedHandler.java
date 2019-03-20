@@ -52,7 +52,7 @@ public class PartyRevisionChangedHandler extends AbstractPartyManagementHandler 
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void handle(PartyChange change, Event event) {
         long eventId = event.getId();
         PartyRevisionChanged partyRevisionChanged = change.getRevisionChanged();

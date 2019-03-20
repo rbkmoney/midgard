@@ -44,7 +44,7 @@ public class InvoicePaymentRouteChangedHandler extends AbstractInvoicingHandler 
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void handle(InvoiceChange change, Event event) {
         InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
         String invoiceId = event.getSource().getInvoiceId();

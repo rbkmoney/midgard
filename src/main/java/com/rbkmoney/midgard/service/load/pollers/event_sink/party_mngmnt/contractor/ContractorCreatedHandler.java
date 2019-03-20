@@ -27,7 +27,7 @@ public class ContractorCreatedHandler extends AbstractClaimChangedHandler {
     private final PartyDao partyDao;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void handle(PartyChange change, Event event) {
         long eventId = event.getId();
         getClaimStatus(change).getAccepted().getEffects().stream()
@@ -41,7 +41,10 @@ public class ContractorCreatedHandler extends AbstractClaimChangedHandler {
                     eventId, partyId, contractorId);
             Party partySource = partyDao.get(partyId);
             if (partySource == null) {
-                throw new NotFoundException(String.format("Party not found, partyId='%s'", partyId));
+                // TODO: исправить после того как прольется БД
+                log.error("Party not found, partyId='{}'", partyId);
+                return;
+                //throw new NotFoundException(String.format("Party not found, partyId='%s'", partyId));
             }
             Contractor contractor = ContractorUtil.convertContractor(eventId, event.getCreatedAt(), partyId, contractorCreated, contractorId);
             contractor.setIdentificationalLevel(partyContractor.getStatus().name());

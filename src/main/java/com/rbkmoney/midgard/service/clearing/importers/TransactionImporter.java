@@ -3,6 +3,7 @@ package com.rbkmoney.midgard.service.clearing.importers;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_cash_flow.ClearingCashFlowDao;
 import com.rbkmoney.midgard.service.clearing.dao.payment.PaymentDao;
 import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
+import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,30 +28,34 @@ public class TransactionImporter implements Importer {
 
     private final PaymentDao paymentDao;
 
-    private final ClearingCashFlowDao dao;
+    private final ClearingCashFlowDao cashFlowDao   ;
 
     @Value("${import.trx-pool-size}")
     private int poolSize;
 
+    /**
+     * Метод производит импорт данных из схемы с сырыми данными feed в целевые таблицы клирингового сервиса midgard.
+     * Из таблицы feed.payments забирается определенное количество записей. Далее они преобразовываются и добавляются в
+     * таблицу midgard.clearing_transaction.
+     *
+     * Примечание: Импорт производится до тех пор пока количество полученных из таблицы схемы feed данных равно
+     *             значению poolSize. Как только условие перестает выполнятся импорт завершается.
+     *
+     * @param providerIds список провайдеров
+     * @return возвращает {@code true}, когда количество полученных из БД элементов равно максимальному размеру
+     *         пачки; иначе {@code false}
+     */
     @Override
-    public void getData(List<Integer> providerIds) {
-        log.info("Transaction data import will start with event id {}", getLastTransactionEventId());
-
-        while(pollPayments(getLastTransactionEventId(), providerIds) == poolSize);
-
-        log.info("Transaction data import was finished");
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    public int pollPayments(long eventId, List<Integer> providerIds) {
-        List<Payment> payments = paymentDao.getPayments(eventId, providerIds, poolSize);
+    @Transactional
+    public boolean importData(List<Integer> providerIds) throws DaoException {
+        List<Payment> payments = paymentDao.getPayments(getLastTransactionEventId(), providerIds, poolSize);
         for (Payment payment : payments) {
             saveTransaction(payment);
         }
-        return payments.size();
+        return payments.size() == poolSize;
     }
 
-    private void saveTransaction(Payment payment) {
+    private void saveTransaction(Payment payment) throws DaoException {
         ClearingTransaction transaction = MappingUtils.transformTransaction(payment);
         log.debug("Saving a transaction {}", transaction);
         transactionsDao.save(transaction);
@@ -66,15 +71,17 @@ public class TransactionImporter implements Importer {
                     return transactionCashFlow;
                 })
                 .collect(Collectors.toList());
-        dao.save(tranCashFlow);
+        cashFlowDao.save(tranCashFlow);
     }
 
-    private long getLastTransactionEventId() {
+    @Override
+    public long getLastTransactionEventId() {
         ClearingTransaction clearingTransaction = transactionsDao.getLastTransaction();
         if (clearingTransaction == null) {
             log.warn("Event ID for clearing transactions was not found!");
             return 0L;
         } else {
+            log.info("Last payment event id {}", clearingTransaction.getEventId());
             return clearingTransaction.getEventId();
         }
     }

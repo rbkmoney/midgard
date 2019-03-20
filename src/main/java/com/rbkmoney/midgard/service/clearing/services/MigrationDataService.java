@@ -8,9 +8,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
@@ -29,38 +26,25 @@ import java.util.stream.Collectors;
 @Service
 public class MigrationDataService implements GenericService {
 
-    private final Importer transactionImporter;
-
-    private final Importer refundsImporter;
+    private final List<Importer> importers;
 
     private final List<AdapterProps> adaptersProps;
-
-    private static final int THREADS_COUNT = 2;
 
     @Override
     @Scheduled(fixedDelayString = "${import.migration.delay}")
     public void process() {
         log.debug("Migration data get started");
-
-        ExecutorService executorService = Executors.newFixedThreadPool(THREADS_COUNT);
         List<Integer> providerIds = adaptersProps.stream()
                 .map(adapterProps -> adapterProps.getProviderId())
                 .collect(Collectors.toList());
 
         try {
-            Future<?> trxFuture = executorService.submit(() -> transactionImporter.getData(providerIds));
-            Future<?> refundFuture = executorService.submit(() -> refundsImporter.getData(providerIds));
-
-            trxFuture.get();
-            refundFuture.get();
-        } catch (InterruptedException e) {
-            log.error("InterruptedException was received during the migration", e);
+            for (Importer importer : importers) {
+                // Импорт данных будет производится пока importData не вернет false
+                while (importer.importData(providerIds));
+            }
         } catch (Exception ex) {
             log.error("Error detected during data migration", ex);
-        } finally {
-            if (!executorService.isShutdown()) {
-                executorService.shutdown();
-            }
         }
 
         log.debug("Data migration is finished!");

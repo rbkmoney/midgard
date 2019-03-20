@@ -23,7 +23,7 @@ public class ContractorIdentificationalLevelChangedHandler extends AbstractClaim
     private final ContractorDao contractorDao;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void handle(PartyChange change, Event event) {
         long eventId = event.getId();
         getClaimStatus(change).getAccepted().getEffects().stream()

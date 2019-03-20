@@ -52,7 +52,7 @@ public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void handle(InvoiceChange invoiceChange, Event event) {
         InvoicePaymentStarted invoicePaymentStarted = invoiceChange
                 .getInvoicePaymentChange()
