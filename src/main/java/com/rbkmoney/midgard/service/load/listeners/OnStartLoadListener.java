@@ -65,9 +65,7 @@ public class OnStartLoadListener implements ApplicationListener<ApplicationReady
                     invoicingEventPublishers.get(i).subscribe(buildSubscriberConfig(lastEventId));
                 } catch (Exception e) {
                     log.error("Error getting last event id", e);
-                    return;
                 }
-
             }
         }
     }
