@@ -4,7 +4,6 @@ import com.rbkmoney.damsel.domain.DomainObject;
 import com.rbkmoney.damsel.domain_config.Operation;
 import com.rbkmoney.midgard.service.load.dao.dominant.iface.DomainObjectDao;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**

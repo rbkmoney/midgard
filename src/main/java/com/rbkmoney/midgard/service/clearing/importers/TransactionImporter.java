@@ -9,11 +9,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
 import org.jooq.generated.feed.tables.pojos.Payment;
+import org.jooq.generated.midgard.enums.TransactionClearingState;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransactionCashFlow;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -32,6 +32,8 @@ public class TransactionImporter implements Importer {
 
     @Value("${import.trx-pool-size}")
     private int poolSize;
+
+    private static final String TRAN_ID_NULL_ERROR = "NULL value in column 'transaction_id'";
 
     /**
      * Метод производит импорт данных из схемы с сырыми данными feed в целевые таблицы клирингового сервиса midgard.
@@ -58,7 +60,16 @@ public class TransactionImporter implements Importer {
     private void saveTransaction(Payment payment) throws DaoException {
         ClearingTransaction transaction = MappingUtils.transformTransaction(payment);
         log.debug("Saving a transaction {}", transaction);
+
+        if (transaction.getTransactionId() == null) {
+            transaction.setTransactionClearingState(TransactionClearingState.FATAL);
+            transaction.setComment(TRAN_ID_NULL_ERROR);
+            transaction.setTransactionId(transaction.getInvoiceId() + transaction.getPaymentId());
+            log.error("The following error was detected during save: {}. \nThe following object will be saved " +
+                    "to the database: {}", TRAN_ID_NULL_ERROR, transaction);
+        }
         transactionsDao.save(transaction);
+
         List<CashFlow> cashFlow = paymentDao.getCashFlow(payment.getId());
         saveCashFlow(payment, cashFlow);
     }

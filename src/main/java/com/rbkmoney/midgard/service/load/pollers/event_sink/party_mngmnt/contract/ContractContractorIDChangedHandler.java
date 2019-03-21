@@ -4,7 +4,6 @@ import com.rbkmoney.damsel.payment_processing.ContractEffectUnit;
 import com.rbkmoney.damsel.payment_processing.Event;
 import com.rbkmoney.damsel.payment_processing.PartyChange;
 import com.rbkmoney.geck.common.util.TypeUtil;
-import com.rbkmoney.midgard.service.clearing.exception.NotFoundException;
 import com.rbkmoney.midgard.service.load.dao.party.iface.ContractAdjustmentDao;
 import com.rbkmoney.midgard.service.load.dao.party.iface.ContractDao;
 import com.rbkmoney.midgard.service.load.dao.party.iface.PayoutToolDao;
@@ -15,7 +14,6 @@ import org.jooq.generated.feed.tables.pojos.Contract;
 import org.jooq.generated.feed.tables.pojos.ContractAdjustment;
 import org.jooq.generated.feed.tables.pojos.PayoutTool;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

@@ -2,13 +2,12 @@ package com.rbkmoney.midgard.service.load.services;
 
 import com.rbkmoney.damsel.domain_config.Commit;
 import com.rbkmoney.damsel.domain_config.Operation;
-import com.rbkmoney.midgard.service.load.utils.JsonUtil;
 import com.rbkmoney.midgard.service.load.dao.dominant.iface.DominantDao;
 import com.rbkmoney.midgard.service.load.pollers.dominant.DominantHandler;
+import com.rbkmoney.midgard.service.load.utils.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

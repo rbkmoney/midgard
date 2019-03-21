@@ -5,17 +5,15 @@ import com.rbkmoney.damsel.payment_processing.Event;
 import com.rbkmoney.damsel.payment_processing.PartyChange;
 import com.rbkmoney.geck.common.util.TBaseUtil;
 import com.rbkmoney.geck.common.util.TypeUtil;
-import com.rbkmoney.midgard.service.clearing.exception.NotFoundException;
 import com.rbkmoney.midgard.service.load.dao.party.iface.*;
+import com.rbkmoney.midgard.service.load.pollers.event_sink.party_mngmnt.AbstractClaimChangedHandler;
 import com.rbkmoney.midgard.service.load.utils.ContractUtil;
 import com.rbkmoney.midgard.service.load.utils.ContractorUtil;
-import com.rbkmoney.midgard.service.load.pollers.event_sink.party_mngmnt.AbstractClaimChangedHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.enums.ContractStatus;
 import org.jooq.generated.feed.tables.pojos.*;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

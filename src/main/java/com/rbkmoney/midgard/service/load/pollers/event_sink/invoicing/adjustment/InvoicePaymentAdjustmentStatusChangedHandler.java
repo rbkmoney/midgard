@@ -11,7 +11,6 @@ import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
-import com.rbkmoney.midgard.service.clearing.exception.NotFoundException;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.AdjustmentDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.CashFlowDao;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
@@ -22,7 +21,6 @@ import org.jooq.generated.feed.tables.pojos.Adjustment;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

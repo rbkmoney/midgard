@@ -50,12 +50,18 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
             String uploadId = adapter.startClearingEvent(clearingId);
             int packagesCount = getClearingTransactionPackagesCount(clearingId);
             List<ClearingDataPackageTag> tagList = new ArrayList<>();
-
-            for (int packageNumber = INIT_PACKAGE_NUMBER; packageNumber < packagesCount; packageNumber++) {
-                ClearingDataPackage dataPackage = getClearingTransactionPackage(clearingId, packageNumber);
+            if (packagesCount == 0) {
+                ClearingDataPackage dataPackage = getEmptyClearingDataPackage(clearingId);
                 ClearingDataPackageTag tag = adapter.sendClearingDataPackage(uploadId, dataPackage);
                 tagList.add(tag);
+            } else {
+                for (int packageNumber = INIT_PACKAGE_NUMBER; packageNumber < packagesCount; packageNumber++) {
+                    ClearingDataPackage dataPackage = getClearingTransactionPackage(clearingId, packageNumber);
+                    ClearingDataPackageTag tag = adapter.sendClearingDataPackage(uploadId, dataPackage);
+                    tagList.add(tag);
+                }
             }
+
             adapter.completeClearingEvent(uploadId, clearingId, tagList);
             eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.EXECUTE);
 
@@ -115,6 +121,15 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
     private int getClearingTransactionPackagesCount(long clearingId) {
         int packagesCount = transactionsDao.getProcessedClearingTransactionCount(clearingId);
         return (int) Math.ceil((double) packagesCount / packageSize);
+    }
+
+    private ClearingDataPackage getEmptyClearingDataPackage(Long clearingId) {
+        ClearingDataPackage dataPackage = new ClearingDataPackage();
+        dataPackage.setClearingId(clearingId);
+        dataPackage.setPackageNumber(1);
+        dataPackage.setFinalPackage(true);
+        dataPackage.setTransactions(new ArrayList<>());
+        return dataPackage;
     }
 
 }

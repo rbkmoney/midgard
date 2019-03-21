@@ -15,7 +15,6 @@ import org.jooq.generated.feed.enums.Blocking;
 import org.jooq.generated.feed.enums.Suspension;
 import org.jooq.generated.feed.tables.pojos.Party;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
