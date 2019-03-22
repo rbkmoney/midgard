@@ -13,7 +13,6 @@ import org.apache.thrift.TException;
 import org.jooq.generated.midgard.enums.ClearingEventStatus;
 import org.jooq.generated.midgard.tables.pojos.FailureTransaction;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

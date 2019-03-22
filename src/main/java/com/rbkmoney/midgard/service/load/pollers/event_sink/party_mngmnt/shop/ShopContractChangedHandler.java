@@ -5,14 +5,12 @@ import com.rbkmoney.damsel.payment_processing.PartyChange;
 import com.rbkmoney.damsel.payment_processing.ShopContractChanged;
 import com.rbkmoney.damsel.payment_processing.ShopEffectUnit;
 import com.rbkmoney.geck.common.util.TypeUtil;
-import com.rbkmoney.midgard.service.clearing.exception.NotFoundException;
 import com.rbkmoney.midgard.service.load.dao.party.iface.ShopDao;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.party_mngmnt.AbstractClaimChangedHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.tables.pojos.Shop;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j

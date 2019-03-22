@@ -1,0 +1,1 @@
+ALTER TYPE midgard.transaction_clearing_state ADD VALUE 'FATAL';

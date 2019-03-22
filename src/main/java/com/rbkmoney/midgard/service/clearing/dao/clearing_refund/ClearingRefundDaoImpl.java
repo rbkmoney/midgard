@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.jooq.generated.midgard.tables.ClearingRefund.CLEARING_REFUND;
@@ -38,6 +39,7 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
         log.debug("Adding new clearing refund: {}", clearingRefund);
         ClearingRefundRecord record = getDslContext().newRecord(CLEARING_REFUND, clearingRefund);
         Query query = getDslContext().insertInto(CLEARING_REFUND).set(record);
+
         int addedRows = execute(query);
         log.debug("New clearing refund with event id {} was added", clearingRefund.getEventId());
         return Long.valueOf(addedRows);

@@ -10,17 +10,16 @@ import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
 import com.rbkmoney.midgard.service.clearing.exception.DaoException;
-import com.rbkmoney.midgard.service.load.utils.JsonUtil;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.InvoiceCartDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.InvoiceDao;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
+import com.rbkmoney.midgard.service.load.utils.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.enums.InvoiceStatus;
 import org.jooq.generated.feed.tables.pojos.Invoice;
 import org.jooq.generated.feed.tables.pojos.InvoiceCart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

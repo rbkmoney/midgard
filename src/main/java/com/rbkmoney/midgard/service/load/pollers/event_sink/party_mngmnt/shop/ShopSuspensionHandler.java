@@ -9,13 +9,11 @@ import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
-import com.rbkmoney.midgard.service.clearing.exception.NotFoundException;
 import com.rbkmoney.midgard.service.load.dao.party.iface.ShopDao;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.party_mngmnt.AbstractPartyManagementHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.tables.pojos.Shop;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
