@@ -5,15 +5,12 @@ import com.rbkmoney.midgard.service.clearing.dao.common.RecordRowMapper;
 import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.Query;
-import org.jooq.generated.feed.tables.pojos.CashFlow;
 import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
 import org.jooq.generated.midgard.tables.records.ClearingRefundRecord;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
-import java.util.List;
 
 import static org.jooq.generated.midgard.tables.ClearingRefund.CLEARING_REFUND;
 
@@ -26,12 +23,6 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
     public ClearingRefundDaoImpl(DataSource dataSource) {
         super(dataSource);
         clearingRefundRowMapper = new RecordRowMapper<>(CLEARING_REFUND, ClearingRefund.class);
-    }
-
-    @Override
-    public Long save(ClearingRefund clearingRefund, List<CashFlow> cashFlow) throws DaoException {
-
-        return null;
     }
 
     @Override

@@ -45,10 +45,14 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
     @Override
     public void handle(ClearingProcessingEvent event) throws Exception {
         Long clearingId = event.getClearingId();
+        log.info("Transfer data to clearing adapter {} with clearing id {} get started",
+                event.getClearingAdapter().getAdapterName(), clearingId);
         try {
             ClearingAdapterSrv.Iface adapter = event.getClearingAdapter().getAdapter();
             String uploadId = adapter.startClearingEvent(clearingId);
             int packagesCount = getClearingTransactionPackagesCount(clearingId);
+            log.info("Total number of packages for the clearing event {}: {}", clearingId, packagesCount);
+
             List<ClearingDataPackageTag> tagList = new ArrayList<>();
             if (packagesCount == 0) {
                 ClearingDataPackage dataPackage = getEmptyClearingDataPackage(clearingId);
@@ -64,7 +68,8 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
 
             adapter.completeClearingEvent(uploadId, clearingId, tagList);
             eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.EXECUTE);
-
+            log.info("Transfer data to clearing adapter {} with clearing id {} was finished",
+                    event.getClearingAdapter().getAdapterName(), clearingId);
         } catch (ClearingAdapterException ex) {
             log.error("Error occurred while processing clearing event {}", clearingId, ex);
             eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.ADAPTER_FAULT);

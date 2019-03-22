@@ -12,7 +12,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static com.rbkmoney.midgard.service.clearing.utils.ClearingAdaptersUtils.getClearingAdapter;
 
@@ -35,30 +34,18 @@ public class ClearingRevisionService implements GenericService {
 
     private final List<ClearingAdapter> adapters;
 
-    //TODO: переделать в сервис именованных блокировок
-    private final static ReentrantLock lock = new ReentrantLock();
-
     @Override
     @Scheduled(fixedDelayString = "${clearing-service.revision}")
     public void process() {
         log.info("Clearing revision process get started");
-        if (lock.tryLock()) {
-            try {
-                lock.lock();
-                List<ClearingEventInfo> startedEvents = eventInfoDao.getAllClearingEvents(ClearingEventStatus.STARTED);
-                log.debug("Count of started clearing event is {}", startedEvents.size());
-                runRevision(startedEvents, clearingDataTransferHandler);
 
-                List<ClearingEventInfo> executeEvents = eventInfoDao.getAllClearingEvents(ClearingEventStatus.EXECUTE);
-                log.debug("Count of executed clearing event is {}", executeEvents.size());
-                runRevision(executeEvents, eventStateRevisionHandler);
+        List<ClearingEventInfo> startedEvents = eventInfoDao.getAllClearingEvents(ClearingEventStatus.STARTED);
+        log.info("Count of started clearing event is {}", startedEvents.size());
+        runRevision(startedEvents, clearingDataTransferHandler);
 
-            } finally {
-                lock.unlock();
-            }
-        } else {
-            log.debug("Clearing revision is running. New task is not started");
-        }
+        List<ClearingEventInfo> executeEvents = eventInfoDao.getAllClearingEvents(ClearingEventStatus.EXECUTE);
+        log.info("Count of executed clearing event is {}", executeEvents.size());
+        runRevision(executeEvents, eventStateRevisionHandler);
 
         log.info("Clearing revision is finished");
 

@@ -52,7 +52,7 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
         ClearingTransactionRecord record = getDslContext().newRecord(CLEARING_TRANSACTION, transaction);
         Query query = getDslContext().insertInto(CLEARING_TRANSACTION).set(record);
         int addedRows = execute(query);
-        log.debug("New transaction with id {} was added", transaction.getTransactionId());
+        log.info("New transaction with id {} was added", transaction.getTransactionId());
         return Long.valueOf(addedRows);
     }
 

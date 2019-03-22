@@ -36,12 +36,12 @@ public class ClearingEventInfoDaoImpl extends AbstractGenericDao implements Clea
 
     @Override
     public Long save(ClearingEventInfo clearingEvent) throws DaoException {
-        log.debug("Adding new clearing event for provider: {}", clearingEvent.getProviderId());
+        log.info("Adding new clearing event for provider: {}", clearingEvent.getProviderId());
         ClearingEventInfoRecord record = getDslContext().newRecord(CLEARING_EVENT_INFO, clearingEvent);
         Query query = getDslContext().insertInto(CLEARING_EVENT_INFO).set(record).returning(CLEARING_EVENT_INFO.ID);
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         executeWithReturn(query, keyHolder);
-        log.debug("Clearing event for provider {} have been added", clearingEvent.getProviderId());
+        log.info("Clearing event for provider {} have been added", clearingEvent.getProviderId());
         return keyHolder.getKey().longValue();
     }
 
