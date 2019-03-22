@@ -59,6 +59,7 @@ public class RefundsImporter implements Importer {
         for (Refund refund : refunds) {
             saveClearingRefundData(refund);
         }
+        log.info("Number of imported refunds {}", refunds.size());
         return refunds.size() == poolSize;
     }
 
@@ -81,8 +82,7 @@ public class RefundsImporter implements Importer {
         clearingCashFlowDao.save(transactionCashFlowList);
     }
 
-    @Override
-    public long getLastTransactionEventId() {
+    private long getLastTransactionEventId() {
         ClearingRefund clearingRefund = clearingRefundDao.getLastTransactionEvent();
         if (clearingRefund == null) {
             log.warn("Event ID for clearing refund was not found!");

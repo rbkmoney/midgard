@@ -35,8 +35,10 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
     @Override
     public void startClearingEvent(ClearingEvent clearingEvent) throws ProviderNotFound {
         if (clearingEvent == null) {
-            log.error("Command from external system is empty");
+            log.error("The command from external system is empty");
         } else {
+            log.info("The command to execute the event with outer id {} for provider {} was received",
+                    clearingEvent.getEventId(), clearingEvent.getProviderId());
             executeClearingEvent(clearingEvent);
         }
     }

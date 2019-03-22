@@ -30,7 +30,7 @@ public class EventStateRevisionHandler implements Handler<ClearingProcessingEven
     @Transactional
     public void handle(ClearingProcessingEvent event) throws Exception {
         Long clearingId = event.getClearingId();
-
+        log.info("Event state revision for clearing event with id {} get started", clearingId);
         try {
             ClearingAdapterSrv.Iface adapter = event.getClearingAdapter().getAdapter();
             ClearingEventResponse response = adapter.getBankResponse(clearingId);
@@ -40,7 +40,7 @@ public class EventStateRevisionHandler implements Handler<ClearingProcessingEven
                 List<FailureTransactionData> failureTransactions = response.getFailureTransactions();
                 saveFailureTransactions(clearingId, failureTransactions);
             } else {
-                log.debug("Clearing event with id {} not complete yet!", clearingId);
+                log.info("Clearing event with id {} not complete yet!", clearingId);
             }
         } catch (TException ex) {
             log.error("Error while getting response for clearing event with id " + clearingId, ex);

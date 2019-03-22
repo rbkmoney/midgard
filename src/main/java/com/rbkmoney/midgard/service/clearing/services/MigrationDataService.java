@@ -33,7 +33,7 @@ public class MigrationDataService implements GenericService {
     @Override
     @Scheduled(fixedDelayString = "${import.migration.delay}")
     public void process() {
-        log.debug("Migration data get started");
+        log.info("Migration data get started");
         List<Integer> providerIds = adaptersProps.stream()
                 .map(adapterProps -> adapterProps.getProviderId())
                 .collect(Collectors.toList());
@@ -47,7 +47,7 @@ public class MigrationDataService implements GenericService {
             log.error("Error detected during data migration", ex);
         }
 
-        log.debug("Data migration is finished!");
+        log.info("Data migration is finished!");
     }
 
 }

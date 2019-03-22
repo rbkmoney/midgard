@@ -6,6 +6,4 @@ public interface Importer {
 
     boolean importData(List<Integer> providerIds);
 
-    long getLastTransactionEventId();
-
 }

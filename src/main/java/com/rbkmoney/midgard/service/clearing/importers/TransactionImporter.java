@@ -54,6 +54,7 @@ public class TransactionImporter implements Importer {
         for (Payment payment : payments) {
             saveTransaction(payment);
         }
+        log.info("Number of imported payments {}", payments.size());
         return payments.size() == poolSize;
     }
 
@@ -85,8 +86,7 @@ public class TransactionImporter implements Importer {
         cashFlowDao.save(tranCashFlow);
     }
 
-    @Override
-    public long getLastTransactionEventId() {
+    private long getLastTransactionEventId() {
         ClearingTransaction clearingTransaction = transactionsDao.getLastTransaction();
         if (clearingTransaction == null) {
             log.warn("Event ID for clearing transactions was not found!");
