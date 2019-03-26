@@ -29,6 +29,8 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private Importer refundsImporter;
 
+    private static final int POOL_SIZE = 30;
+
     @Test
     public void migrationTest() {
         TestTransactionsDao testTransactionsDao = new TestTransactionsDao(dataSource);
@@ -40,7 +42,7 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
         refundList.add(getRefund(2L, "test_2"));
         refundList.add(getRefund(1L, "test_3"));
         refundList.add(getRefund(3L, "test_2"));
-        when(refundDao.getRefunds(0L, providerIds, 75)).thenReturn(refundList);
+        when(refundDao.getRefunds(0L, providerIds, POOL_SIZE)).thenReturn(refundList);
 
         try {
             refundsImporter.importData(providerIds);
@@ -57,7 +59,7 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
         refundList.add(getRefund(5L, "test_2"));
         refundList.add(getRefund(6L, "test_3"));
         refundList.add(getRefund(7L, "test_2"));
-        when(refundDao.getRefunds(0L, providerIds, 75)).thenReturn(refundList);
+        when(refundDao.getRefunds(0L, providerIds, POOL_SIZE)).thenReturn(refundList);
 
         try {
             refundsImporter.importData(providerIds);
