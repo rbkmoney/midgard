@@ -134,7 +134,8 @@ public abstract class AbstractIntegrationTest {
                     "spring.datasource.password=" + dbPassword,
                     "flyway.url=" + jdbcUrl,
                     "flyway.user=" + dbUser,
-                    "flyway.password=" + dbPassword)
+                    "flyway.password=" + dbPassword,
+                    "clearing-service.adapters.mts.providerId=1")
                     .applyTo(configurableApplicationContext.getEnvironment(), MAP, "testcontainers");
 
             if (postgres == null) {

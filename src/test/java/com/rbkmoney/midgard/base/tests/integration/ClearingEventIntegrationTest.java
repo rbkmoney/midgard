@@ -57,15 +57,13 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
 
     private static final int PROVIDER_ID = 1;
 
-    private static final int FAIL_PROVIDER_ID = 111;
-
     private static final int CLEARING_EVENTS_COUNT = 5;
 
     private static final int CLEARING_TRX_COUNT = 7;
 
     private static final int RETRY_COUNT = 12;
 
-    private static final long SLEEP_TIME = 5000;
+    private static final long SLEEP_TIME = 10000;
 
     @Autowired
     private PaymentDao paymentDao;

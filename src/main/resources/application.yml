@@ -17,25 +17,20 @@ spring:
     schemas: midgard, feed
 
 clearing-service:
-  package-size: 30
+  package-size: 25
   revision: 30000
   adapters:
     mts:
-      name: mts
+      name: MTS
       url: http://clearing:8023/v1/clearing/mts
       networkTimeout: 5000
-      providerId: 1
-    test:
-      name: test
-      url: http://clearing:8023/v1/clearing/test
-      networkTimeout: 5000
-      providerId: 101
+      providerId: 115
 
 import:
-  trx-pool-size: 75
+  trx-pool-size: 30
   migration:
-    delay: 60000
-  init-last-event-id: 140637618
+    delay: 30000
+  init-last-event-id: 205612089
 
 retry-policy:
   maxAttempts: 10
