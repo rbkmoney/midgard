@@ -12,7 +12,7 @@
 
     <groupId>com.rbkmoney</groupId>
     <artifactId>midgard</artifactId>
-    <version>1.2.9</version>
+    <version>1.3.0</version>
 
     <name>midgard</name>
     <description>Application for work with clearing data</description>
@@ -34,7 +34,7 @@
         <jooq.version>3.11.7</jooq.version>
         <otj-pg-embedded>0.12.5</otj-pg-embedded>
         <postgresql.jdbc.version>42.2.5</postgresql.jdbc.version>
-        <HikariCP>3.2.0</HikariCP>
+        <HikariCP>3.3.1</HikariCP>
         <!-- Props for local PG. It's need for getting jooq files at build time -->
         <local.pg.port>15432</local.pg.port>
         <local.pg.db.name>midgard</local.pg.db.name>
