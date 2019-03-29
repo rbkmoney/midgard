@@ -60,4 +60,10 @@ dmt:
     delay: 3000
     maxQuerySize: 10
 
-management.metrics.export.statsd.flavor: etsy
+management:
+  security:
+    flag: false
+  metrics:
+    export:
+      statsd:
+        flavor: etsy
