@@ -1,6 +1,7 @@
 package com.rbkmoney.midgard.service.clearing.dao.clearing_info;
 
 import com.rbkmoney.midgard.service.clearing.dao.common.ClearingDao;
+import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import org.jooq.generated.midgard.enums.ClearingEventStatus;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
 
@@ -15,5 +16,7 @@ public interface ClearingEventInfoDao extends ClearingDao<ClearingEventInfo, Lon
     List<ClearingEventInfo> getAllClearingEvents(ClearingEventStatus status);
 
     Long prepareTransactionData(long clearingId, int providerId);
+
+    ClearingEventInfo getLastClearingEvent(int providerId) throws DaoException;
 
 }
