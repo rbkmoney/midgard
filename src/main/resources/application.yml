@@ -25,6 +25,8 @@ clearing-service:
       url: http://clearing:8023/v1/clearing/mts
       networkTimeout: 5000
       providerId: 115
+  schedule:
+    mts: "00 06 21 * * *"
 
 import:
   trx-pool-size: 30
