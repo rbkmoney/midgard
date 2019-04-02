@@ -18,7 +18,7 @@ spring:
 
 clearing-service:
   package-size: 25
-  revision: 30000
+  revision: 60000
   adapters:
     mts:
       name: MTS
