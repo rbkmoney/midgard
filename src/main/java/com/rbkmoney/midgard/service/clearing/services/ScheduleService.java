@@ -28,7 +28,7 @@ public class ScheduleService {
         try {
             log.info("Schedule for MTS get started");
             ClearingAdapter mts = adapters.stream()
-                    .filter(adapters -> adapters.getAdapterName().equalsIgnoreCase("mts"))
+                    .filter(adapters -> "mts".equalsIgnoreCase(adapters.getAdapterName()))
                     .findFirst()
                     .orElseThrow();
 
