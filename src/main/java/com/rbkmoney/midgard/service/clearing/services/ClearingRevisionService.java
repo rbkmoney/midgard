@@ -6,7 +6,6 @@ import com.rbkmoney.midgard.service.clearing.data.ClearingProcessingEvent;
 import com.rbkmoney.midgard.service.clearing.handlers.Handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.generated.midgard.enums.ClearingEventStatus;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -57,7 +56,6 @@ public class ClearingRevisionService implements GenericService {
 
         log.info("Clearing revision is finished");
     }
-
 
     private void clearingRevision(ClearingEventInfo event, Handler<ClearingProcessingEvent> handler) {
         try {
