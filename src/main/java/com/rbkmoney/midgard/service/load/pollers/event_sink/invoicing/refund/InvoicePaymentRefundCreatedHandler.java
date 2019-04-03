@@ -42,19 +42,19 @@ public class InvoicePaymentRefundCreatedHandler extends AbstractInvoicingHandler
     public InvoicePaymentRefundCreatedHandler(RefundDao refundDao, PaymentDao paymentDao, CashFlowDao cashFlowDao) {
         this.refundDao = refundDao;
         this.paymentDao = paymentDao;
-        this.cashFlowDao = cashFlowDao;
         this.filter = new PathConditionFilter(new PathConditionRule(
                 "invoice_payment_change.payload.invoice_payment_refund_change.payload.invoice_payment_refund_created",
                 new IsNullCondition().not()));
+        this.cashFlowDao = cashFlowDao;
     }
 
     @Override
     @Transactional
     public void handle(InvoiceChange invoiceChange, Event event) {
-        long eventId = event.getId();
-        String invoiceId = event.getSource().getInvoiceId();
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String paymentId = invoicePaymentChange.getId();
+        long eventId = event.getId();
+        String invoiceId = event.getSource().getInvoiceId();
 
         InvoicePaymentRefundChange invoicePaymentRefundChange = invoicePaymentChange.getPayload()
                 .getInvoicePaymentRefundChange();
