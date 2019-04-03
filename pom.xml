@@ -51,9 +51,6 @@
         <db.schema>midgard</db.schema>
     </properties>
 
-
-
-
     <dependencies>
         <dependency>
             <groupId>com.rbkmoney</groupId>
