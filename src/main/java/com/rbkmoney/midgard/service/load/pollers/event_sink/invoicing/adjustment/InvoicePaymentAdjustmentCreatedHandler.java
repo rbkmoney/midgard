@@ -72,8 +72,8 @@ public class InvoicePaymentAdjustmentCreatedHandler extends AbstractInvoicingHan
         adjustment.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         adjustment.setDomainRevision(invoicePaymentAdjustment.getDomainRevision());
         adjustment.setAdjustmentId(adjustmentId);
-        adjustment.setPaymentId(paymentId);
         adjustment.setInvoiceId(invoiceId);
+        adjustment.setPaymentId(paymentId);
         Payment payment = paymentDao.get(invoiceId, paymentId);
         if (payment == null) {
             // TODO: исправить после того как прольется БД
