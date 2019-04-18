@@ -26,7 +26,7 @@ clearing-service:
       networkTimeout: 5000
       providerId: 115
   schedule:
-    mts: "00 00 12 * * *"
+    mts: "00 30 00 * * *"
 
 import:
   trx-pool-size: 30
