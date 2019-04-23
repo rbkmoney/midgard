@@ -51,6 +51,8 @@ public final class MappingUtils {
         generalTranInfo.setTransactionDate(refund.getCreatedAt().toInstant(ZoneOffset.UTC).toString());
         generalTranInfo.setTransactionAmount(refund.getAmount());
         generalTranInfo.setTransactionCurrency(refund.getCurrencyCode());
+        generalTranInfo.setInvoiceId(refund.getInvoiceId());
+        generalTranInfo.setPaymentId(refund.getPaymentId());
         generalTranInfo.setTransactionType("REFUND");
 
         return fillAdditionalInfo(generalTranInfo, clrTran, refund.getExtra(), cashFlowList);
@@ -63,6 +65,8 @@ public final class MappingUtils {
         generalTranInfo.setTransactionDate(clrTran.getTransactionDate().toInstant(ZoneOffset.UTC).toString());
         generalTranInfo.setTransactionAmount(clrTran.getTransactionAmount());
         generalTranInfo.setTransactionCurrency(clrTran.getTransactionCurrency());
+        generalTranInfo.setInvoiceId(clrTran.getInvoiceId());
+        generalTranInfo.setPaymentId(clrTran.getPaymentId());
         generalTranInfo.setTransactionType("PAYMENT");
 
         return fillAdditionalInfo(generalTranInfo, clrTran, clrTran.getExtra(), cashFlowList);
