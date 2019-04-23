@@ -126,6 +126,8 @@ public final class TestTransactionsData {
         generalTranInfo.setTransactionAmount(1000L);
         generalTranInfo.setTransactionCurrency("RUB");
         generalTranInfo.setTransactionType("PAYMENT");
+        generalTranInfo.setInvoiceId("invoice_1");
+        generalTranInfo.setPaymentId("payment_1");
         trx.setGeneralTransactionInfo(generalTranInfo);
 
         TransactionCardInfo tranCardInfo = new TransactionCardInfo();
