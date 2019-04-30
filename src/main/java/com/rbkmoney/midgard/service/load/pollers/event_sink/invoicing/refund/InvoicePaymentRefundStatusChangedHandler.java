@@ -11,10 +11,12 @@ import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
+import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.CashFlowDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.RefundDao;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import com.rbkmoney.midgard.service.load.utils.JsonUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.enums.PaymentChangeType;
 import org.jooq.generated.feed.enums.RefundStatus;
@@ -28,29 +30,23 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class InvoicePaymentRefundStatusChangedHandler extends AbstractInvoicingHandler {
 
     private final RefundDao refundDao;
 
     private final CashFlowDao cashFlowDao;
 
-    private final Filter filter;
-
-    @Autowired
-    public InvoicePaymentRefundStatusChangedHandler(RefundDao refundDao, CashFlowDao cashFlowDao) {
-        this.refundDao = refundDao;
-        this.cashFlowDao = cashFlowDao;
-        this.filter = new PathConditionFilter(new PathConditionRule(
-                "invoice_payment_change.payload.invoice_payment_refund_change" +
-                        ".payload.invoice_payment_refund_status_changed",
-                new IsNullCondition().not()));
-    }
+    private final Filter filter = new PathConditionFilter(new PathConditionRule(
+            "invoice_payment_change.payload.invoice_payment_refund_change" +
+                    ".payload.invoice_payment_refund_status_changed",
+            new IsNullCondition().not()));
 
     @Override
     @Transactional
-    public void handle(InvoiceChange invoiceChange, Event event) {
-        long eventId = event.getId();
-        String invoiceId = event.getSource().getInvoiceId();
+    public void handle(InvoiceChange invoiceChange, MachineEvent event, Integer changeId) {
+        long sequenceId = event.getEventId();
+        String invoiceId = event.getSourceId();
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String paymentId = invoiceChange.getInvoicePaymentChange().getId();
         InvoicePaymentRefundChange invoicePaymentRefundChange = invoicePaymentChange.getPayload()
@@ -59,8 +55,8 @@ public class InvoicePaymentRefundStatusChangedHandler extends AbstractInvoicingH
                 invoicePaymentRefundChange.getPayload().getInvoicePaymentRefundStatusChanged().getStatus();
         String refundId = invoicePaymentRefundChange.getId();
 
-        log.info("Start refund status changed handling, eventId={}, invoiceId={}, paymentId={}, refundId={}, status={}",
-                eventId, invoiceId, paymentId, refundId, invoicePaymentRefundStatus.getSetField().getFieldName());
+        log.info("Start refund status changed handling, sequenceId={}, invoiceId={}, paymentId={}, refundId={}, status={}",
+                sequenceId, invoiceId, paymentId, refundId, invoicePaymentRefundStatus.getSetField().getFieldName());
         Refund refundSource = refundDao.get(invoiceId, paymentId, refundId);
         if (refundSource == null) {
             // TODO: исправить после того как прольется БД
@@ -73,7 +69,8 @@ public class InvoicePaymentRefundStatusChangedHandler extends AbstractInvoicingH
         Long refundSourceId = refundSource.getId();
         refundSource.setId(null);
         refundSource.setWtime(null);
-        refundSource.setEventId(eventId);
+        refundSource.setChangeId(changeId);
+        refundSource.setSequenceId(sequenceId);
         refundSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         refundSource.setStatus(TBaseUtil.unionFieldToEnum(invoicePaymentRefundStatus, RefundStatus.class));
         if (invoicePaymentRefundStatus.isSetFailed()) {
@@ -90,8 +87,8 @@ public class InvoicePaymentRefundStatusChangedHandler extends AbstractInvoicingH
         });
         cashFlowDao.save(cashFlows);
 
-        log.info("Refund have been succeeded, eventId={}, invoiceId={}, paymentId={}, refundId={}, status={}",
-                eventId, invoiceId, paymentId, refundId, invoicePaymentRefundStatus.getSetField().getFieldName());
+        log.info("Refund have been succeeded, sequenceId={}, invoiceId={}, paymentId={}, refundId={}, status={}",
+                sequenceId, invoiceId, paymentId, refundId, invoicePaymentRefundStatus.getSetField().getFieldName());
     }
 
     @Override

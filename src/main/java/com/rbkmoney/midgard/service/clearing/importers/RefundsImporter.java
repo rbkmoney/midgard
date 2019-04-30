@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import static com.rbkmoney.midgard.service.clearing.utils.MappingUtils.transformCashFlow;
@@ -78,7 +77,7 @@ public class RefundsImporter implements Importer {
 
         List<CashFlow> cashFlow = paymentDao.getCashFlow(refund.getId());
         List<ClearingTransactionCashFlow> transactionCashFlowList =
-                transformCashFlow(cashFlow, clearingRefund.getEventId());
+                transformCashFlow(cashFlow, clearingRefund.getSequenceId());
         clearingCashFlowDao.save(transactionCashFlowList);
     }
 
@@ -88,8 +87,8 @@ public class RefundsImporter implements Importer {
             log.warn("Event ID for clearing refund was not found!");
             return 0L;
         } else {
-            log.info("Last refund event id {}", clearingRefund.getEventId());
-            return clearingRefund.getEventId();
+            log.info("Last refund sequence id {}", clearingRefund.getSequenceId());
+            return clearingRefund.getSequenceId();
         }
     }
 

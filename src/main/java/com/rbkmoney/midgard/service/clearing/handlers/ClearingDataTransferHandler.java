@@ -105,7 +105,7 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
     private Transaction getTransaction(ClearingEventTransactionInfo info) {
         ClearingTransaction clearingTransaction = transactionsDao.get(info.getTransactionId());
         List<ClearingTransactionCashFlow> cashFlowList =
-                cashFlowDao.get(clearingTransaction.getEventId());
+                cashFlowDao.get(clearingTransaction.getSequenceId());
         return MappingUtils.transformClearingTransaction(clearingTransaction, cashFlowList);
     }
 
@@ -113,7 +113,7 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
         ClearingRefund refund = clearingRefundDao.getRefund(info.getTransactionId());
         ClearingTransaction clearingTransaction =
                 transactionsDao.getTransaction(refund.getInvoiceId(), refund.getPaymentId());
-        List<ClearingTransactionCashFlow> cashFlowList = cashFlowDao.get(refund.getEventId());
+        List<ClearingTransactionCashFlow> cashFlowList = cashFlowDao.get(refund.getSequenceId());
         return MappingUtils.transformRefundTransaction(clearingTransaction, cashFlowList, refund);
     }
 

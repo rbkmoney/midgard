@@ -8,12 +8,14 @@ import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
+import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.CashFlowDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.PaymentDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.RefundDao;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import com.rbkmoney.midgard.service.load.utils.CashFlowUtil;
 import com.rbkmoney.midgard.service.load.utils.JsonUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.enums.PaymentChangeType;
 import org.jooq.generated.feed.enums.RefundStatus;
@@ -28,6 +30,7 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class InvoicePaymentRefundCreatedHandler extends AbstractInvoicingHandler {
 
     private final RefundDao refundDao;
@@ -36,25 +39,17 @@ public class InvoicePaymentRefundCreatedHandler extends AbstractInvoicingHandler
 
     private final CashFlowDao cashFlowDao;
 
-    private final Filter filter;
-
-    @Autowired
-    public InvoicePaymentRefundCreatedHandler(RefundDao refundDao, PaymentDao paymentDao, CashFlowDao cashFlowDao) {
-        this.refundDao = refundDao;
-        this.paymentDao = paymentDao;
-        this.filter = new PathConditionFilter(new PathConditionRule(
-                "invoice_payment_change.payload.invoice_payment_refund_change.payload.invoice_payment_refund_created",
-                new IsNullCondition().not()));
-        this.cashFlowDao = cashFlowDao;
-    }
+    private final Filter filter = new PathConditionFilter(new PathConditionRule(
+            "invoice_payment_change.payload.invoice_payment_refund_change.payload.invoice_payment_refund_created",
+            new IsNullCondition().not()));
 
     @Override
     @Transactional
-    public void handle(InvoiceChange invoiceChange, Event event) {
+    public void handle(InvoiceChange invoiceChange, MachineEvent event, Integer changeId) {
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String paymentId = invoicePaymentChange.getId();
-        long eventId = event.getId();
-        String invoiceId = event.getSource().getInvoiceId();
+        long sequenceId = event.getEventId();
+        String invoiceId = event.getSourceId();
 
         InvoicePaymentRefundChange invoicePaymentRefundChange = invoicePaymentChange.getPayload()
                 .getInvoicePaymentRefundChange();
@@ -64,11 +59,12 @@ public class InvoicePaymentRefundCreatedHandler extends AbstractInvoicingHandler
         InvoicePaymentRefund invoicePaymentRefund = invoicePaymentRefundCreated.getRefund();
 
         String refundId = invoicePaymentRefund.getId();
-        log.info("Start refund created handling, eventId={}, invoiceId={}, paymentId={}, refundId={}",
-                eventId, invoiceId, paymentId, refundId);
+        log.info("Start refund created handling, sequenceId={}, invoiceId={}, paymentId={}, refundId={}",
+                sequenceId, invoiceId, paymentId, refundId);
 
         Refund refund = new Refund();
-        refund.setEventId(eventId);
+        refund.setChangeId(changeId);
+        refund.setSequenceId(sequenceId);
         refund.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         refund.setDomainRevision(invoicePaymentRefund.getDomainRevision());
         refund.setRefundId(refundId);
@@ -112,8 +108,8 @@ public class InvoicePaymentRefundCreatedHandler extends AbstractInvoicingHandler
         cashFlowDao.save(cashFlowList);
         refundDao.updateCommissions(rfndId);
 
-        log.info("Refund has been saved, eventId={}, invoiceId={}, paymentId={}, refundId={}",
-                eventId, invoiceId, paymentId, refundId);
+        log.info("Refund has been saved, sequenceId={}, invoiceId={}, paymentId={}, refundId={}",
+                sequenceId, invoiceId, paymentId, refundId);
     }
 
     @Override

@@ -36,7 +36,8 @@ import static org.springframework.boot.test.util.TestPropertyValues.Type.MAP;
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@TestPropertySource(properties = {"bm.pollingEnabled=false"})
+@TestPropertySource(properties = {"bm.pollingEnabled=false",
+        "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"})
 @ContextConfiguration(classes = {MidgardClearingApplication.class},
         initializers = AbstractIntegrationTest.Initializer.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)

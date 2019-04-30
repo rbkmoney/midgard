@@ -32,7 +32,7 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
         Query query = getDslContext().insertInto(CLEARING_REFUND).set(record);
 
         int addedRows = execute(query);
-        log.debug("New clearing refund with event id {} was added", clearingRefund.getEventId());
+        log.debug("New clearing refund with sequence id {} was added", clearingRefund.getSequenceId());
         return Long.valueOf(addedRows);
     }
 
@@ -58,7 +58,7 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
     @Override
     public ClearingRefund getLastTransactionEvent() throws DaoException {
         Query query = getDslContext().selectFrom(CLEARING_REFUND)
-                .orderBy(CLEARING_REFUND.EVENT_ID.desc())
+                .orderBy(CLEARING_REFUND.SEQUENCE_ID.desc())
                 .limit(1);
         return fetchOne(query, clearingRefundRowMapper);
     }

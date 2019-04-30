@@ -39,14 +39,6 @@ retry-policy:
 
 bm:
   pollingEnabled: true
-  invoicing:
-    url: http://bustermaze:8022/repo
-    workersCount: 5
-    polling:
-      delay: 10000
-      retryDelay: 1000
-      maxPoolSize: 1
-      maxQuerySize: 300
   partyManagement:
     url: http://bustermaze:8022/repo
     polling:
@@ -61,6 +53,39 @@ dmt:
   polling:
     delay: 3000
     maxQuerySize: 10
+
+invoicing:
+  kafka.topic: mg-invoice-100-2
+
+kafka:
+  bootstrap-servers: kenny-kafka1.bst1.rbkmoney.net:9092
+  #    ssl:
+  #      trust-store-location: "classpath:cert/truststore.p12"
+  #      trust-store-password: "kenny12"
+  #      key-store-location: "classpath:cert/kenny-k.struzhkin.p12"
+  #      key-store-password: "kenny"
+  #      key-password: "kenny"
+  #      key-store-type: PKCS12
+  #      trust-store-type: PKCS12
+  consumer:
+    group-id: "TestListener"
+    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value-deserializer: com.rbkmoney.newway.serde.SinkEventDeserializer
+    enable-auto-commit: false
+    auto-offset-reset: earliest
+    client-id: test
+  listener:
+    type: batch
+    ack-mode: manual
+    concurrency: 1
+    poll-timeout: 1000 #ms
+    no-poll-threshold: 5.0 # * poll-timeout value = when consumer is dead
+    log-container-config: true
+    monitor-interval: 10s
+  client-id: test
+  properties:
+    security:
+      protocol: PLAINTEXT
 
 management:
   security:

@@ -9,11 +9,13 @@ import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
+import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.InvoiceCartDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.InvoiceDao;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import com.rbkmoney.midgard.service.load.utils.JsonUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.enums.InvoiceStatus;
 import org.jooq.generated.feed.tables.pojos.Invoice;
@@ -28,34 +30,31 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class InvoiceCreatedHandler extends AbstractInvoicingHandler {
 
     private final InvoiceDao invoiceDao;
 
     private final InvoiceCartDao invoiceCartDao;
 
-    private final Filter filter;
-
-    @Autowired
-    public InvoiceCreatedHandler(InvoiceDao invoiceDao, InvoiceCartDao invoiceCartDao) {
-        this.invoiceDao = invoiceDao;
-        this.invoiceCartDao = invoiceCartDao;
-        this.filter = new PathConditionFilter(new PathConditionRule("invoice_created", new IsNullCondition().not()));
-    }
+    private final Filter filter= new PathConditionFilter(new PathConditionRule("invoice_created",
+            new IsNullCondition().not()));;
 
     @Override
     @Transactional
-    public void handle(InvoiceChange invoiceChange, Event event) throws DaoException {
+    public void handle(InvoiceChange invoiceChange, MachineEvent event, Integer changeId) throws DaoException {
         com.rbkmoney.damsel.domain.Invoice invoice = invoiceChange.getInvoiceCreated().getInvoice();
-        long eventId = event.getId();
+        long sequenceId = event.getEventId();
+        String invoiceId = event.getSourceId();
 
-        log.info("Start invoice created handling, eventId={}, invoiceId={}, partyId={}, shopId={}",
-                eventId, invoice.getId(), invoice.getOwnerId(), invoice.getShopId());
+        log.info("Start invoice created handling, sequenceId={}, invoiceId={}, partyId={}, shopId={}",
+                sequenceId, invoiceId, invoice.getOwnerId(), invoice.getShopId());
 
         Invoice invoiceRecord = new Invoice();
-        invoiceRecord.setEventId(eventId);
+        invoiceRecord.setSequenceId(sequenceId);
+        invoiceRecord.setChangeId(changeId);
         invoiceRecord.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
-        invoiceRecord.setInvoiceId(invoice.getId());
+        invoiceRecord.setInvoiceId(invoiceId);
         invoiceRecord.setPartyId(invoice.getOwnerId());
         invoiceRecord.setShopId(invoice.getShopId());
         invoiceRecord.setPartyRevision(invoice.getPartyRevision());
@@ -92,12 +91,13 @@ public class InvoiceCreatedHandler extends AbstractInvoicingHandler {
             invoiceCartDao.save(invoiceCarts);
         }
 
-        log.info("Invoice has been saved, eventId={}, invoiceId={}, partyId={}, shopId={}",
-                eventId, invoice.getId(), invoice.getOwnerId(), invoice.getShopId());
+        log.info("Invoice has been saved, sequenceId={}, invoiceId={}, partyId={}, shopId={}",
+                sequenceId, invoiceId, invoice.getOwnerId(), invoice.getShopId());
     }
 
     @Override
     public Filter<InvoiceChange> getFilter() {
         return filter;
     }
+
 }

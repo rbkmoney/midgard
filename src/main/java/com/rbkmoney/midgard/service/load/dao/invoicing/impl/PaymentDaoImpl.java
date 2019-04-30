@@ -32,7 +32,12 @@ public class PaymentDaoImpl extends AbstractGenericDao implements PaymentDao {
     @Override
     public Long save(Payment payment) throws DaoException {
         PaymentRecord paymentRecord = getDslContext().newRecord(PAYMENT, payment);
-        Query query = getDslContext().insertInto(PAYMENT).set(paymentRecord).returning(PAYMENT.ID);
+        Query query = getDslContext().insertInto(PAYMENT)
+                .set(paymentRecord)
+                .onConflict(PAYMENT.INVOICE_ID, PAYMENT.CHANGE_ID, PAYMENT.SEQUENCE_ID)
+                .doUpdate()
+                .set(paymentRecord)
+                .returning(PAYMENT.ID);
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         executeWithReturn(query, keyHolder);
         return keyHolder.getKey().longValue();

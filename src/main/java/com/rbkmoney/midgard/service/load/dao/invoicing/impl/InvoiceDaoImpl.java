@@ -29,25 +29,14 @@ public class InvoiceDaoImpl extends AbstractGenericDao implements InvoiceDao {
     }
 
     @Override
-    public Long getLastEventId(int div, int mod) throws DaoException {
-        String sql = "with event_ids as (" +
-                "(select event_id from feed.invoice where ('x0'||substr(md5(invoice_id), 1, 7))::bit(32)::int % :div = :mod order by event_id desc limit 1) " +
-                "union all " +
-                "(select event_id from feed.payment where ('x0'||substr(md5(invoice_id), 1, 7))::bit(32)::int % :div = :mod order by event_id desc limit 1) " +
-                "union all " +
-                "(select event_id from feed.refund where ('x0'||substr(md5(invoice_id), 1, 7))::bit(32)::int % :div = :mod order by event_id desc limit 1) " +
-                "union all " +
-                "(select event_id from feed.adjustment where ('x0'||substr(md5(invoice_id), 1, 7))::bit(32)::int % :div = :mod order by event_id desc limit 1) " +
-                ") " +
-                "select max(event_id) from event_ids";
-
-        return getNamedParameterJdbcTemplate().queryForObject(sql, new MapSqlParameterSource("div", div).addValue("mod", mod), Long.class);
-    }
-
-    @Override
     public Long save(Invoice invoice) throws DaoException {
         InvoiceRecord invoiceRecord = getDslContext().newRecord(INVOICE, invoice);
-        Query query = getDslContext().insertInto(INVOICE).set(invoiceRecord).returning(INVOICE.ID);
+        Query query = getDslContext().insertInto(INVOICE)
+                .set(invoiceRecord)
+                .onConflict(INVOICE.INVOICE_ID, INVOICE.CHANGE_ID, INVOICE.SEQUENCE_ID)
+                .doUpdate()
+                .set(invoiceRecord)
+                .returning(INVOICE.ID);
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         executeWithReturn(query, keyHolder);
         return keyHolder.getKey().longValue();

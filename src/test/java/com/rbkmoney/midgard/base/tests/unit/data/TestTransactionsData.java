@@ -22,7 +22,7 @@ public final class TestTransactionsData {
     public static Payment getTestPayment() {
         Payment payment = new Payment();
 
-        payment.setEventId(1L);
+        payment.setSequenceId(1L);
         payment.setEventCreatedAt(dateTIme);
         payment.setInvoiceId("invoice_1");
         payment.setPaymentId("payment_1");
@@ -47,7 +47,7 @@ public final class TestTransactionsData {
     public static ClearingTransaction getTestClearingTransaction() {
         ClearingTransaction trx = new ClearingTransaction();
 
-        trx.setEventId(1L);
+        trx.setSequenceId(1L);
         trx.setInvoiceId("invoice_1");
         trx.setPaymentId("payment_1");
         trx.setProviderId(1);
@@ -154,7 +154,7 @@ public final class TestTransactionsData {
     public static Refund getTestRefund() {
         Refund refund = new Refund();
 
-        refund.setEventId(3L);
+        refund.setSequenceId(3L);
         refund.setInvoiceId("invoice_3");
         refund.setPaymentId("payment_3");
         refund.setSessionPayloadTransactionBoundTrxId("tran_id_3");
@@ -173,7 +173,7 @@ public final class TestTransactionsData {
     public static ClearingRefund getTestClearingRefund() {
         ClearingRefund clearingRefund = new ClearingRefund();
 
-        clearingRefund.setEventId(3L);
+        clearingRefund.setSequenceId(3L);
         clearingRefund.setInvoiceId("invoice_3");
         clearingRefund.setPaymentId("payment_3");
         clearingRefund.setTransactionId("tran_id_3");

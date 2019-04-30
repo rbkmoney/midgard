@@ -10,12 +10,14 @@ import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
+import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.CashFlowDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.InvoiceDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.PaymentDao;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import com.rbkmoney.midgard.service.load.utils.CashFlowUtil;
 import com.rbkmoney.midgard.service.load.utils.JsonUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.enums.*;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
@@ -29,6 +31,7 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
 
     private final InvoiceDao invoiceDao;
@@ -37,21 +40,13 @@ public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
 
     private final CashFlowDao cashFlowDao;
 
-    private final Filter filter;
-
-    @Autowired
-    public InvoicePaymentCreatedHandler(InvoiceDao invoiceDao, PaymentDao paymentDao, CashFlowDao cashFlowDao) {
-        this.invoiceDao = invoiceDao;
-        this.paymentDao = paymentDao;
-        this.cashFlowDao = cashFlowDao;
-        this.filter = new PathConditionFilter(new PathConditionRule(
-                "invoice_payment_change.payload.invoice_payment_started",
-                new IsNullCondition().not()));
-    }
+    private final Filter filter = new PathConditionFilter(new PathConditionRule(
+            "invoice_payment_change.payload.invoice_payment_started",
+            new IsNullCondition().not()));
 
     @Override
     @Transactional
-    public void handle(InvoiceChange invoiceChange, Event event) {
+    public void handle(InvoiceChange invoiceChange, MachineEvent event, Integer changeId) {
         InvoicePaymentStarted invoicePaymentStarted = invoiceChange
                 .getInvoicePaymentChange()
                 .getPayload()
@@ -60,14 +55,17 @@ public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
         Payment payment = new Payment();
         InvoicePayment invoicePayment = invoicePaymentStarted.getPayment();
 
-        log.info("Start payment created handling, eventId={}, invoiceId={}, paymentId={}",
-                event.getId(), event.getSource().getInvoiceId(), invoicePayment.getId());
+        long sequenceId = event.getEventId();
+        String invoiceId = event.getSourceId();
 
-        payment.setEventId(event.getId());
+        log.info("Start payment created handling, eventId={}, invoiceId={}, paymentId={}",
+                sequenceId, invoiceId, invoicePayment.getId());
+
+        payment.setChangeId(changeId);
+        payment.setSequenceId(sequenceId);
         payment.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         payment.setPaymentId(invoicePayment.getId());
         payment.setCreatedAt(TypeUtil.stringToLocalDateTime(invoicePayment.getCreatedAt()));
-        String invoiceId = event.getSource().getInvoiceId();
         payment.setInvoiceId(invoiceId);
 
         Invoice invoice = invoiceDao.get(invoiceId);
@@ -142,7 +140,8 @@ public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
             }
         }
 
-        log.info("Payment has been saved, eventId={}, invoiceId={}, paymentId={}", event.getId(), invoiceId, invoicePayment.getId());
+        log.info("Payment has been saved, sequenceId={}, invoiceId={}, paymentId={}",
+                sequenceId, invoiceId, invoicePayment.getId());
     }
 
     private void fillContactInfo(Payment payment, ContactInfo contactInfo) {

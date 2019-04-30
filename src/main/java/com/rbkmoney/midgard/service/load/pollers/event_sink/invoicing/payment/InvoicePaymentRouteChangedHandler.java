@@ -9,9 +9,11 @@ import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
+import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.CashFlowDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.PaymentDao;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.enums.PaymentChangeType;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
@@ -24,32 +26,28 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class InvoicePaymentRouteChangedHandler extends AbstractInvoicingHandler {
 
     private final PaymentDao paymentDao;
 
     private final CashFlowDao cashFlowDao;
 
-    private final Filter filter;
-
-    @Autowired
-    public InvoicePaymentRouteChangedHandler(PaymentDao paymentDao, CashFlowDao cashFlowDao) {
-        this.paymentDao = paymentDao;
-        this.cashFlowDao = cashFlowDao;
-        this.filter = new PathConditionFilter(new PathConditionRule(
-                "invoice_payment_change.payload.invoice_payment_route_changed",
+    private final Filter filter = new PathConditionFilter(new PathConditionRule(
+            "invoice_payment_change.payload.invoice_payment_route_changed",
                 new IsNullCondition().not()));
-    }
 
     @Override
     @Transactional
-    public void handle(InvoiceChange change, Event event) {
+    public void handle(InvoiceChange change, MachineEvent event, Integer changeId) {
         InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
-        String invoiceId = event.getSource().getInvoiceId();
+        String invoiceId = event.getSourceId();
         String paymentId = invoicePaymentChange.getId();
         PaymentRoute paymentRoute = invoicePaymentChange.getPayload().getInvoicePaymentRouteChanged().getRoute();
-        log.info("Start handling payment route change, route='{}', eventId='{}', invoiceId='{}', paymentId='{}'",
-                paymentRoute, event.getId(), invoiceId, paymentId);
+        long sequenceId = event.getEventId();
+
+        log.info("Start handling payment route change, route='{}', sequenceId='{}', invoiceId='{}', paymentId='{}'",
+                paymentRoute, sequenceId, invoiceId, paymentId);
         Payment paymentSource = paymentDao.get(invoiceId, paymentId);
         if (paymentSource == null) {
             // TODO: исправить после того как прольется БД
@@ -61,7 +59,8 @@ public class InvoicePaymentRouteChangedHandler extends AbstractInvoicingHandler 
         Long paymentSourceId = paymentSource.getId();
         paymentSource.setId(null);
         paymentSource.setWtime(null);
-        paymentSource.setEventId(event.getId());
+        paymentSource.setChangeId(changeId);
+        paymentSource.setSequenceId(sequenceId);
         paymentSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         paymentSource.setRouteProviderId(paymentRoute.getProvider().getId());
         paymentSource.setRouteTerminalId(paymentRoute.getTerminal().getId());
@@ -73,8 +72,8 @@ public class InvoicePaymentRouteChangedHandler extends AbstractInvoicingHandler 
             pcf.setObjId(pmntId);
         });
         cashFlowDao.save(cashFlows);
-        log.info("Payment route have been saved, route='{}', eventId='{}', invoiceId='{}', paymentId='{}'",
-                paymentRoute, event.getId(), invoiceId, paymentId);
+        log.info("Payment route have been saved, route='{}', sequenceId='{}', invoiceId='{}', paymentId='{}'",
+                paymentRoute, sequenceId, invoiceId, paymentId);
     }
 
     @Override

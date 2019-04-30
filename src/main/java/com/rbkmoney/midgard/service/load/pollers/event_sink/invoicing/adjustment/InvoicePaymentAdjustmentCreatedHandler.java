@@ -11,11 +11,13 @@ import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
+import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.AdjustmentDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.CashFlowDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.PaymentDao;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import com.rbkmoney.midgard.service.load.utils.CashFlowUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.enums.AdjustmentCashFlowType;
 import org.jooq.generated.feed.enums.AdjustmentStatus;
@@ -31,6 +33,7 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class InvoicePaymentAdjustmentCreatedHandler extends AbstractInvoicingHandler {
 
     private final AdjustmentDao adjustmentDao;
@@ -39,23 +42,16 @@ public class InvoicePaymentAdjustmentCreatedHandler extends AbstractInvoicingHan
 
     private final CashFlowDao cashFlowDao;
 
-    private final Filter filter;
-
-    @Autowired
-    public InvoicePaymentAdjustmentCreatedHandler(AdjustmentDao adjustmentDao, PaymentDao paymentDao, CashFlowDao cashFlowDao) {
-        this.adjustmentDao = adjustmentDao;
-        this.paymentDao = paymentDao;
-        this.cashFlowDao = cashFlowDao;
-        this.filter = new PathConditionFilter(new PathConditionRule(
-                "invoice_payment_change.payload.invoice_payment_adjustment_change.payload.invoice_payment_adjustment_created",
-                new IsNullCondition().not()));
-    }
+    private Filter filter = new PathConditionFilter(new PathConditionRule(
+            "invoice_payment_change.payload.invoice_payment_adjustment_change" +
+                    ".payload.invoice_payment_adjustment_created",
+            new IsNullCondition().not()));
 
     @Override
     @Transactional
-    public void handle(InvoiceChange invoiceChange, Event event) {
-        long eventId = event.getId();
-        String invoiceId = event.getSource().getInvoiceId();
+    public void handle(InvoiceChange invoiceChange, MachineEvent event, Integer changeId) {
+        long sequenceId = event.getEventId();
+        String invoiceId = event.getSourceId();
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String paymentId = invoicePaymentChange.getId();
         InvoicePaymentAdjustmentChange invoicePaymentAdjustmentChange = invoicePaymentChange.getPayload()
@@ -64,11 +60,12 @@ public class InvoicePaymentAdjustmentCreatedHandler extends AbstractInvoicingHan
                 .getPayload().getInvoicePaymentAdjustmentCreated().getAdjustment();
         String adjustmentId = invoicePaymentAdjustment.getId();
 
-        log.info("Start adjustment created handling, eventId={}, invoiceId={}, paymentId={}, adjustmentId={}",
-                eventId, invoiceId, paymentId, adjustmentId);
+        log.info("Start adjustment created handling, sequenceId={}, invoiceId={}, paymentId={}, adjustmentId={}",
+                sequenceId, invoiceId, paymentId, adjustmentId);
 
         Adjustment adjustment = new Adjustment();
-        adjustment.setEventId(eventId);
+        adjustment.setSequenceId(sequenceId);
+        adjustment.setChangeId(changeId);
         adjustment.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         adjustment.setDomainRevision(invoicePaymentAdjustment.getDomainRevision());
         adjustment.setAdjustmentId(adjustmentId);
@@ -106,8 +103,8 @@ public class InvoicePaymentAdjustmentCreatedHandler extends AbstractInvoicingHan
         cashFlowDao.save(oldCashFlowList);
         adjustmentDao.updateCommissions(adjId);
 
-        log.info("Adjustment has been saved, eventId={}, invoiceId={}, paymentId={}, adjustmentId={}",
-                eventId, invoiceId, paymentId, adjustmentId);
+        log.info("Adjustment has been saved, sequenceId={}, invoiceId={}, paymentId={}, adjustmentId={}",
+                sequenceId, invoiceId, paymentId, adjustmentId);
     }
 
     @Override

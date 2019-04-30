@@ -79,7 +79,7 @@ public class TransactionImporter implements Importer {
         List<ClearingTransactionCashFlow> tranCashFlow = cashFlow.stream()
                 .map(flow -> {
                     ClearingTransactionCashFlow transactionCashFlow =
-                            MappingUtils.transformCashFlow(flow, payment.getEventId());
+                            MappingUtils.transformCashFlow(flow, payment.getSequenceId());
                     return transactionCashFlow;
                 })
                 .collect(Collectors.toList());
@@ -92,8 +92,8 @@ public class TransactionImporter implements Importer {
             log.warn("Event ID for clearing transactions was not found!");
             return 0L;
         } else {
-            log.info("Last payment event id {}", clearingTransaction.getEventId());
-            return clearingTransaction.getEventId();
+            log.info("Last payment sequence id {}", clearingTransaction.getSequenceId());
+            return clearingTransaction.getSequenceId();
         }
     }
 

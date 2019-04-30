@@ -10,10 +10,12 @@ import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
+import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.CashFlowDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.PaymentDao;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import com.rbkmoney.midgard.service.load.utils.JsonUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.enums.PaymentChangeType;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
@@ -26,32 +28,28 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class InvoicePaymentSessionChangeTransactionBoundHandler extends AbstractInvoicingHandler {
 
     private final PaymentDao paymentDao;
 
     private final CashFlowDao cashFlowDao;
 
-    private final Filter filter;
-
-    @Autowired
-    public InvoicePaymentSessionChangeTransactionBoundHandler(PaymentDao paymentDao, CashFlowDao cashFlowDao) {
-        this.paymentDao = paymentDao;
-        this.cashFlowDao = cashFlowDao;
-        this.filter = new PathConditionFilter(new PathConditionRule(
-                "invoice_payment_change.payload.invoice_payment_session_change.payload.session_transaction_bound",
-                new IsNullCondition().not()));
-    }
+    private final Filter filter = new PathConditionFilter(new PathConditionRule(
+            "invoice_payment_change.payload.invoice_payment_session_change.payload.session_transaction_bound",
+            new IsNullCondition().not()));
 
     @Override
     @Transactional
-    public void handle(InvoiceChange change, Event event) {
+    public void handle(InvoiceChange change, MachineEvent event, Integer changeId) {
         InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
-        String invoiceId = event.getSource().getInvoiceId();
+        String invoiceId = event.getSourceId();
         String paymentId = invoicePaymentChange.getId();
         InvoicePaymentSessionChange sessionChange = invoicePaymentChange.getPayload().getInvoicePaymentSessionChange();
-        log.info("Start handling session change transaction info, eventId='{}', invoiceId='{}', paymentId='{}'",
-                event.getId(), invoiceId, paymentId);
+        long sequenceId = event.getEventId();
+
+        log.info("Start handling session change transaction info, sequenceId='{}', invoiceId='{}', paymentId='{}'",
+                sequenceId, invoiceId, paymentId);
         Payment paymentSource = paymentDao.get(invoiceId, paymentId);
         if (paymentSource == null) {
             // TODO: исправить после того как прольется БД
@@ -63,7 +61,8 @@ public class InvoicePaymentSessionChangeTransactionBoundHandler extends Abstract
         Long paymentSourceId = paymentSource.getId();
         paymentSource.setId(null);
         paymentSource.setWtime(null);
-        paymentSource.setEventId(event.getId());
+        paymentSource.setChangeId(changeId);
+        paymentSource.setSequenceId(sequenceId);
         paymentSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         com.rbkmoney.damsel.payment_processing.SessionChangePayload payload = sessionChange.getPayload();
         TransactionInfo transactionInfo = payload.getSessionTransactionBound().getTrx();
@@ -77,8 +76,8 @@ public class InvoicePaymentSessionChangeTransactionBoundHandler extends Abstract
             pcf.setObjId(pmntId);
         });
         cashFlowDao.save(cashFlows);
-        log.info("Payment session transaction info has been saved, eventId='{}', invoiceId='{}', paymentId='{}'",
-                event.getId(), invoiceId, paymentId);
+        log.info("Payment session transaction info has been saved, sequenceId='{}', invoiceId='{}', paymentId='{}'",
+                sequenceId, invoiceId, paymentId);
     }
 
     @Override

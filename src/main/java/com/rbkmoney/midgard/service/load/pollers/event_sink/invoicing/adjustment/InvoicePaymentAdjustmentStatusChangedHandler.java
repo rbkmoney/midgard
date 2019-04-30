@@ -11,9 +11,11 @@ import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
+import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.AdjustmentDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.CashFlowDao;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.enums.AdjustmentCashFlowType;
 import org.jooq.generated.feed.enums.AdjustmentStatus;
@@ -27,29 +29,23 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class InvoicePaymentAdjustmentStatusChangedHandler extends AbstractInvoicingHandler {
 
     private final AdjustmentDao adjustmentDao;
 
     private final CashFlowDao cashFlowDao;
 
-    private final Filter filter;
-
-    @Autowired
-    public InvoicePaymentAdjustmentStatusChangedHandler(AdjustmentDao adjustmentDao, CashFlowDao cashFlowDao) {
-        this.adjustmentDao = adjustmentDao;
-        this.cashFlowDao = cashFlowDao;
-        this.filter = new PathConditionFilter(new PathConditionRule(
-                "invoice_payment_change.payload.invoice_payment_adjustment_change.payload" +
-                        ".invoice_payment_adjustment_status_changed",
-                new IsNullCondition().not()));
-    }
+    private final Filter filter = new PathConditionFilter(new PathConditionRule(
+            "invoice_payment_change.payload.invoice_payment_adjustment_change.payload" +
+            ".invoice_payment_adjustment_status_changed",
+                new IsNullCondition().not()));;
 
     @Override
     @Transactional
-    public void handle(InvoiceChange invoiceChange, Event event) {
-        long eventId = event.getId();
-        String invoiceId = event.getSource().getInvoiceId();
+    public void handle(InvoiceChange invoiceChange, MachineEvent event, Integer changeId) {
+        long sequenceId = event.getEventId();
+        String invoiceId = event.getSourceId();
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String paymentId = invoiceChange.getInvoicePaymentChange().getId();
         InvoicePaymentAdjustmentChange invoicePaymentAdjustmentChange =
@@ -58,8 +54,8 @@ public class InvoicePaymentAdjustmentStatusChangedHandler extends AbstractInvoic
                 invoicePaymentAdjustmentChange.getPayload().getInvoicePaymentAdjustmentStatusChanged().getStatus();
         String adjustmentId = invoicePaymentAdjustmentChange.getId();
 
-        log.info("Start adjustment status changed handling, eventId={}, invoiceId={}, paymentId={}, adjustmentId={}, status={}",
-                eventId, invoiceId, paymentId, adjustmentId, invoicePaymentAdjustmentStatus.getSetField().getFieldName());
+        log.info("Start adjustment status changed handling, sequenceId={}, invoiceId={}, paymentId={}, adjustmentId={}, status={}",
+                sequenceId, invoiceId, paymentId, adjustmentId, invoicePaymentAdjustmentStatus.getSetField().getFieldName());
         Adjustment adjustmentSource = adjustmentDao.get(invoiceId, paymentId, adjustmentId);
         if (adjustmentSource == null) {
             // TODO: исправить после того как прольется БД
@@ -72,7 +68,8 @@ public class InvoicePaymentAdjustmentStatusChangedHandler extends AbstractInvoic
         Long adjustmentSourceId = adjustmentSource.getId();
         adjustmentSource.setId(null);
         adjustmentSource.setWtime(null);
-        adjustmentSource.setEventId(eventId);
+        adjustmentSource.setChangeId(changeId);
+        adjustmentSource.setSequenceId(sequenceId);
         adjustmentSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         adjustmentSource.setStatus(TBaseUtil.unionFieldToEnum(invoicePaymentAdjustmentStatus, AdjustmentStatus.class));
         if (invoicePaymentAdjustmentStatus.isSetCaptured()) {
@@ -97,8 +94,8 @@ public class InvoicePaymentAdjustmentStatusChangedHandler extends AbstractInvoic
         });
         cashFlowDao.save(oldCashFlows);
 
-        log.info("Adjustment status change has been saved, eventId={}, invoiceId={}, paymentId={}, adjustmentId={}, status={}",
-                eventId, invoiceId, paymentId, adjustmentId, invoicePaymentAdjustmentStatus.getSetField().getFieldName());
+        log.info("Adjustment status change has been saved, sequenceId={}, invoiceId={}, paymentId={}, adjustmentId={}, status={}",
+                sequenceId, invoiceId, paymentId, adjustmentId, invoicePaymentAdjustmentStatus.getSetField().getFieldName());
     }
 
     @Override

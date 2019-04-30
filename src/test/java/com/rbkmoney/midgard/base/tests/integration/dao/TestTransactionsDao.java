@@ -43,10 +43,11 @@ public class TestTransactionsDao extends AbstractGenericDao {
         return record.value1();
     }
 
-    public Integer getClearingRefundCount() throws DaoException {
+    public Integer getClearingRefundCount(String shopId) throws DaoException {
         Field<Integer> rowCount = count(CLEARING_REFUND.TRANSACTION_ID).as("rowCount");
         Record1<Integer> record = getDslContext().select(rowCount)
                 .from(CLEARING_REFUND)
+                .where(CLEARING_REFUND.SHOP_ID.equal(shopId))
                 .fetchOne();
         return record.value1();
     }
