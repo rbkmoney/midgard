@@ -14,13 +14,10 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
@@ -39,11 +36,6 @@ public class InvoicingKafkaListenerTest extends AbstractIntegrationTest {
 
     @MockBean
     SourceEventParser eventParser;
-
-    @Before
-    public void init() throws IOException, SQLException {
-        initDb();
-    }
 
     @Test
     public void listenEmptyChanges() throws InterruptedException {
