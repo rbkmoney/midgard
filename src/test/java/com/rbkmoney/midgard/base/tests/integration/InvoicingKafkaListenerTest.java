@@ -1,12 +1,12 @@
-package com.rbkmoney.midgard.base.tests.integration.kafka;
+package com.rbkmoney.midgard.base.tests.integration;
 
 import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.kafka.common.serializer.ThriftSerializer;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.machinegun.eventsink.SinkEvent;
 import com.rbkmoney.machinegun.msgpack.Value;
+import com.rbkmoney.midgard.base.tests.integration.AbstractIntegrationTest;
 import com.rbkmoney.midgard.service.load.converter.SourceEventParser;
-import com.rbkmoney.midgard.service.load.pollers.listeners.InvoicingKafkaListener;
 import com.rbkmoney.midgard.service.load.services.InvoicingService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -16,9 +16,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,11 +26,9 @@ import static java.util.Collections.emptyList;
 import static org.mockito.ArgumentMatchers.any;
 
 @Slf4j
-@ContextConfiguration(classes = {KafkaAutoConfiguration.class, InvoicingKafkaListener.class})
-public class InvoicingKafkaListenerTest extends AbstractKafkaTest {
+public class InvoicingKafkaListenerTest extends AbstractIntegrationTest {
 
-
-    @org.springframework.beans.factory.annotation.Value("${invoicing.kafka.topic}")
+    @org.springframework.beans.factory.annotation.Value("${kafka.topics.invoicing}")
     public String topic;
 
     @MockBean

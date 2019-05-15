@@ -5,6 +5,7 @@ import com.rbkmoney.midgard.service.MidgardClearingApplication;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -12,8 +13,8 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.containers.KafkaContainer;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -36,8 +37,6 @@ import static org.springframework.boot.test.util.TestPropertyValues.Type.MAP;
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@TestPropertySource(properties = {"bm.pollingEnabled=false",
-        "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"})
 @ContextConfiguration(classes = {MidgardClearingApplication.class},
         initializers = AbstractIntegrationTest.Initializer.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
@@ -55,7 +54,16 @@ public abstract class AbstractIntegrationTest {
 
     private static final String FILE_NAME = "target/test-classes/InsertFeedInitialData.sql";
 
+    public static final String SOURCE_ID = "source_id";
+
+    public static final String SOURCE_NS = "source_ns";
+
+    private static final String CONFLUENT_PLATFORM_VERSION = "5.0.1";
+
     private static EmbeddedPostgres postgres;
+
+    @ClassRule
+    public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION).withEmbeddedZookeeper();
 
     @Before
     public void init() throws Exception {
@@ -136,7 +144,17 @@ public abstract class AbstractIntegrationTest {
                     "flyway.url=" + jdbcUrl,
                     "flyway.user=" + dbUser,
                     "flyway.password=" + dbPassword,
-                    "clearing-service.adapters.mts.providerId=1")
+                    "clearing-service.adapters.mts.providerId=1",
+                    "bm.pollingEnabled=false",
+
+                    "kafka.bootstrap-servers=" + kafka.getBootstrapServers(),
+                    "kafka.ssl.enabled=false",
+                    "kafka.consumer.group-id=TestGroupId",
+                    "kafka.consumer.enable-auto-commit=false",
+                    "kafka.consumer.auto-offset-reset=earliest",
+                    "kafka.consumer.client-id=initConsumerTestClient",
+                    "kafka.client-id=initTestClient",
+                    "kafka.topics.invoicing=test-topic")
                     .applyTo(configurableApplicationContext.getEnvironment(), MAP, "testcontainers");
 
             if (postgres == null) {

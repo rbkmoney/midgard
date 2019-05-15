@@ -24,19 +24,14 @@ public class OnStartLoadListener implements ApplicationListener<ApplicationReady
 
     private final EventService<Event, EventPayload> partyManagementService;
 
-    private final EventService<Event, EventPayload> invoicingService;
-
     @Value("${bm.pollingEnabled}")
     private boolean pollingEnabled;
 
     public OnStartLoadListener(EventPublisher partyManagementEventPublisher,
 
-                               EventService<Event, EventPayload> partyManagementService,
-                               EventService<Event, EventPayload> invoicingService) {
+                               EventService<Event, EventPayload> partyManagementService) {
         this.partyManagementEventPublisher = partyManagementEventPublisher;
-
         this.partyManagementService = partyManagementService;
-        this.invoicingService = invoicingService;
     }
 
     @Override

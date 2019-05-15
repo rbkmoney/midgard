@@ -1,6 +1,7 @@
 package com.rbkmoney.midgard.service.load.converter;
 
 import com.rbkmoney.damsel.payment_processing.EventPayload;
+import com.rbkmoney.kafka.common.converter.BinaryConverter;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.load.exceptions.ParseException;
 import lombok.RequiredArgsConstructor;
