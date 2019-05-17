@@ -49,7 +49,7 @@ public class ClearingRevisionService implements GenericService {
         List<ClearingEventInfo> startedEvents = eventInfoDao.getAllClearingEvents(STARTED);
         // ADAPTER_FAULT - это ошибка при взаимодействии с клиринговым адаптером.
         List<ClearingEventInfo> adapterFaultEvents = eventInfoDao.getAllClearingEvents(ADAPTER_FAULT).stream()
-                .filter(event -> event.getDate().plusHours(retriesHourCount).isBefore(LocalDateTime.now(Clock.systemUTC())))
+                .filter(event -> event.getDate().plusHours(retriesHourCount).isAfter(LocalDateTime.now(Clock.systemUTC())))
                 .collect(Collectors.toList());
         startedEvents.addAll(adapterFaultEvents);
         log.info("Count of started clearing events is {}", startedEvents.size());
