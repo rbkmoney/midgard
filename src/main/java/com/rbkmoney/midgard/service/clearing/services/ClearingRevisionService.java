@@ -7,9 +7,11 @@ import com.rbkmoney.midgard.service.clearing.handlers.Handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +38,9 @@ public class ClearingRevisionService implements GenericService {
 
     private final List<ClearingAdapter> adapters;
 
+    @Value("${clearing-service.retries-hour-count}")
+    private long retriesHourCount;
+
     @Override
     @Scheduled(fixedDelayString = "${clearing-service.revision}")
     public void process() {
@@ -44,7 +49,7 @@ public class ClearingRevisionService implements GenericService {
         List<ClearingEventInfo> startedEvents = eventInfoDao.getAllClearingEvents(STARTED);
         // ADAPTER_FAULT - это ошибка при взаимодействии с клиринговым адаптером.
         List<ClearingEventInfo> adapterFaultEvents = eventInfoDao.getAllClearingEvents(ADAPTER_FAULT).stream()
-                .filter(event -> event.getDate().getDayOfYear() - LocalDateTime.now().getDayOfYear() == 0)
+                .filter(event -> event.getDate().plusHours(retriesHourCount).isAfter(LocalDateTime.now(Clock.systemUTC())))
                 .collect(Collectors.toList());
         startedEvents.addAll(adapterFaultEvents);
         log.info("Count of started clearing events is {}", startedEvents.size());
