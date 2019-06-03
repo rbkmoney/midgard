@@ -46,6 +46,7 @@ public class PartyMetaSetHandler extends AbstractPartyManagementHandler {
             //throw new NotFoundException(String.format("Party not found, partyId='%s'", partyId));
         }
         partySource.setId(null);
+        partySource.setRevision(null);
         partySource.setWtime(null);
         partySource.setEventId(eventId);
         partySource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));

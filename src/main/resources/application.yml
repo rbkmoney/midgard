@@ -71,6 +71,7 @@ kafka:
     group-id: "MidgardListener"
     enable-auto-commit: false
     auto-offset-reset: earliest
+    max-poll-records: 20
   topics:
     invoicing: mg-invoice-100-2
 

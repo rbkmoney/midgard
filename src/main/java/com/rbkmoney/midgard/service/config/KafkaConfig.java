@@ -44,6 +44,8 @@ public class KafkaConfig {
     private String groupId;
     @Value("${kafka.client-id}")
     private String clientId;
+    @Value("${kafka.consumer.max-poll-records}")
+    private int maxPollRecords;
 
     @Value("${kafka.bootstrap-servers}")
     private String bootstrapServers;
@@ -65,6 +67,7 @@ public class KafkaConfig {
         props.put(ConsumerConfig.CLIENT_ID_CONFIG, clientId);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enableAutoCommit);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
 
         configureSsl(props);
 
