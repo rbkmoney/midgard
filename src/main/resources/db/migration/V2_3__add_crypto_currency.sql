@@ -1,0 +1,1 @@
+alter table feed.payment add column crypto_currency character varying;
