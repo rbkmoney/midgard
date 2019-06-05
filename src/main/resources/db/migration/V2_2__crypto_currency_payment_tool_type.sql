@@ -1,0 +1,1 @@
+alter type feed.payment_tool_type add value 'crypto_currency';
