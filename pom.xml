@@ -12,7 +12,7 @@
 
     <groupId>com.rbkmoney</groupId>
     <artifactId>midgard</artifactId>
-    <version>1.3.7-SNAPSHOT</version>
+    <version>1.3.8-SNAPSHOT</version>
 
     <name>midgard</name>
     <description>Application for work with clearing data</description>
@@ -23,7 +23,7 @@
         <dockerfile.base.service.tag>bc95d0d6dc13c693acd2b274531a7d604b877bf3</dockerfile.base.service.tag>
         <dockerfile.registry>dr2.rbkmoney.com</dockerfile.registry>
         <!-- RBK.Money environment settings -->
-        <damsel.version>1.278-3abdcb4</damsel.version>
+        <damsel.version>1.303-d99319c</damsel.version>
         <fistful-proto.version>1.8-37ccefb</fistful-proto.version>
         <shared.resources.version>0.3.6</shared.resources.version>
         <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
