@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import static com.rbkmoney.midgard.service.clearing.utils.MappingUtils.transformCashFlow;
@@ -65,6 +64,8 @@ public class RefundsImporter implements Importer {
 
     private void saveClearingRefundData(Refund refund) throws DaoException {
         ClearingRefund clearingRefund = MappingUtils.transformRefund(refund);
+        log.info("Saving a clearing refund with event id {} and invoice id {}",
+                refund.getEventId(), refund.getInvoiceId());
         log.debug("Saving a clearing refund {}", clearingRefund);
 
         if (clearingRefund.getTransactionId() == null) {
