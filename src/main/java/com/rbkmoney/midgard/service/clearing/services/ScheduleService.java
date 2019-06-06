@@ -39,6 +39,7 @@ public class ScheduleService {
             clearingEvent.setEventId(lastClearingEvent.getEventId() + 1);
             clearingEvent.setProviderId(providerId);
             clearingEventService.startClearingEvent(clearingEvent);
+            log.info("Schedule for MTS finished");
         } catch (Exception ex) {
             log.error("Error was received when performing a scheduled clearing task", ex);
         }
