@@ -55,6 +55,7 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
 
             List<ClearingDataPackageTag> tagList = new ArrayList<>();
             if (packagesCount == 0) {
+                log.info("No transactions found for clearing");
                 ClearingDataPackage dataPackage = getEmptyClearingDataPackage(clearingId);
                 ClearingDataPackageTag tag = adapter.sendClearingDataPackage(uploadId, dataPackage);
                 tagList.add(tag);
@@ -92,9 +93,9 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
         List<Transaction> transactions = new ArrayList<>();
         for (ClearingEventTransactionInfo info : trxEventInfo) {
             if (PAYMENT.equals(info.getTransactionType())) {
-                transactions.add(getTransaction(info));
+                transactions.add(getTransaction(info, clearingId, packageNumber));
             } else if (REFUND.equals(info.getTransactionType())) {
-                transactions.add(getRefundTransaction(info));
+                transactions.add(getRefundTransaction(info, clearingId, packageNumber));
             }
         }
 
@@ -102,15 +103,20 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
         return dataPackage;
     }
 
-    private Transaction getTransaction(ClearingEventTransactionInfo info) {
+    private Transaction getTransaction(ClearingEventTransactionInfo info, Long clearingId, int packageNumber) {
         ClearingTransaction clearingTransaction = transactionsDao.get(info.getTransactionId());
+        log.info("Transaction with invoice id {} and transaction id {} will added to package {} " +
+                "for clearing event {}", clearingTransaction.getInvoiceId(), clearingTransaction.getTransactionId(),
+                packageNumber, clearingId);
         List<ClearingTransactionCashFlow> cashFlowList =
                 cashFlowDao.get(clearingTransaction.getEventId());
         return MappingUtils.transformClearingTransaction(clearingTransaction, cashFlowList);
     }
 
-    private Transaction getRefundTransaction(ClearingEventTransactionInfo info) {
+    private Transaction getRefundTransaction(ClearingEventTransactionInfo info, Long clearingId, int packageNumber) {
         ClearingRefund refund = clearingRefundDao.getRefund(info.getTransactionId());
+        log.info("Refund transaction with invoice id {} and transaction id {} will added to package {} " +
+                "for clearing event {}", refund.getInvoiceId(), refund.getTransactionId(), packageNumber, clearingId);
         ClearingTransaction clearingTransaction =
                 transactionsDao.getTransaction(refund.getInvoiceId(), refund.getPaymentId());
         List<ClearingTransactionCashFlow> cashFlowList = cashFlowDao.get(refund.getEventId());
