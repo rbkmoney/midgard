@@ -11,4 +11,6 @@ public interface InvoiceDao extends Dao {
     Invoice get(String invoiceId) throws DaoException;
 
     void updateNotCurrent(String invoiceId) throws DaoException;
+
+    Long getLastEventId(int div, int mod) throws DaoException;
 }

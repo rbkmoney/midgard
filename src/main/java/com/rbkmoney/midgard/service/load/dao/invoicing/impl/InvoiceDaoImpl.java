@@ -55,4 +55,21 @@ public class InvoiceDaoImpl extends AbstractGenericDao implements InvoiceDao {
                 .where(INVOICE.INVOICE_ID.eq(invoiceId).and(INVOICE.CURRENT));
         execute(query);
     }
+
+    @Override
+    public Long getLastEventId(int div, int mod) throws DaoException {
+        String sql = "with event_ids as (" +
+                "(select event_id from feed.invoice where ('x0'||substr(md5(invoice_id), 1, 7))::bit(32)::int % :div = :mod order by event_id desc limit 1) " +
+                "union all " +
+                "(select event_id from feed.payment where ('x0'||substr(md5(invoice_id), 1, 7))::bit(32)::int % :div = :mod order by event_id desc limit 1) " +
+                "union all " +
+                "(select event_id from feed.refund where ('x0'||substr(md5(invoice_id), 1, 7))::bit(32)::int % :div = :mod order by event_id desc limit 1) " +
+                "union all " +
+                "(select event_id from feed.adjustment where ('x0'||substr(md5(invoice_id), 1, 7))::bit(32)::int % :div = :mod order by event_id desc limit 1) " +
+                ") " +
+                "select max(event_id) from event_ids";
+
+        return getNamedParameterJdbcTemplate().queryForObject(sql, new MapSqlParameterSource("div", div).addValue("mod", mod), Long.class);
+    }
+
 }

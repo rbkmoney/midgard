@@ -1,7 +1,6 @@
 package com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.adjustment;
 
 import com.rbkmoney.damsel.domain.InvoicePaymentAdjustment;
-import com.rbkmoney.damsel.payment_processing.Event;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentAdjustmentChange;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentChange;
@@ -11,10 +10,10 @@ import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
-import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.AdjustmentDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.CashFlowDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.PaymentDao;
+import com.rbkmoney.midgard.service.load.model.SimpleEvent;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import com.rbkmoney.midgard.service.load.utils.CashFlowUtil;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,6 @@ import org.jooq.generated.feed.enums.PaymentChangeType;
 import org.jooq.generated.feed.tables.pojos.Adjustment;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
 import org.jooq.generated.feed.tables.pojos.Payment;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,7 +47,7 @@ public class InvoicePaymentAdjustmentCreatedHandler extends AbstractInvoicingHan
 
     @Override
     @Transactional
-    public void handle(InvoiceChange invoiceChange, MachineEvent event, Integer changeId) {
+    public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
         long sequenceId = event.getEventId();
         String invoiceId = event.getSourceId();
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();

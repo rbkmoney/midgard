@@ -64,8 +64,8 @@ public class RefundsImporter implements Importer {
 
     private void saveClearingRefundData(Refund refund) throws DaoException {
         ClearingRefund clearingRefund = MappingUtils.transformRefund(refund);
-        log.info("Saving a clearing refund with event id {} and invoice id {}",
-                refund.getEventId(), refund.getInvoiceId());
+        log.info("Saving a clearing refund with sequence id '{}' and invoice id '{}'",
+                refund.getSequenceId(), refund.getInvoiceId());
         log.debug("Saving a clearing refund {}", clearingRefund);
 
         if (clearingRefund.getTransactionId() == null) {

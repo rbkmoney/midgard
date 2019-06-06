@@ -7,9 +7,9 @@ import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
-import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.CashFlowDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.PaymentDao;
+import com.rbkmoney.midgard.service.load.model.SimpleEvent;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import com.rbkmoney.midgard.service.load.utils.CashFlowUtil;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +37,7 @@ public class InvoicePaymentCashFlowChangedHandler extends AbstractInvoicingHandl
 
     @Override
     @Transactional
-    public void handle(InvoiceChange change, MachineEvent event, Integer changeId) {
+    public void handle(InvoiceChange change, SimpleEvent event, Integer changeId) {
         InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
         String invoiceId = event.getSourceId();
         String paymentId = invoicePaymentChange.getId();
@@ -48,7 +48,8 @@ public class InvoicePaymentCashFlowChangedHandler extends AbstractInvoicingHandl
         Payment paymentSource = paymentDao.get(invoiceId, paymentId);
         if (paymentSource == null) {
             // TODO: исправить после того как прольется БД
-            log.error("Payment not found, invoiceId='{}', paymentId='{}'", invoiceId, paymentId);
+            log.error("Payment not found (sequenceId='{}', invoiceId='{}', paymentId='{}'",
+                    sequenceId, invoiceId, paymentId);
             return;
             //throw new NotFoundException(String.format("Payment not found, invoiceId='%s', paymentId='%s'",
             //        invoiceId, paymentId));

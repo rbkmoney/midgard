@@ -3,6 +3,7 @@ package com.rbkmoney.midgard.service.load.services;
 import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
+import com.rbkmoney.midgard.service.load.model.SimpleEvent;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class InvoicingService implements EventService<MachineEvent, EventPayload> {
+public class InvoicingService implements EventService<SimpleEvent, EventPayload> {
 
     private final List<AbstractInvoicingHandler> invoicingHandlers;
 
@@ -25,13 +26,13 @@ public class InvoicingService implements EventService<MachineEvent, EventPayload
 
     @Override
     @Transactional
-    public void handleEvents(MachineEvent machineEvent, EventPayload payload) {
+    public void handleEvents(SimpleEvent simpleEvent, EventPayload payload) {
         List<InvoiceChange> invoiceChanges = payload.getInvoiceChanges();
         for (int i = 0; i < invoiceChanges.size(); i++) {
             InvoiceChange change = invoiceChanges.get(i);
             for (AbstractInvoicingHandler invoicingHandler : invoicingHandlers) {
                 if (invoicingHandler.accept(change)) {
-                    invoicingHandler.handle(change, machineEvent, i);
+                    invoicingHandler.handle(change, simpleEvent, i);
                 }
             }
         }

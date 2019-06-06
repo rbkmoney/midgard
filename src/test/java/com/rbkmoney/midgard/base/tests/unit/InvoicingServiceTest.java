@@ -2,7 +2,7 @@ package com.rbkmoney.midgard.base.tests.unit;
 
 import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
-import com.rbkmoney.machinegun.eventsink.MachineEvent;
+import com.rbkmoney.midgard.service.load.model.SimpleEvent;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import com.rbkmoney.midgard.service.load.services.InvoicingService;
 import org.junit.BeforeClass;
@@ -34,7 +34,7 @@ public class InvoicingServiceTest {
     public void handleEmptyChanges() {
         InvoicingService invoicingService = new InvoicingService(rightHandlers);
 
-        MachineEvent message = new MachineEvent();
+        SimpleEvent message = SimpleEvent.builder().build();
         EventPayload payload = new EventPayload();
         payload.setInvoiceChanges(List.of());
 
@@ -47,7 +47,7 @@ public class InvoicingServiceTest {
     public void handlerSupportsInvoicing() {
         InvoicingService invoicingService = new InvoicingService(rightHandlers);
 
-        MachineEvent message = new MachineEvent();
+        SimpleEvent message = SimpleEvent.builder().build();
         EventPayload payload = new EventPayload();
         payload.setInvoiceChanges(List.of(mock(InvoiceChange.class)));
 
@@ -61,7 +61,7 @@ public class InvoicingServiceTest {
     public void handlerNotSupportInvoicing() {
         InvoicingService invoicingService = new InvoicingService(wrongHandlers);
 
-        MachineEvent message = new MachineEvent();
+        SimpleEvent message = SimpleEvent.builder().build();
         EventPayload payload = new EventPayload();
         payload.setInvoiceChanges(List.of(mock(InvoiceChange.class)));
 

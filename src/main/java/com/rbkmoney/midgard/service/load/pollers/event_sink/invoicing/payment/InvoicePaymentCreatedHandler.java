@@ -1,7 +1,6 @@
 package com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.payment;
 
 import com.rbkmoney.damsel.domain.*;
-import com.rbkmoney.damsel.payment_processing.Event;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentStarted;
 import com.rbkmoney.geck.common.util.TBaseUtil;
@@ -10,10 +9,10 @@ import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
-import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.CashFlowDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.InvoiceDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.PaymentDao;
+import com.rbkmoney.midgard.service.load.model.SimpleEvent;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import com.rbkmoney.midgard.service.load.utils.CashFlowUtil;
 import com.rbkmoney.midgard.service.load.utils.JsonUtil;
@@ -23,7 +22,6 @@ import org.jooq.generated.feed.enums.*;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
 import org.jooq.generated.feed.tables.pojos.Invoice;
 import org.jooq.generated.feed.tables.pojos.Payment;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,7 +44,7 @@ public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
 
     @Override
     @Transactional
-    public void handle(InvoiceChange invoiceChange, MachineEvent event, Integer changeId) {
+    public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
         InvoicePaymentStarted invoicePaymentStarted = invoiceChange
                 .getInvoicePaymentChange()
                 .getPayload()
@@ -58,7 +56,7 @@ public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
         long sequenceId = event.getEventId();
         String invoiceId = event.getSourceId();
 
-        log.info("Start payment created handling, eventId={}, invoiceId={}, paymentId={}",
+        log.info("Start payment created handling, sequenceId={}, invoiceId={}, paymentId={}",
                 sequenceId, invoiceId, invoicePayment.getId());
 
         payment.setChangeId(changeId);
@@ -71,7 +69,8 @@ public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
         Invoice invoice = invoiceDao.get(invoiceId);
         if (invoice == null) {
             // TODO: исправить после того как прольется БД
-            log.error("Invoice on payment not found, invoiceId='{}', paymentId='{}'", invoiceId, invoicePayment.getId());
+            log.error("Invoice on payment not found, sequenceId='{}' invoiceId='{}', paymentId='{}'",
+                    sequenceId, invoiceId, invoicePayment.getId());
             return;
             //throw new NotFoundException(String.format("Invoice on payment not found, invoiceId='%s', paymentId='%s'",
             //        invoiceId, invoicePayment.getId()));

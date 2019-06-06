@@ -60,8 +60,8 @@ public class TransactionImporter implements Importer {
 
     private void saveTransaction(Payment payment) throws DaoException {
         ClearingTransaction transaction = MappingUtils.transformTransaction(payment);
-        log.info("Saving a clearing refund with event id, invoice id {} and payment id {}",
-                payment.getEventId(), payment.getInvoiceId(), payment.getPaymentId());
+        log.info("Saving a clearing refund with sequence id '{}', invoice id '{}' and payment id '{}'",
+                payment.getSequenceId(), payment.getInvoiceId(), payment.getPaymentId());
         log.debug("Saving a transaction {}", transaction);
 
         if (transaction.getTransactionId() == null) {

@@ -1,7 +1,6 @@
 package com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.refund;
 
 import com.rbkmoney.damsel.domain.InvoicePaymentRefundStatus;
-import com.rbkmoney.damsel.payment_processing.Event;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentChange;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentRefundChange;
@@ -11,9 +10,9 @@ import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
-import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.CashFlowDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.RefundDao;
+import com.rbkmoney.midgard.service.load.model.SimpleEvent;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import com.rbkmoney.midgard.service.load.utils.JsonUtil;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,6 @@ import org.jooq.generated.feed.enums.PaymentChangeType;
 import org.jooq.generated.feed.enums.RefundStatus;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
 import org.jooq.generated.feed.tables.pojos.Refund;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +42,7 @@ public class InvoicePaymentRefundStatusChangedHandler extends AbstractInvoicingH
 
     @Override
     @Transactional
-    public void handle(InvoiceChange invoiceChange, MachineEvent event, Integer changeId) {
+    public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
         long sequenceId = event.getEventId();
         String invoiceId = event.getSourceId();
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
@@ -60,8 +58,8 @@ public class InvoicePaymentRefundStatusChangedHandler extends AbstractInvoicingH
         Refund refundSource = refundDao.get(invoiceId, paymentId, refundId);
         if (refundSource == null) {
             // TODO: исправить после того как прольется БД
-            log.error("Refund not found, invoiceId='{}', paymentId='{}', refundId='{}'",
-                    invoiceId, paymentId, refundId);
+            log.error("Refund not found, sequenceId={}, invoiceId='{}', paymentId='{}', refundId='{}'",
+                    sequenceId, invoiceId, paymentId, refundId);
             return;
             //throw new NotFoundException(String.format("Refund not found, invoiceId='%s', paymentId='%s', refundId='%s'",
             //        invoiceId, paymentId, refundId));

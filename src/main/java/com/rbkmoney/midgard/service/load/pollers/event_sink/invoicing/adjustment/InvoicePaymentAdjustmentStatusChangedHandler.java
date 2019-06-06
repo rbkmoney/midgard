@@ -1,7 +1,6 @@
 package com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.adjustment;
 
 import com.rbkmoney.damsel.domain.InvoicePaymentAdjustmentStatus;
-import com.rbkmoney.damsel.payment_processing.Event;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentAdjustmentChange;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentChange;
@@ -11,9 +10,9 @@ import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
-import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.AdjustmentDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.CashFlowDao;
+import com.rbkmoney.midgard.service.load.model.SimpleEvent;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +20,6 @@ import org.jooq.generated.feed.enums.AdjustmentCashFlowType;
 import org.jooq.generated.feed.enums.AdjustmentStatus;
 import org.jooq.generated.feed.tables.pojos.Adjustment;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +41,7 @@ public class InvoicePaymentAdjustmentStatusChangedHandler extends AbstractInvoic
 
     @Override
     @Transactional
-    public void handle(InvoiceChange invoiceChange, MachineEvent event, Integer changeId) {
+    public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
         long sequenceId = event.getEventId();
         String invoiceId = event.getSourceId();
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
@@ -59,8 +57,8 @@ public class InvoicePaymentAdjustmentStatusChangedHandler extends AbstractInvoic
         Adjustment adjustmentSource = adjustmentDao.get(invoiceId, paymentId, adjustmentId);
         if (adjustmentSource == null) {
             // TODO: исправить после того как прольется БД
-            log.error("Adjustment not found, invoiceId='{}', paymentId='{}', adjustmentId='{}'",
-                            invoiceId, paymentId, adjustmentId);
+            log.error("Adjustment not found (sequenceId='{}', invoiceId='{}', paymentId='{}', adjustmentId='{}'",
+                    sequenceId, invoiceId, paymentId, adjustmentId);
             return;
             //throw new NotFoundException(String.format("Adjustment not found, invoiceId='%s', paymentId='%s', adjustmentId='%s'",
             //        invoiceId, paymentId, adjustmentId));

@@ -1,7 +1,6 @@
 package com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.invoice;
 
 import com.rbkmoney.damsel.domain.InvoiceStatus;
-import com.rbkmoney.damsel.payment_processing.Event;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
 import com.rbkmoney.geck.common.util.TBaseUtil;
 import com.rbkmoney.geck.common.util.TypeUtil;
@@ -9,16 +8,15 @@ import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
-import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.InvoiceCartDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.InvoiceDao;
+import com.rbkmoney.midgard.service.load.model.SimpleEvent;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.tables.pojos.Invoice;
 import org.jooq.generated.feed.tables.pojos.InvoiceCart;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +36,7 @@ public class InvoiceStatusChangedHandler extends AbstractInvoicingHandler {
 
     @Override
     @Transactional
-    public void handle(InvoiceChange invoiceChange, MachineEvent event, Integer changeId) throws DaoException {
+    public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) throws DaoException {
         InvoiceStatus invoiceStatus = invoiceChange.getInvoiceStatusChanged().getStatus();
         long sequenceId = event.getEventId();
         String invoiceId = event.getSourceId();
@@ -46,7 +44,7 @@ public class InvoiceStatusChangedHandler extends AbstractInvoicingHandler {
         Invoice invoiceSource = invoiceDao.get(event.getSourceId());
         if (invoiceSource == null) {
             // TODO: исправить после того как прольется БД
-            log.error("Invoice not found, invoiceId='{}'", event.getSourceId());
+            log.error("Invoice not found, sequenceId={}, invoiceId='{}'", sequenceId, invoiceId);
             return;
             //throw new NotFoundException(String.format("Invoice not found, invoiceId='%s'", event.getSource().getInvoiceId()));
         }

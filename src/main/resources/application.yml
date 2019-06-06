@@ -40,6 +40,14 @@ retry-policy:
 
 bm:
   pollingEnabled: true
+  invoicing:
+    url: http://bustermaze:8022/repo
+    workersCount: 5
+    polling:
+      delay: 10000
+      retryDelay: 1000
+      maxPoolSize: 1
+      maxQuerySize: 300
   partyManagement:
     url: http://bustermaze:8022/repo
     polling:
