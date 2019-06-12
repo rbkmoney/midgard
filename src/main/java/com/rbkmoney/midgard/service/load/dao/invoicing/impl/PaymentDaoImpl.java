@@ -69,4 +69,16 @@ public class PaymentDaoImpl extends AbstractGenericDao implements PaymentDao {
                 .where(PAYMENT.INVOICE_ID.eq(invoiceId).and(PAYMENT.PAYMENT_ID.eq(paymentId).and(PAYMENT.CURRENT)));
         execute(query);
     }
+
+    @Override
+    public boolean isExist(Long sequenceId, String invoiceId, Integer changeId) throws DaoException {
+        Query query = getDslContext().selectFrom(PAYMENT)
+                .where(PAYMENT.INVOICE_ID.eq(invoiceId)
+                        .and(PAYMENT.SEQUENCE_ID.eq(sequenceId))
+                        .and(PAYMENT.INVOICE_ID.eq(invoiceId))
+                        .and(PAYMENT.CHANGE_ID.eq(changeId)));
+
+        Payment payment = fetchOne(query, paymentRowMapper);
+        return payment == null? false : true;
+    }
 }

@@ -39,12 +39,25 @@ public class InvoicePaymentSessionChangeTransactionBoundHandler extends Abstract
 
     @Override
     @Transactional
-    public void handle(InvoiceChange change, SimpleEvent event, Integer changeId) {
+    public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
+        long sequenceId = event.getSequenceId();
+        String invoiceId = event.getSourceId();
+
+        if (paymentDao.isExist(sequenceId, invoiceId, changeId)) {
+            log.warn("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
+                    "A new payment session transaction bound record will not be added",
+                    sequenceId, invoiceId, changeId);
+        } else {
+            changePaymentSessionTransactionBound(invoiceChange, event, changeId);
+        }
+    }
+
+    private void changePaymentSessionTransactionBound(InvoiceChange change, SimpleEvent event, Integer changeId) {
         InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
         String invoiceId = event.getSourceId();
         String paymentId = invoicePaymentChange.getId();
         InvoicePaymentSessionChange sessionChange = invoicePaymentChange.getPayload().getInvoicePaymentSessionChange();
-        long sequenceId = event.getEventId();
+        long sequenceId = event.getSequenceId();
 
         log.info("Start handling session change transaction info, sequenceId='{}', invoiceId='{}', paymentId='{}'",
                 sequenceId, invoiceId, paymentId);
@@ -62,6 +75,7 @@ public class InvoicePaymentSessionChangeTransactionBoundHandler extends Abstract
         paymentSource.setWtime(null);
         paymentSource.setChangeId(changeId);
         paymentSource.setSequenceId(sequenceId);
+        paymentSource.setEventId(event.getEventId());
         paymentSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         com.rbkmoney.damsel.payment_processing.SessionChangePayload payload = sessionChange.getPayload();
         TransactionInfo transactionInfo = payload.getSessionTransactionBound().getTrx();

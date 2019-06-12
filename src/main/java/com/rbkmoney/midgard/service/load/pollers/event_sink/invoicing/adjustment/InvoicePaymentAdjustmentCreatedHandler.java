@@ -48,7 +48,19 @@ public class InvoicePaymentAdjustmentCreatedHandler extends AbstractInvoicingHan
     @Override
     @Transactional
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
-        long sequenceId = event.getEventId();
+        long sequenceId = event.getSequenceId();
+        String invoiceId = event.getSourceId();
+
+        if (adjustmentDao.isExist(sequenceId, invoiceId, changeId)) {
+            log.warn("Payment Adjustment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed",
+                    sequenceId, invoiceId, changeId);
+        } else {
+            createAdjustment(invoiceChange, event, changeId);
+        }
+    }
+
+    private void createAdjustment(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
+        long sequenceId = event.getSequenceId();
         String invoiceId = event.getSourceId();
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String paymentId = invoicePaymentChange.getId();
@@ -64,6 +76,7 @@ public class InvoicePaymentAdjustmentCreatedHandler extends AbstractInvoicingHan
         Adjustment adjustment = new Adjustment();
         adjustment.setSequenceId(sequenceId);
         adjustment.setChangeId(changeId);
+        adjustment.setEventId(event.getEventId());
         adjustment.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         adjustment.setDomainRevision(invoicePaymentAdjustment.getDomainRevision());
         adjustment.setAdjustmentId(adjustmentId);

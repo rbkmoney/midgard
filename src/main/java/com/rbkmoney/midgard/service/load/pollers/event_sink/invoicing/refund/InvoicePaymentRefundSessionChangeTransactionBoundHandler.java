@@ -38,14 +38,27 @@ public class InvoicePaymentRefundSessionChangeTransactionBoundHandler extends Ab
 
     @Override
     @Transactional
-    public void handle(InvoiceChange change, SimpleEvent event, Integer changeId) {
+    public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
+        long sequenceId = event.getSequenceId();
+        String invoiceId = event.getSourceId();
+
+        if (refundDao.isExist(sequenceId, invoiceId, changeId)) {
+            log.warn("Refund event with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
+                    "A new refund session transaction bound change record will not be added",
+                    sequenceId, invoiceId, changeId);
+        } else {
+            changeRefundSessionTransactionBound(invoiceChange, event, changeId);
+        }
+    }
+
+    private void changeRefundSessionTransactionBound(InvoiceChange change, SimpleEvent event, Integer changeId) {
         InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
         String invoiceId = event.getSourceId();
         String paymentId = invoicePaymentChange.getId();
         InvoicePaymentRefundChange invoicePaymentRefundChange = invoicePaymentChange.getPayload().getInvoicePaymentRefundChange();
         String refundId = invoicePaymentRefundChange.getId();
         InvoicePaymentSessionChange sessionChange = invoicePaymentRefundChange.getPayload().getInvoicePaymentSessionChange();
-        long sequenceId = event.getEventId();
+        long sequenceId = event.getSequenceId();
 
         log.info("Start handling refund session change transaction info, sequenceId='{}', invoiceId='{}', " +
                 "paymentId='{}', refundId='{}'", sequenceId, invoiceId, paymentId, refundId);
@@ -63,6 +76,7 @@ public class InvoicePaymentRefundSessionChangeTransactionBoundHandler extends Ab
         refundSource.setWtime(null);
         refundSource.setChangeId(changeId);
         refundSource.setSequenceId(sequenceId);
+        refundSource.setEventId(event.getEventId());
         refundSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         SessionChangePayload payload = sessionChange.getPayload();
         TransactionInfo transactionInfo = payload.getSessionTransactionBound().getTrx();

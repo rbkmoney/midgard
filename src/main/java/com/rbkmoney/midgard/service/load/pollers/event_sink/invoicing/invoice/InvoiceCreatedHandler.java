@@ -41,8 +41,20 @@ public class InvoiceCreatedHandler extends AbstractInvoicingHandler {
     @Override
     @Transactional
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) throws DaoException {
+        long sequenceId = event.getSequenceId();
+        String invoiceId = event.getSourceId();
+
+        if (invoiceDao.isExist(sequenceId, invoiceId, changeId)) {
+            log.warn("Invoice with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed",
+                    sequenceId, invoiceId, changeId);
+        } else {
+            saveInvoice(invoiceChange, event, changeId);
+        }
+    }
+
+    public void saveInvoice(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
         com.rbkmoney.damsel.domain.Invoice invoice = invoiceChange.getInvoiceCreated().getInvoice();
-        long sequenceId = event.getEventId();
+        long sequenceId = event.getSequenceId();
         String invoiceId = event.getSourceId();
 
         log.info("Start invoice created handling, sequenceId={}, invoiceId={}, partyId={}, shopId={}",
@@ -51,6 +63,7 @@ public class InvoiceCreatedHandler extends AbstractInvoicingHandler {
         Invoice invoiceRecord = new Invoice();
         invoiceRecord.setSequenceId(sequenceId);
         invoiceRecord.setChangeId(changeId);
+        invoiceRecord.setEventId(event.getEventId());
         invoiceRecord.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         invoiceRecord.setInvoiceId(invoiceId);
         invoiceRecord.setPartyId(invoice.getOwnerId());

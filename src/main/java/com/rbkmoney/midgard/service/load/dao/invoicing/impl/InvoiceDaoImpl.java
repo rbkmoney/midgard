@@ -57,6 +57,16 @@ public class InvoiceDaoImpl extends AbstractGenericDao implements InvoiceDao {
     }
 
     @Override
+    public boolean isExist(Long sequenceId, String invoiceId, Integer changeId) throws DaoException {
+        Query query = getDslContext().selectFrom(INVOICE)
+                .where(INVOICE.INVOICE_ID.eq(invoiceId)
+                        .and(INVOICE.SEQUENCE_ID.eq(sequenceId)
+                        .and(INVOICE.CHANGE_ID.eq(changeId))));
+        Invoice invoice = fetchOne(query, invoiceRowMapper);
+        return invoice == null ? false : true;
+    }
+
+    @Override
     public Long getLastEventId(int div, int mod) throws DaoException {
         String sql = "with event_ids as (" +
                 "(select event_id from feed.invoice where ('x0'||substr(md5(invoice_id), 1, 7))::bit(32)::int % :div = :mod order by event_id desc limit 1) " +

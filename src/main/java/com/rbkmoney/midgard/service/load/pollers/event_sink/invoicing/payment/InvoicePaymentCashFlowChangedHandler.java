@@ -37,11 +37,23 @@ public class InvoicePaymentCashFlowChangedHandler extends AbstractInvoicingHandl
 
     @Override
     @Transactional
-    public void handle(InvoiceChange change, SimpleEvent event, Integer changeId) {
+    public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
+        long sequenceId = event.getSequenceId();
+        String invoiceId = event.getSourceId();
+
+        if (paymentDao.isExist(sequenceId, invoiceId, changeId)) {
+            log.warn("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
+                    "A new cash flow status change record will not be added", sequenceId, invoiceId, changeId);
+        } else {
+            changeCashFlow(invoiceChange, event, changeId);
+        }
+    }
+
+    private void changeCashFlow(InvoiceChange change, SimpleEvent event, Integer changeId) {
         InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
         String invoiceId = event.getSourceId();
         String paymentId = invoicePaymentChange.getId();
-        long sequenceId = event.getEventId();
+        long sequenceId = event.getSequenceId();
 
         log.info("Start handling payment cashflow change, sequenceId='{}', invoiceId='{}', paymentId='{}'",
                 sequenceId, invoiceId, paymentId);
@@ -58,6 +70,7 @@ public class InvoicePaymentCashFlowChangedHandler extends AbstractInvoicingHandl
         paymentSource.setWtime(null);
         paymentSource.setChangeId(changeId);
         paymentSource.setSequenceId(sequenceId);
+        paymentSource.setEventId(event.getEventId());
         paymentSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         paymentDao.updateNotCurrent(invoiceId, paymentId);
         long pmntId = paymentDao.save(paymentSource);

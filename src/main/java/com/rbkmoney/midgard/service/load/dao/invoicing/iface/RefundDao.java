@@ -13,4 +13,7 @@ public interface RefundDao extends Dao {
     void updateCommissions(Long rfndId) throws DaoException;
 
     void updateNotCurrent(String invoiceId, String paymentId, String refundId) throws DaoException;
+
+    boolean isExist(Long sequenceId, String invoiceId, Integer changeId) throws DaoException;
+
 }

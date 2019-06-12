@@ -53,18 +53,18 @@ public class OnStartLoadListener implements ApplicationListener<ApplicationReady
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        if (pollingEnabled) {
-            partyManagementEventPublisher.subscribe(buildSubscriberConfig(partyManagementService.getLastEventId()));
-            for (int i = 0; i < invoicingEventPublishers.size(); ++i) {
-                try {
+        try {
+            if (pollingEnabled) {
+                partyManagementEventPublisher.subscribe(buildSubscriberConfig(partyManagementService.getLastEventId()));
+                for (int i = 0; i < invoicingEventPublishers.size(); ++i) {
                     InvoicingEventStockHandler invoicingEventStockHandler = invoicingEventStockHandlers.get(i);
                     Optional<Long> lastEventId = invoicingService.getLastEventId(invoicingEventStockHandler.getDivider(),
                             invoicingEventStockHandler.getMod());
                     invoicingEventPublishers.get(i).subscribe(buildSubscriberConfig(lastEventId));
-                } catch (Exception e) {
-                    log.error("Error getting last event id", e);
                 }
             }
+        } catch (Exception e) {
+            log.error("Error occurred while subscribing", e);
         }
     }
 

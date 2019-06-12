@@ -37,13 +37,25 @@ public class InvoicePaymentRiskScoreChangedHandler extends AbstractInvoicingHand
 
     @Override
     @Transactional
-    public void handle(InvoiceChange change, SimpleEvent event, Integer changeId) {
+    public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
+        long sequenceId = event.getSequenceId();
+        String invoiceId = event.getSourceId();
+
+        if (paymentDao.isExist(sequenceId, invoiceId, changeId)) {
+            log.warn("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
+                    "A new payment risk score change record will not be added", sequenceId, invoiceId, changeId);
+        } else {
+            changePaymentRiskScore(invoiceChange, event, changeId);
+        }
+    }
+
+    private void changePaymentRiskScore(InvoiceChange change, SimpleEvent event, Integer changeId) {
         InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
         String invoiceId = event.getSourceId();
         String paymentId = invoicePaymentChange.getId();
         com.rbkmoney.damsel.domain.RiskScore riskScore =
                 invoicePaymentChange.getPayload().getInvoicePaymentRiskScoreChanged().getRiskScore();
-        long sequenceId = event.getEventId();
+        long sequenceId = event.getSequenceId();
 
         log.info("Start handling payment risk score change, sequenceId='{}', invoiceId='{}', paymentId='{}'",
                 sequenceId, invoiceId, paymentId);
@@ -61,6 +73,7 @@ public class InvoicePaymentRiskScoreChangedHandler extends AbstractInvoicingHand
         paymentSource.setWtime(null);
         paymentSource.setChangeId(changeId);
         paymentSource.setSequenceId(sequenceId);
+        paymentSource.setEventId(event.getEventId());
         paymentSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         RiskScore score = TypeUtil.toEnumField(riskScore.name(), RiskScore.class);
         if (score == null) {

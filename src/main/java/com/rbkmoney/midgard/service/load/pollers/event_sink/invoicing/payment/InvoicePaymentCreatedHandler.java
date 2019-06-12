@@ -45,6 +45,21 @@ public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
     @Override
     @Transactional
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
+        long sequenceId = event.getSequenceId();
+        String invoiceId = event.getSourceId();
+
+        if (invoiceDao.isExist(sequenceId, invoiceId, changeId)) {
+            log.warn("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed",
+                    sequenceId, invoiceId, changeId);
+        } else {
+            savePayment(invoiceChange, event, changeId);
+        }
+    }
+
+    private void savePayment(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
+        long sequenceId = event.getSequenceId();
+        String invoiceId = event.getSourceId();
+
         InvoicePaymentStarted invoicePaymentStarted = invoiceChange
                 .getInvoicePaymentChange()
                 .getPayload()
@@ -52,9 +67,6 @@ public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
 
         Payment payment = new Payment();
         InvoicePayment invoicePayment = invoicePaymentStarted.getPayment();
-
-        long sequenceId = event.getEventId();
-        String invoiceId = event.getSourceId();
 
         log.info("Start payment created handling, sequenceId={}, invoiceId={}, paymentId={}",
                 sequenceId, invoiceId, invoicePayment.getId());
@@ -65,6 +77,7 @@ public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
         payment.setPaymentId(invoicePayment.getId());
         payment.setCreatedAt(TypeUtil.stringToLocalDateTime(invoicePayment.getCreatedAt()));
         payment.setInvoiceId(invoiceId);
+        payment.setEventId(event.getEventId());
 
         Invoice invoice = invoiceDao.get(invoiceId);
         if (invoice == null) {

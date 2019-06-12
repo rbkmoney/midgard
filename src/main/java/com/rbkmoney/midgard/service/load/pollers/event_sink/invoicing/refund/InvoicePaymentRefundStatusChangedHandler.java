@@ -43,7 +43,19 @@ public class InvoicePaymentRefundStatusChangedHandler extends AbstractInvoicingH
     @Override
     @Transactional
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
-        long sequenceId = event.getEventId();
+        long sequenceId = event.getSequenceId();
+        String invoiceId = event.getSourceId();
+
+        if (refundDao.isExist(sequenceId, invoiceId, changeId)) {
+            log.warn("Refund event with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
+                    "A new status change record will not be added", sequenceId, invoiceId, changeId);
+        } else {
+            changeRefundStatus(invoiceChange, event, changeId);
+        }
+    }
+
+    private void changeRefundStatus(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
+        long sequenceId = event.getSequenceId();
         String invoiceId = event.getSourceId();
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String paymentId = invoiceChange.getInvoicePaymentChange().getId();
@@ -69,6 +81,7 @@ public class InvoicePaymentRefundStatusChangedHandler extends AbstractInvoicingH
         refundSource.setWtime(null);
         refundSource.setChangeId(changeId);
         refundSource.setSequenceId(sequenceId);
+        refundSource.setEventId(event.getEventId());
         refundSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         refundSource.setStatus(TBaseUtil.unionFieldToEnum(invoicePaymentRefundStatus, RefundStatus.class));
         if (invoicePaymentRefundStatus.isSetFailed()) {

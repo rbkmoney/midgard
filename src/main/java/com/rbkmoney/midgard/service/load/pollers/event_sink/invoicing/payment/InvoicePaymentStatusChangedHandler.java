@@ -40,20 +40,22 @@ public class InvoicePaymentStatusChangedHandler extends AbstractInvoicingHandler
                     new IsNullCondition().not()));
 
     @Override
-    public boolean accept(InvoiceChange change) {
-        return getFilter().match(change) &&
-                !change.getInvoicePaymentChange()
-                        .getPayload()
-                        .getInvoicePaymentStatusChanged()
-                        .getStatus()
-                        .isSetRefunded();
-    }
-
-    @Override
     @Transactional
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) throws DaoException {
+        long sequenceId = event.getSequenceId();
+        String invoiceId = event.getSourceId();
+
+        if (paymentDao.isExist(sequenceId, invoiceId, changeId)) {
+            log.warn("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
+                    "A new payment status change record will not be added", sequenceId, invoiceId, changeId);
+        } else {
+            changePaymentStatus(invoiceChange, event, changeId);
+        }
+    }
+
+    private void changePaymentStatus(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
         InvoicePaymentStatus invoicePaymentStatus = invoiceChange.getInvoicePaymentChange().getPayload().getInvoicePaymentStatusChanged().getStatus();
-        long sequenceId = event.getEventId();
+        long sequenceId = event.getSequenceId();
         String invoiceId = event.getSourceId();
         String paymentId = invoiceChange.getInvoicePaymentChange().getId();
 
@@ -73,6 +75,7 @@ public class InvoicePaymentStatusChangedHandler extends AbstractInvoicingHandler
         paymentSource.setWtime(null);
         paymentSource.setChangeId(changeId);
         paymentSource.setSequenceId(sequenceId);
+        paymentSource.setEventId(event.getEventId());
         paymentSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         paymentSource.setStatus(TBaseUtil.unionFieldToEnum(invoicePaymentStatus, PaymentStatus.class));
         if (invoicePaymentStatus.isSetCancelled()) {
@@ -111,4 +114,15 @@ public class InvoicePaymentStatusChangedHandler extends AbstractInvoicingHandler
     public Filter<InvoiceChange> getFilter() {
         return filter;
     }
+
+    @Override
+    public boolean accept(InvoiceChange change) {
+        return getFilter().match(change) &&
+                !change.getInvoicePaymentChange()
+                        .getPayload()
+                        .getInvoicePaymentStatusChanged()
+                        .getStatus()
+                        .isSetRefunded();
+    }
+
 }

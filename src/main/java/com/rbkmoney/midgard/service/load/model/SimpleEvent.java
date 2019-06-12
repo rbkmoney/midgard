@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 public class SimpleEvent {
 
     private long eventId;
+    private long sequenceId;
     private String sourceId;
     private String createdAt;
 

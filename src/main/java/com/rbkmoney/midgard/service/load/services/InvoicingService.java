@@ -3,6 +3,8 @@ package com.rbkmoney.midgard.service.load.services;
 import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
+import com.rbkmoney.midgard.service.clearing.exception.DaoException;
+import com.rbkmoney.midgard.service.load.dao.invoicing.iface.InvoiceDao;
 import com.rbkmoney.midgard.service.load.model.SimpleEvent;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,8 @@ import java.util.Optional;
 public class InvoicingService implements EventService<SimpleEvent, EventPayload> {
 
     private final List<AbstractInvoicingHandler> invoicingHandlers;
+
+    private final InvoiceDao invoiceDao;
 
     @Value("${import.init-last-event-id}")
     private long initLastEventId;
@@ -39,8 +43,15 @@ public class InvoicingService implements EventService<SimpleEvent, EventPayload>
     }
 
     @Override
-    public Optional<Long> getLastEventId() {
-        throw new RuntimeException("No longer supported");
+    public Optional<Long> getLastEventId(int div, int mod) throws DaoException {
+        Optional<Long> lastEventId = Optional.ofNullable(invoiceDao.getLastEventId(div, mod));
+        log.info("Last invoicing eventId={}", lastEventId);
+        if (lastEventId.isPresent()) {
+            return lastEventId;
+        } else {
+            log.debug("Last invoicing eventId will set to {}", initLastEventId);
+            return Optional.of(initLastEventId);
+        }
     }
 
 }

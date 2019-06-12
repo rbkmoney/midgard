@@ -42,7 +42,19 @@ public class InvoicePaymentAdjustmentStatusChangedHandler extends AbstractInvoic
     @Override
     @Transactional
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
-        long sequenceId = event.getEventId();
+        long sequenceId = event.getSequenceId();
+        String invoiceId = event.getSourceId();
+
+        if (adjustmentDao.isExist(sequenceId, invoiceId, changeId)) {
+            log.warn("Payment Adjustment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
+                    "A new status change record will not be added", sequenceId, invoiceId, changeId);
+        } else {
+            changeAdjustmentStatus(invoiceChange, event, changeId);
+        }
+    }
+
+    private void changeAdjustmentStatus(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
+        long sequenceId = event.getSequenceId();
         String invoiceId = event.getSourceId();
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String paymentId = invoiceChange.getInvoicePaymentChange().getId();
@@ -68,6 +80,7 @@ public class InvoicePaymentAdjustmentStatusChangedHandler extends AbstractInvoic
         adjustmentSource.setWtime(null);
         adjustmentSource.setChangeId(changeId);
         adjustmentSource.setSequenceId(sequenceId);
+        adjustmentSource.setEventId(event.getEventId());
         adjustmentSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         adjustmentSource.setStatus(TBaseUtil.unionFieldToEnum(invoicePaymentAdjustmentStatus, AdjustmentStatus.class));
         if (invoicePaymentAdjustmentStatus.isSetCaptured()) {

@@ -48,9 +48,21 @@ public class InvoicePaymentRefundCreatedHandler extends AbstractInvoicingHandler
     @Override
     @Transactional
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
+        long sequenceId = event.getSequenceId();
+        String invoiceId = event.getSourceId();
+
+        if (refundDao.isExist(sequenceId, invoiceId, changeId)) {
+            log.warn("Refund with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed",
+                    sequenceId, invoiceId, changeId);
+        } else {
+            createRefund(invoiceChange, event, changeId);
+        }
+    }
+
+    private void createRefund(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String paymentId = invoicePaymentChange.getId();
-        long sequenceId = event.getEventId();
+        long sequenceId = event.getSequenceId();
         String invoiceId = event.getSourceId();
 
         InvoicePaymentRefundChange invoicePaymentRefundChange = invoicePaymentChange.getPayload()
@@ -72,6 +84,7 @@ public class InvoicePaymentRefundCreatedHandler extends AbstractInvoicingHandler
         refund.setRefundId(refundId);
         refund.setPaymentId(paymentId);
         refund.setInvoiceId(invoiceId);
+        refund.setEventId(event.getEventId());
 
         Payment payment = paymentDao.get(invoiceId, paymentId);
         if (payment == null) {

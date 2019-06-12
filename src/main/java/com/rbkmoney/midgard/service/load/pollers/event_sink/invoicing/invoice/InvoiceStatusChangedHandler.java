@@ -37,8 +37,20 @@ public class InvoiceStatusChangedHandler extends AbstractInvoicingHandler {
     @Override
     @Transactional
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) throws DaoException {
+        long sequenceId = event.getSequenceId();
+        String invoiceId = event.getSourceId();
+
+        if (invoiceDao.isExist(sequenceId, invoiceId, changeId)) {
+            log.warn("Invoice with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
+                    "A new status change record will not be added", sequenceId, invoiceId, changeId);
+        } else {
+            changeStatus(invoiceChange, event, changeId);
+        }
+    }
+
+    private void changeStatus(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
         InvoiceStatus invoiceStatus = invoiceChange.getInvoiceStatusChanged().getStatus();
-        long sequenceId = event.getEventId();
+        long sequenceId = event.getSequenceId();
         String invoiceId = event.getSourceId();
 
         Invoice invoiceSource = invoiceDao.get(event.getSourceId());
@@ -56,6 +68,7 @@ public class InvoiceStatusChangedHandler extends AbstractInvoicingHandler {
         invoiceSource.setWtime(null);
         invoiceSource.setChangeId(changeId);
         invoiceSource.setSequenceId(sequenceId);
+        invoiceSource.setEventId(event.getEventId());
         invoiceSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         invoiceSource.setStatus(TBaseUtil.unionFieldToEnum(invoiceStatus, org.jooq.generated.feed.enums.InvoiceStatus.class));
         if (invoiceStatus.isSetCancelled()) {

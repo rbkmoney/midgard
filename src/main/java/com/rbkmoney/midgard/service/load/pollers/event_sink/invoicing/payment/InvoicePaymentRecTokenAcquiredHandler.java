@@ -36,12 +36,24 @@ public class InvoicePaymentRecTokenAcquiredHandler extends AbstractInvoicingHand
 
     @Override
     @Transactional
-    public void handle(InvoiceChange change, SimpleEvent event, Integer changeId) {
+    public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
+        long sequenceId = event.getSequenceId();
+        String invoiceId = event.getSourceId();
+
+        if (paymentDao.isExist(sequenceId, invoiceId, changeId)) {
+            log.warn("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
+                    "A new payment rec token acquired record will not be added", sequenceId, invoiceId, changeId);
+        } else {
+            savePaymentRecTokenAcquired(invoiceChange, event, changeId);
+        }
+    }
+
+    private void savePaymentRecTokenAcquired(InvoiceChange change, SimpleEvent event, Integer changeId) {
         InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
         String invoiceId = event.getSourceId();
         String paymentId = invoicePaymentChange.getId();
         String token = invoicePaymentChange.getPayload().getInvoicePaymentRecTokenAcquired().getToken();
-        long sequenceId = event.getEventId();
+        long sequenceId = event.getSequenceId();
 
         log.info("Start handling payment recurrent token acquired, sequenceId='{}', invoiceId='{}', paymentId='{}'",
                 sequenceId, invoiceId, paymentId);
@@ -59,6 +71,7 @@ public class InvoicePaymentRecTokenAcquiredHandler extends AbstractInvoicingHand
         paymentSource.setWtime(null);
         paymentSource.setChangeId(changeId);
         paymentSource.setSequenceId(sequenceId);
+        paymentSource.setEventId(event.getEventId());
         paymentSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         paymentSource.setRecurrentIntentionToken(token);
         paymentDao.updateNotCurrent(invoiceId, paymentId);

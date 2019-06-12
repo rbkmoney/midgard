@@ -2,11 +2,14 @@ package com.rbkmoney.midgard.base.tests.unit;
 
 import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
+import com.rbkmoney.midgard.service.load.dao.invoicing.iface.InvoiceDao;
+import com.rbkmoney.midgard.service.load.dao.invoicing.impl.InvoiceDaoImpl;
 import com.rbkmoney.midgard.service.load.model.SimpleEvent;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import com.rbkmoney.midgard.service.load.services.InvoicingService;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.postgresql.jdbc2.optional.SimpleDataSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +21,7 @@ public class InvoicingServiceTest {
 
     private static List<AbstractInvoicingHandler> wrongHandlers = new ArrayList<>();
     private static List<AbstractInvoicingHandler> rightHandlers = new ArrayList<>();
+    private static InvoiceDao invoiceDao = new InvoiceDaoImpl(new SimpleDataSource());
 
     @BeforeClass
     public static void init() {
@@ -32,7 +36,7 @@ public class InvoicingServiceTest {
 
     @Test
     public void handleEmptyChanges() {
-        InvoicingService invoicingService = new InvoicingService(rightHandlers);
+        InvoicingService invoicingService = new InvoicingService(rightHandlers, invoiceDao);
 
         SimpleEvent message = SimpleEvent.builder().build();
         EventPayload payload = new EventPayload();
@@ -45,7 +49,7 @@ public class InvoicingServiceTest {
 
     @Test
     public void handlerSupportsInvoicing() {
-        InvoicingService invoicingService = new InvoicingService(rightHandlers);
+        InvoicingService invoicingService = new InvoicingService(rightHandlers, invoiceDao);
 
         SimpleEvent message = SimpleEvent.builder().build();
         EventPayload payload = new EventPayload();
@@ -59,7 +63,7 @@ public class InvoicingServiceTest {
 
     @Test
     public void handlerNotSupportInvoicing() {
-        InvoicingService invoicingService = new InvoicingService(wrongHandlers);
+        InvoicingService invoicingService = new InvoicingService(wrongHandlers, invoiceDao);
 
         SimpleEvent message = SimpleEvent.builder().build();
         EventPayload payload = new EventPayload();

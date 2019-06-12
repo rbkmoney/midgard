@@ -8,7 +8,7 @@ public final class MapperUtil {
 
     public static SimpleEvent transformMachineEvent(MachineEvent event) {
         return SimpleEvent.builder()
-                .eventId(event.getEventId())
+                .sequenceId(event.getEventId())
                 .sourceId(event.getSourceId())
                 .createdAt(event.getCreatedAt())
                 .build();
@@ -17,6 +17,7 @@ public final class MapperUtil {
     public static SimpleEvent transformSinkEvent(Event event) {
         return SimpleEvent.builder()
                 .eventId(event.getId())
+                .sequenceId(event.getId())
                 .sourceId(event.getSource().getInvoiceId())
                 .createdAt(event.getCreatedAt())
                 .build();

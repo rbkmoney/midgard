@@ -12,5 +12,7 @@ public interface InvoiceDao extends Dao {
 
     void updateNotCurrent(String invoiceId) throws DaoException;
 
+    boolean isExist(Long sequenceId, String invoiceId, Integer changeId) throws DaoException;
+
     Long getLastEventId(int div, int mod) throws DaoException;
 }

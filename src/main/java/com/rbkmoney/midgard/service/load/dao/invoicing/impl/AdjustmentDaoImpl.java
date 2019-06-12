@@ -73,4 +73,16 @@ public class AdjustmentDaoImpl extends AbstractGenericDao implements AdjustmentD
                         .and(ADJUSTMENT.CURRENT)));
         execute(query);
     }
+
+    @Override
+    public boolean isExist(Long sequenceId, String invoiceId, Integer changeId) throws DaoException {
+        Query query = getDslContext().selectFrom(ADJUSTMENT)
+                .where(ADJUSTMENT.INVOICE_ID.eq(invoiceId)
+                        .and(ADJUSTMENT.SEQUENCE_ID.eq(sequenceId))
+                        .and(ADJUSTMENT.INVOICE_ID.eq(invoiceId))
+                        .and(ADJUSTMENT.CHANGE_ID.eq(changeId)));
+
+        Adjustment adjustment = fetchOne(query, adjustmentRowMapper);
+        return adjustment == null ? false : true;
+    }
 }
