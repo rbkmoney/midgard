@@ -21,7 +21,8 @@ public class InvoicingKafkaListener {
 
     private final SourceEventParser sourceEventParser;
 
-    @KafkaListener(topics = "${kafka.topics.invoicing}", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topics.invoicing}", containerFactory = "kafkaListenerContainerFactory",
+            autoStartup = "${kafka.consumer.listener-startup}")
     public void handle(SinkEvent sinkEvent, Acknowledgment ack) {
         SimpleEvent event = MapperUtil.transformMachineEvent(sinkEvent.getEvent());
         log.debug("Reading sinkEvent, sourceId:{}, eventId:{}", event.getSourceId(), event.getEventId());

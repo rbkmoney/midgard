@@ -48,18 +48,6 @@ public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
         long sequenceId = event.getSequenceId();
         String invoiceId = event.getSourceId();
 
-        if (invoiceDao.isExist(sequenceId, invoiceId, changeId)) {
-            log.warn("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed",
-                    sequenceId, invoiceId, changeId);
-        } else {
-            savePayment(invoiceChange, event, changeId);
-        }
-    }
-
-    private void savePayment(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
-        long sequenceId = event.getSequenceId();
-        String invoiceId = event.getSourceId();
-
         InvoicePaymentStarted invoicePaymentStarted = invoiceChange
                 .getInvoicePaymentChange()
                 .getPayload()
@@ -141,8 +129,11 @@ public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
             payment.setMakeRecurrent(invoicePayment.isMakeRecurrent());
         }
 
-        long pmntId = paymentDao.save(payment);
-
+        Long pmntId = paymentDao.save(payment);
+        if (pmntId == null) {
+            log.info("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed",
+                    sequenceId, invoiceId, changeId);
+        }
         if (invoicePaymentStarted.isSetCashFlow()) {
             List<CashFlow> cashFlowList = CashFlowUtil.convertCashFlows(invoicePaymentStarted.getCashFlow(),
                     pmntId, PaymentChangeType.payment);

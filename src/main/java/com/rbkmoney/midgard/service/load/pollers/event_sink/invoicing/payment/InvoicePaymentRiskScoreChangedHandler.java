@@ -38,19 +38,7 @@ public class InvoicePaymentRiskScoreChangedHandler extends AbstractInvoicingHand
     @Override
     @Transactional
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
-        long sequenceId = event.getSequenceId();
-        String invoiceId = event.getSourceId();
-
-        if (paymentDao.isExist(sequenceId, invoiceId, changeId)) {
-            log.warn("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
-                    "A new payment risk score change record will not be added", sequenceId, invoiceId, changeId);
-        } else {
-            changePaymentRiskScore(invoiceChange, event, changeId);
-        }
-    }
-
-    private void changePaymentRiskScore(InvoiceChange change, SimpleEvent event, Integer changeId) {
-        InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
+        InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String invoiceId = event.getSourceId();
         String paymentId = invoicePaymentChange.getId();
         com.rbkmoney.damsel.domain.RiskScore riskScore =
@@ -81,15 +69,20 @@ public class InvoicePaymentRiskScoreChangedHandler extends AbstractInvoicingHand
         }
         paymentSource.setRiskScore(score);
         paymentDao.updateNotCurrent(invoiceId, paymentId);
-        long pmntId = paymentDao.save(paymentSource);
-        List<CashFlow> cashFlows = cashFlowDao.getByObjId(paymentSourceId, PaymentChangeType.payment);
-        cashFlows.forEach(pcf -> {
-            pcf.setId(null);
-            pcf.setObjId(pmntId);
-        });
-        cashFlowDao.save(cashFlows);
-        log.info("Payment risk score have been saved, sequenceId='{}', invoiceId='{}', paymentId='{}'",
-                sequenceId, invoiceId, paymentId);
+        Long pmntId = paymentDao.save(paymentSource);
+        if (pmntId == null) {
+            log.info("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
+                    "A new payment risk score change record will not be added", sequenceId, invoiceId, changeId);
+        } else {
+            List<CashFlow> cashFlows = cashFlowDao.getByObjId(paymentSourceId, PaymentChangeType.payment);
+            cashFlows.forEach(pcf -> {
+                pcf.setId(null);
+                pcf.setObjId(pmntId);
+            });
+            cashFlowDao.save(cashFlows);
+            log.info("Payment risk score have been saved, sequenceId='{}', invoiceId='{}', paymentId='{}'",
+                    sequenceId, invoiceId, paymentId);
+        }
     }
 
     @Override

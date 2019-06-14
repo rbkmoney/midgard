@@ -45,18 +45,6 @@ public class InvoicePaymentRefundStatusChangedHandler extends AbstractInvoicingH
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
         long sequenceId = event.getSequenceId();
         String invoiceId = event.getSourceId();
-
-        if (refundDao.isExist(sequenceId, invoiceId, changeId)) {
-            log.warn("Refund event with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
-                    "A new status change record will not be added", sequenceId, invoiceId, changeId);
-        } else {
-            changeRefundStatus(invoiceChange, event, changeId);
-        }
-    }
-
-    private void changeRefundStatus(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
-        long sequenceId = event.getSequenceId();
-        String invoiceId = event.getSourceId();
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String paymentId = invoiceChange.getInvoicePaymentChange().getId();
         InvoicePaymentRefundChange invoicePaymentRefundChange = invoicePaymentChange.getPayload()
@@ -90,16 +78,21 @@ public class InvoicePaymentRefundStatusChangedHandler extends AbstractInvoicingH
             refundSource.setStatusFailedFailure(null);
         }
         refundDao.updateNotCurrent(invoiceId, paymentId, refundId);
-        long rfndId = refundDao.save(refundSource);
-        List<CashFlow> cashFlows = cashFlowDao.getByObjId(refundSourceId, PaymentChangeType.refund);
-        cashFlows.forEach(pcf -> {
-            pcf.setId(null);
-            pcf.setObjId(rfndId);
-        });
-        cashFlowDao.save(cashFlows);
+        Long rfndId = refundDao.save(refundSource);
+        if (rfndId == null) {
+            log.info("Refund event with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
+                    "A new status change record will not be added", sequenceId, invoiceId, changeId);
+        } else {
+            List<CashFlow> cashFlows = cashFlowDao.getByObjId(refundSourceId, PaymentChangeType.refund);
+            cashFlows.forEach(pcf -> {
+                pcf.setId(null);
+                pcf.setObjId(rfndId);
+            });
+            cashFlowDao.save(cashFlows);
 
-        log.info("Refund have been succeeded, sequenceId={}, invoiceId={}, paymentId={}, refundId={}, status={}",
-                sequenceId, invoiceId, paymentId, refundId, invoicePaymentRefundStatus.getSetField().getFieldName());
+            log.info("Refund have been succeeded, sequenceId={}, invoiceId={}, paymentId={}, refundId={}, status={}",
+                    sequenceId, invoiceId, paymentId, refundId, invoicePaymentRefundStatus.getSetField().getFieldName());
+        }
     }
 
     @Override

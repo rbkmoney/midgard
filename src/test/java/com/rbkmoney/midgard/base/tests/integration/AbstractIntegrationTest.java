@@ -65,11 +65,6 @@ public abstract class AbstractIntegrationTest {
     @ClassRule
     public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION).withEmbeddedZookeeper();
 
-    @Before
-    public void init() throws Exception {
-        initDb();
-    }
-
     @After
     public void destroy() throws IOException {
         if (postgres != null) {
@@ -113,7 +108,7 @@ public abstract class AbstractIntegrationTest {
         return dir;
     }
 
-    private void initDb() throws SQLException, IOException {
+    public void initDb() throws SQLException, IOException {
         try (Connection connection = getDataSource().getConnection()) {
             Statement statement = connection.createStatement();
             Path path = Paths.get(FILE_NAME);

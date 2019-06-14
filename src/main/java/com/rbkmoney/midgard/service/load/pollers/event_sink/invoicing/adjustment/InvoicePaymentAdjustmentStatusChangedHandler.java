@@ -44,18 +44,6 @@ public class InvoicePaymentAdjustmentStatusChangedHandler extends AbstractInvoic
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
         long sequenceId = event.getSequenceId();
         String invoiceId = event.getSourceId();
-
-        if (adjustmentDao.isExist(sequenceId, invoiceId, changeId)) {
-            log.warn("Payment Adjustment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
-                    "A new status change record will not be added", sequenceId, invoiceId, changeId);
-        } else {
-            changeAdjustmentStatus(invoiceChange, event, changeId);
-        }
-    }
-
-    private void changeAdjustmentStatus(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
-        long sequenceId = event.getSequenceId();
-        String invoiceId = event.getSourceId();
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String paymentId = invoiceChange.getInvoicePaymentChange().getId();
         InvoicePaymentAdjustmentChange invoicePaymentAdjustmentChange =
@@ -91,22 +79,27 @@ public class InvoicePaymentAdjustmentStatusChangedHandler extends AbstractInvoic
             adjustmentSource.setStatusCancelledAt(TypeUtil.stringToLocalDateTime(invoicePaymentAdjustmentStatus.getCancelled().getAt()));
         }
         adjustmentDao.updateNotCurrent(invoiceId, paymentId, adjustmentId);
-        long adjId = adjustmentDao.save(adjustmentSource);
-        List<CashFlow> newCashFlows = cashFlowDao.getForAdjustments(adjustmentSourceId, AdjustmentCashFlowType.new_cash_flow);
-        newCashFlows.forEach(pcf -> {
-            pcf.setId(null);
-            pcf.setObjId(adjId);
-        });
-        cashFlowDao.save(newCashFlows);
-        List<CashFlow> oldCashFlows = cashFlowDao.getForAdjustments(adjustmentSourceId, AdjustmentCashFlowType.old_cash_flow_inverse);
-        oldCashFlows.forEach(pcf -> {
-            pcf.setId(null);
-            pcf.setObjId(adjId);
-        });
-        cashFlowDao.save(oldCashFlows);
+        Long adjId = adjustmentDao.save(adjustmentSource);
+        if (adjId == null) {
+            log.info("Received duplicate key value when change payment adjustment status with sequenceId='{}', " +
+                    "invoiceId='{}', changeId='{}'", sequenceId, invoiceId, changeId);
+        } else {
+            List<CashFlow> newCashFlows = cashFlowDao.getForAdjustments(adjustmentSourceId, AdjustmentCashFlowType.new_cash_flow);
+            newCashFlows.forEach(pcf -> {
+                pcf.setId(null);
+                pcf.setObjId(adjId);
+            });
+            cashFlowDao.save(newCashFlows);
+            List<CashFlow> oldCashFlows = cashFlowDao.getForAdjustments(adjustmentSourceId, AdjustmentCashFlowType.old_cash_flow_inverse);
+            oldCashFlows.forEach(pcf -> {
+                pcf.setId(null);
+                pcf.setObjId(adjId);
+            });
+            cashFlowDao.save(oldCashFlows);
 
-        log.info("Adjustment status change has been saved, sequenceId={}, invoiceId={}, paymentId={}, adjustmentId={}, status={}",
-                sequenceId, invoiceId, paymentId, adjustmentId, invoicePaymentAdjustmentStatus.getSetField().getFieldName());
+            log.info("Adjustment status change has been saved, sequenceId={}, invoiceId={}, paymentId={}, adjustmentId={}, status={}",
+                    sequenceId, invoiceId, paymentId, adjustmentId, invoicePaymentAdjustmentStatus.getSetField().getFieldName());
+        }
     }
 
     @Override

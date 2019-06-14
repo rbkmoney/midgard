@@ -129,13 +129,12 @@ public abstract class AbstractGenericDao extends NamedParameterJdbcDaoSupport im
     }
 
     @Override
-    public <T> List<T> fetch(String namedSql, SqlParameterSource parameterSource, RowMapper<T> rowMapper, NamedParameterJdbcTemplate namedParameterJdbcTemplate) throws DaoException {
+    public <T> List<T> fetch(String namedSql,
+                             SqlParameterSource parameterSource,
+                             RowMapper<T> rowMapper,
+                             NamedParameterJdbcTemplate namedParameterJdbcTemplate) throws DaoException {
         try {
-            return namedParameterJdbcTemplate.query(
-                    namedSql,
-                    parameterSource,
-                    rowMapper
-            );
+            return namedParameterJdbcTemplate.query(namedSql, parameterSource, rowMapper);
         } catch (NestedRuntimeException e) {
             throw new DaoException(e);
         }
@@ -143,12 +142,23 @@ public abstract class AbstractGenericDao extends NamedParameterJdbcDaoSupport im
 
     @Override
     public int executeWithReturn(Query query, KeyHolder keyHolder) throws DaoException {
-        return executeWithReturn(query.getSQL(ParamType.NAMED), toSqlParameterSource(query.getParams()), -1, keyHolder);
+        return executeWithReturn(
+                query.getSQL(ParamType.NAMED),
+                toSqlParameterSource(query.getParams()),
+                -1,
+                keyHolder
+        );
     }
 
     @Override
     public int executeWithReturn(Query query, int expectedRowsAffected, KeyHolder keyHolder) throws DaoException {
-        return executeWithReturn(query.getSQL(ParamType.NAMED), toSqlParameterSource(query.getParams()), expectedRowsAffected, getNamedParameterJdbcTemplate(), keyHolder);
+        return executeWithReturn(
+                query.getSQL(ParamType.NAMED),
+                toSqlParameterSource(query.getParams()),
+                expectedRowsAffected,
+                getNamedParameterJdbcTemplate(),
+                keyHolder
+        );
     }
 
     @Override
@@ -172,7 +182,11 @@ public abstract class AbstractGenericDao extends NamedParameterJdbcDaoSupport im
     }
 
     @Override
-    public int executeWithReturn(String namedSql, SqlParameterSource parameterSource, int expectedRowsAffected, NamedParameterJdbcTemplate namedParameterJdbcTemplate, KeyHolder keyHolder) throws DaoException {
+    public int executeWithReturn(String namedSql,
+                                 SqlParameterSource parameterSource,
+                                 int expectedRowsAffected,
+                                 NamedParameterJdbcTemplate namedParameterJdbcTemplate,
+                                 KeyHolder keyHolder) throws DaoException {
         try {
             int rowsAffected = namedParameterJdbcTemplate.update(
                     namedSql,

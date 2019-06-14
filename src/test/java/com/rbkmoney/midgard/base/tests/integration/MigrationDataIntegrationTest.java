@@ -6,10 +6,13 @@ import com.rbkmoney.midgard.service.clearing.importers.Importer;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.tables.pojos.Refund;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +31,11 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private Importer refundsImporter;
+
+    @Before
+    public void init() throws IOException, SQLException {
+        initDb();
+    }
 
     private static final int POOL_SIZE = 30;
 

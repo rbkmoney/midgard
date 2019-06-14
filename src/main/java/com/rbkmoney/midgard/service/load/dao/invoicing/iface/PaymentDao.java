@@ -14,6 +14,4 @@ public interface PaymentDao extends Dao {
 
     void updateNotCurrent(String invoiceId, String paymentId) throws DaoException;
 
-    boolean isExist(Long sequenceId, String invoiceId, Integer changeId) throws DaoException;
-
 }

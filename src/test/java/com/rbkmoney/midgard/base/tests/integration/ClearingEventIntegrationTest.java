@@ -16,11 +16,14 @@ import org.jooq.generated.midgard.enums.ClearingEventStatus;
 import org.jooq.generated.midgard.enums.TransactionClearingState;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -67,6 +70,11 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private PaymentDao paymentDao;
+
+    @Before
+    public void init() throws IOException, SQLException {
+        initDb();
+    }
 
     @Test
     public void clearingEventIntegrationTest() throws Exception {

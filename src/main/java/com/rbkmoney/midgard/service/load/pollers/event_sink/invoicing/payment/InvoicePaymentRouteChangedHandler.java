@@ -41,19 +41,7 @@ public class InvoicePaymentRouteChangedHandler extends AbstractInvoicingHandler 
     @Override
     @Transactional
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
-        long sequenceId = event.getSequenceId();
-        String invoiceId = event.getSourceId();
-
-        if (paymentDao.isExist(sequenceId, invoiceId, changeId)) {
-            log.warn("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
-                    "A new payment route change record will not be added", sequenceId, invoiceId, changeId);
-        } else {
-            changePaymentRoute(invoiceChange, event, changeId);
-        }
-    }
-
-    private void changePaymentRoute(InvoiceChange change, SimpleEvent event, Integer changeId) {
-        InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
+        InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String invoiceId = event.getSourceId();
         String paymentId = invoicePaymentChange.getId();
         PaymentRoute paymentRoute = invoicePaymentChange.getPayload().getInvoicePaymentRouteChanged().getRoute();
@@ -80,15 +68,20 @@ public class InvoicePaymentRouteChangedHandler extends AbstractInvoicingHandler 
         paymentSource.setRouteProviderId(paymentRoute.getProvider().getId());
         paymentSource.setRouteTerminalId(paymentRoute.getTerminal().getId());
         paymentDao.updateNotCurrent(invoiceId, paymentId);
-        long pmntId = paymentDao.save(paymentSource);
-        List<CashFlow> cashFlows = cashFlowDao.getByObjId(paymentSourceId, PaymentChangeType.payment);
-        cashFlows.forEach(pcf -> {
-            pcf.setId(null);
-            pcf.setObjId(pmntId);
-        });
-        cashFlowDao.save(cashFlows);
-        log.info("Payment route have been saved, route='{}', sequenceId='{}', invoiceId='{}', paymentId='{}'",
-                paymentRoute, sequenceId, invoiceId, paymentId);
+        Long pmntId = paymentDao.save(paymentSource);
+        if (pmntId == null) {
+            log.info("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
+                    "A new payment route change record will not be added", sequenceId, invoiceId, changeId);
+        } else {
+            List<CashFlow> cashFlows = cashFlowDao.getByObjId(paymentSourceId, PaymentChangeType.payment);
+            cashFlows.forEach(pcf -> {
+                pcf.setId(null);
+                pcf.setObjId(pmntId);
+            });
+            cashFlowDao.save(cashFlows);
+            log.info("Payment route have been saved, route='{}', sequenceId='{}', invoiceId='{}', paymentId='{}'",
+                    paymentRoute, sequenceId, invoiceId, paymentId);
+        }
     }
 
     @Override

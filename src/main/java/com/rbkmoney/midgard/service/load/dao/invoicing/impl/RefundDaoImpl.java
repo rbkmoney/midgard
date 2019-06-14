@@ -35,12 +35,11 @@ public class RefundDaoImpl extends AbstractGenericDao implements RefundDao {
         Query query = getDslContext().insertInto(REFUND)
                 .set(record)
                 .onConflict(REFUND.INVOICE_ID, REFUND.CHANGE_ID, REFUND.SEQUENCE_ID)
-                .doUpdate()
-                .set(record)
+                .doNothing()
                 .returning(REFUND.ID);
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         executeWithReturn(query, keyHolder);
-        return keyHolder.getKey().longValue();
+        return keyHolder.getKey() == null ? null: keyHolder.getKey().longValue();
     }
 
     @Override
@@ -75,14 +74,4 @@ public class RefundDaoImpl extends AbstractGenericDao implements RefundDao {
         execute(query);
     }
 
-    @Override
-    public boolean isExist(Long sequenceId, String invoiceId, Integer changeId) throws DaoException {
-        Query query = getDslContext().selectFrom(REFUND)
-                .where(REFUND.INVOICE_ID.eq(invoiceId)
-                        .and(REFUND.SEQUENCE_ID.eq(sequenceId))
-                        .and(REFUND.CHANGE_ID.eq(changeId)));
-
-        Refund refund = fetchOne(query, refundRowMapper);
-        return refund == null? false : true;
-    }
 }

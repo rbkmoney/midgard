@@ -76,6 +76,7 @@ kafka:
     key-store-type: PKCS12
     trust-store-type: PKCS12
   consumer:
+    listener-startup: true
     concurrency: 8
     group-id: "MidgardListener"
     enable-auto-commit: false

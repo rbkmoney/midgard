@@ -104,7 +104,7 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
     }
 
     private Transaction getTransaction(ClearingEventTransactionInfo info, Long clearingId, int packageNumber) {
-        ClearingTransaction clearingTransaction = transactionsDao.get(info.getTransactionId());
+        ClearingTransaction clearingTransaction = transactionsDao.getTransaction(info.getInvoiceId(), info.getPaymentId());
         log.info("Transaction with invoice id {} and transaction id {} will added to package {} " +
                 "for clearing event {}", clearingTransaction.getInvoiceId(), clearingTransaction.getTransactionId(),
                 packageNumber, clearingId);
@@ -114,7 +114,7 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
     }
 
     private Transaction getRefundTransaction(ClearingEventTransactionInfo info, Long clearingId, int packageNumber) {
-        ClearingRefund refund = clearingRefundDao.getRefund(info.getTransactionId());
+        ClearingRefund refund = clearingRefundDao.getRefund(info.getInvoiceId(), info.getPaymentId());
         log.info("Refund transaction with invoice id {} and transaction id {} will added to package {} " +
                 "for clearing event {}", refund.getInvoiceId(), refund.getTransactionId(), packageNumber, clearingId);
         ClearingTransaction clearingTransaction =

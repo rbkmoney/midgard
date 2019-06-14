@@ -41,18 +41,6 @@ public class InvoiceCreatedHandler extends AbstractInvoicingHandler {
     @Override
     @Transactional
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) throws DaoException {
-        long sequenceId = event.getSequenceId();
-        String invoiceId = event.getSourceId();
-
-        if (invoiceDao.isExist(sequenceId, invoiceId, changeId)) {
-            log.warn("Invoice with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed",
-                    sequenceId, invoiceId, changeId);
-        } else {
-            saveInvoice(invoiceChange, event, changeId);
-        }
-    }
-
-    public void saveInvoice(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
         com.rbkmoney.damsel.domain.Invoice invoice = invoiceChange.getInvoiceCreated().getInvoice();
         long sequenceId = event.getSequenceId();
         String invoiceId = event.getSourceId();
@@ -70,6 +58,7 @@ public class InvoiceCreatedHandler extends AbstractInvoicingHandler {
         invoiceRecord.setShopId(invoice.getShopId());
         invoiceRecord.setPartyRevision(invoice.getPartyRevision());
         invoiceRecord.setCreatedAt(TypeUtil.stringToLocalDateTime(invoice.getCreatedAt()));
+
         InvoiceStatus status = TBaseUtil.unionFieldToEnum(invoice.getStatus(), InvoiceStatus.class);
         invoiceRecord.setStatus(status);
         if (invoice.getStatus().isSetCancelled()) {
@@ -85,25 +74,30 @@ public class InvoiceCreatedHandler extends AbstractInvoicingHandler {
         invoiceRecord.setContext(invoice.getContext().getData());
         invoiceRecord.setTemplateId(invoice.getTemplateId());
 
-        long invId = invoiceDao.save(invoiceRecord);
-        if (invoice.getDetails().isSetCart()) {
-            List<InvoiceCart> invoiceCarts = invoice.getDetails().getCart().getLines().stream().map(il -> {
-                InvoiceCart ic = new InvoiceCart();
-                ic.setInvId(invId);
-                ic.setProduct(il.getProduct());
-                ic.setQuantity(il.getQuantity());
-                ic.setAmount(il.getPrice().getAmount());
-                ic.setCurrencyCode(il.getPrice().getCurrency().getSymbolicCode());
-                Map<String, JsonNode> jsonNodeMap = il.getMetadata().entrySet().stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, e -> JsonUtil.tBaseToJsonNode(e.getValue())));
-                ic.setMetadataJson(JsonUtil.objectToJsonString(jsonNodeMap));
-                return ic;
-            }).collect(Collectors.toList());
-            invoiceCartDao.save(invoiceCarts);
-        }
+        Long invId = invoiceDao.save(invoiceRecord);
+        if (invId == null) {
+            log.info("Received duplicate key value when inserted new invoice with sequenceId='{}', " +
+                    "invoiceId='{}', changeId='{}'", sequenceId, invoiceId, changeId);
+        } else {
+            if (invoice.getDetails().isSetCart()) {
+                List<InvoiceCart> invoiceCarts = invoice.getDetails().getCart().getLines().stream().map(il -> {
+                    InvoiceCart ic = new InvoiceCart();
+                    ic.setInvId(invId);
+                    ic.setProduct(il.getProduct());
+                    ic.setQuantity(il.getQuantity());
+                    ic.setAmount(il.getPrice().getAmount());
+                    ic.setCurrencyCode(il.getPrice().getCurrency().getSymbolicCode());
+                    Map<String, JsonNode> jsonNodeMap = il.getMetadata().entrySet().stream()
+                            .collect(Collectors.toMap(Map.Entry::getKey, e -> JsonUtil.tBaseToJsonNode(e.getValue())));
+                    ic.setMetadataJson(JsonUtil.objectToJsonString(jsonNodeMap));
+                    return ic;
+                }).collect(Collectors.toList());
+                invoiceCartDao.save(invoiceCarts);
 
-        log.info("Invoice has been saved, sequenceId={}, invoiceId={}, partyId={}, shopId={}",
-                sequenceId, invoiceId, invoice.getOwnerId(), invoice.getShopId());
+                log.info("Invoice has been saved, sequenceId={}, invoiceId={}, partyId={}, shopId={}",
+                        sequenceId, invoiceId, invoice.getOwnerId(), invoice.getShopId());
+            }
+        }
     }
 
     @Override

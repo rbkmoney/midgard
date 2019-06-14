@@ -50,18 +50,6 @@ public class InvoicePaymentAdjustmentCreatedHandler extends AbstractInvoicingHan
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
         long sequenceId = event.getSequenceId();
         String invoiceId = event.getSourceId();
-
-        if (adjustmentDao.isExist(sequenceId, invoiceId, changeId)) {
-            log.warn("Payment Adjustment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed",
-                    sequenceId, invoiceId, changeId);
-        } else {
-            createAdjustment(invoiceChange, event, changeId);
-        }
-    }
-
-    private void createAdjustment(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
-        long sequenceId = event.getSequenceId();
-        String invoiceId = event.getSourceId();
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String paymentId = invoicePaymentChange.getId();
         InvoicePaymentAdjustmentChange invoicePaymentAdjustmentChange = invoicePaymentChange.getPayload()
@@ -105,17 +93,22 @@ public class InvoicePaymentAdjustmentCreatedHandler extends AbstractInvoicingHan
             adjustment.setPartyRevision(invoicePaymentAdjustment.getPartyRevision());
         }
 
-        long adjId = adjustmentDao.save(adjustment);
-        List<CashFlow> newCashFlowList = CashFlowUtil.convertCashFlows(invoicePaymentAdjustment.getNewCashFlow(),
-                adjId, PaymentChangeType.adjustment, AdjustmentCashFlowType.new_cash_flow);
-        cashFlowDao.save(newCashFlowList);
-        List<CashFlow> oldCashFlowList = CashFlowUtil.convertCashFlows(invoicePaymentAdjustment.getOldCashFlowInverse(),
-                adjId, PaymentChangeType.adjustment, AdjustmentCashFlowType.old_cash_flow_inverse);
-        cashFlowDao.save(oldCashFlowList);
-        adjustmentDao.updateCommissions(adjId);
+        Long adjId = adjustmentDao.save(adjustment);
+        if (adjId == null) {
+            log.info("Received duplicate key value when inserted new payment adjustment with sequenceId='{}', " +
+                    "invoiceId='{}', changeId='{}'", sequenceId, invoiceId, changeId);
+        } else {
+            List<CashFlow> newCashFlowList = CashFlowUtil.convertCashFlows(invoicePaymentAdjustment.getNewCashFlow(),
+                    adjId, PaymentChangeType.adjustment, AdjustmentCashFlowType.new_cash_flow);
+            cashFlowDao.save(newCashFlowList);
+            List<CashFlow> oldCashFlowList = CashFlowUtil.convertCashFlows(invoicePaymentAdjustment.getOldCashFlowInverse(),
+                    adjId, PaymentChangeType.adjustment, AdjustmentCashFlowType.old_cash_flow_inverse);
+            cashFlowDao.save(oldCashFlowList);
+            adjustmentDao.updateCommissions(adjId);
 
-        log.info("Adjustment has been saved, sequenceId={}, invoiceId={}, paymentId={}, adjustmentId={}",
-                sequenceId, invoiceId, paymentId, adjustmentId);
+            log.info("Adjustment has been saved, sequenceId={}, invoiceId={}, paymentId={}, adjustmentId={}",
+                    sequenceId, invoiceId, paymentId, adjustmentId);
+        }
     }
 
     @Override

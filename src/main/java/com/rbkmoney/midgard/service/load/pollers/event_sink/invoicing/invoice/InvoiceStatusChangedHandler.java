@@ -37,18 +37,6 @@ public class InvoiceStatusChangedHandler extends AbstractInvoicingHandler {
     @Override
     @Transactional
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) throws DaoException {
-        long sequenceId = event.getSequenceId();
-        String invoiceId = event.getSourceId();
-
-        if (invoiceDao.isExist(sequenceId, invoiceId, changeId)) {
-            log.warn("Invoice with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
-                    "A new status change record will not be added", sequenceId, invoiceId, changeId);
-        } else {
-            changeStatus(invoiceChange, event, changeId);
-        }
-    }
-
-    private void changeStatus(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
         InvoiceStatus invoiceStatus = invoiceChange.getInvoiceStatusChanged().getStatus();
         long sequenceId = event.getSequenceId();
         String invoiceId = event.getSourceId();
@@ -80,17 +68,23 @@ public class InvoiceStatusChangedHandler extends AbstractInvoicingHandler {
         }
 
         invoiceDao.updateNotCurrent(invoiceSource.getInvoiceId());
-        long invId = invoiceDao.save(invoiceSource);
-        List<InvoiceCart> invoiceCartList = invoiceCartDao.getByInvId(invoiceSourceId);
-        invoiceCartList.forEach(ic -> {
-            ic.setId(null);
-            ic.setInvId(invId);
-        });
-        invoiceCartDao.save(invoiceCartList);
+        Long invId = invoiceDao.save(invoiceSource);
+        if (invId == null) {
+            log.info("Received duplicate key value when change invoice status with sequenceId='{}', " +
+                    "invoiceId='{}', changeId='{}'", sequenceId, invoiceId, changeId);
+        } else {
+            List<InvoiceCart> invoiceCartList = invoiceCartDao.getByInvId(invoiceSourceId);
+            invoiceCartList.forEach(ic -> {
+                ic.setId(null);
+                ic.setInvId(invId);
+            });
+            invoiceCartDao.save(invoiceCartList);
 
-        log.info("Invoice has been saved, sequenceId={}, invoiceId={}, partyId={}, shopId={}, status={}",
-                sequenceId, invoiceId, invoiceSource.getPartyId(), invoiceSource.getShopId(),
-                invoiceStatus.getSetField().getFieldName());
+            log.info("Invoice has been saved, sequenceId={}, invoiceId={}, partyId={}, shopId={}, status={}",
+                    sequenceId, invoiceId, invoiceSource.getPartyId(), invoiceSource.getShopId(),
+                    invoiceStatus.getSetField().getFieldName());
+        }
+
     }
 
     @Override

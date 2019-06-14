@@ -34,12 +34,11 @@ public class InvoiceDaoImpl extends AbstractGenericDao implements InvoiceDao {
         Query query = getDslContext().insertInto(INVOICE)
                 .set(invoiceRecord)
                 .onConflict(INVOICE.INVOICE_ID, INVOICE.CHANGE_ID, INVOICE.SEQUENCE_ID)
-                .doUpdate()
-                .set(invoiceRecord)
+                .doNothing()
                 .returning(INVOICE.ID);
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         executeWithReturn(query, keyHolder);
-        return keyHolder.getKey().longValue();
+        return keyHolder.getKey() == null ? null : keyHolder.getKey().longValue();
     }
 
     @Override
@@ -54,16 +53,6 @@ public class InvoiceDaoImpl extends AbstractGenericDao implements InvoiceDao {
         Query query = getDslContext().update(INVOICE).set(INVOICE.CURRENT, false)
                 .where(INVOICE.INVOICE_ID.eq(invoiceId).and(INVOICE.CURRENT));
         execute(query);
-    }
-
-    @Override
-    public boolean isExist(Long sequenceId, String invoiceId, Integer changeId) throws DaoException {
-        Query query = getDslContext().selectFrom(INVOICE)
-                .where(INVOICE.INVOICE_ID.eq(invoiceId)
-                        .and(INVOICE.SEQUENCE_ID.eq(sequenceId)
-                        .and(INVOICE.CHANGE_ID.eq(changeId))));
-        Invoice invoice = fetchOne(query, invoiceRowMapper);
-        return invoice == null ? false : true;
     }
 
     @Override

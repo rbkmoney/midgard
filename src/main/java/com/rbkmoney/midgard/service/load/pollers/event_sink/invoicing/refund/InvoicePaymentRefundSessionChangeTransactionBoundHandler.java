@@ -39,20 +39,7 @@ public class InvoicePaymentRefundSessionChangeTransactionBoundHandler extends Ab
     @Override
     @Transactional
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
-        long sequenceId = event.getSequenceId();
-        String invoiceId = event.getSourceId();
-
-        if (refundDao.isExist(sequenceId, invoiceId, changeId)) {
-            log.warn("Refund event with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
-                    "A new refund session transaction bound change record will not be added",
-                    sequenceId, invoiceId, changeId);
-        } else {
-            changeRefundSessionTransactionBound(invoiceChange, event, changeId);
-        }
-    }
-
-    private void changeRefundSessionTransactionBound(InvoiceChange change, SimpleEvent event, Integer changeId) {
-        InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
+        InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String invoiceId = event.getSourceId();
         String paymentId = invoicePaymentChange.getId();
         InvoicePaymentRefundChange invoicePaymentRefundChange = invoicePaymentChange.getPayload().getInvoicePaymentRefundChange();
@@ -83,15 +70,21 @@ public class InvoicePaymentRefundSessionChangeTransactionBoundHandler extends Ab
         refundSource.setSessionPayloadTransactionBoundTrxId(transactionInfo.getId());
         refundSource.setSessionPayloadTransactionBoundTrxExtraJson(JsonUtil.objectToJsonString(transactionInfo.getExtra()));
         refundDao.updateNotCurrent(invoiceId, paymentId, refundId);
-        long rfndId = refundDao.save(refundSource);
-        List<CashFlow> cashFlows = cashFlowDao.getByObjId(refundSourceId, PaymentChangeType.refund);
-        cashFlows.forEach(pcf -> {
-            pcf.setId(null);
-            pcf.setObjId(rfndId);
-        });
-        cashFlowDao.save(cashFlows);
-        log.info("Refund session transaction info has been saved, sequenceId='{}', invoiceId='{}', " +
-                "paymentId='{}', refundId='{}'", sequenceId, invoiceId, paymentId, refundId);
+        Long rfndId = refundDao.save(refundSource);
+        if (rfndId == null) {
+            log.info("Refund event with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
+                            "A new refund session transaction bound change record will not be added",
+                    sequenceId, invoiceId, changeId);
+        } else {
+            List<CashFlow> cashFlows = cashFlowDao.getByObjId(refundSourceId, PaymentChangeType.refund);
+            cashFlows.forEach(pcf -> {
+                pcf.setId(null);
+                pcf.setObjId(rfndId);
+            });
+            cashFlowDao.save(cashFlows);
+            log.info("Refund session transaction info has been saved, sequenceId='{}', invoiceId='{}', " +
+                    "paymentId='{}', refundId='{}'", sequenceId, invoiceId, paymentId, refundId);
+        }
     }
 
     @Override

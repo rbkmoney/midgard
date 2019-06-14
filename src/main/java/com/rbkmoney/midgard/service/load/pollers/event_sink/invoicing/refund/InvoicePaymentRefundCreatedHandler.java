@@ -48,18 +48,6 @@ public class InvoicePaymentRefundCreatedHandler extends AbstractInvoicingHandler
     @Override
     @Transactional
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
-        long sequenceId = event.getSequenceId();
-        String invoiceId = event.getSourceId();
-
-        if (refundDao.isExist(sequenceId, invoiceId, changeId)) {
-            log.warn("Refund with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed",
-                    sequenceId, invoiceId, changeId);
-        } else {
-            createRefund(invoiceChange, event, changeId);
-        }
-    }
-
-    private void createRefund(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String paymentId = invoicePaymentChange.getId();
         long sequenceId = event.getSequenceId();
@@ -116,15 +104,19 @@ public class InvoicePaymentRefundCreatedHandler extends AbstractInvoicingHandler
             refund.setPartyRevision(invoicePaymentRefund.getPartyRevision());
         }
 
-        long rfndId = refundDao.save(refund);
+        Long rfndId = refundDao.save(refund);
+        if (rfndId == null) {
+            log.info("Refund with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed",
+                    sequenceId, invoiceId, changeId);
+        } else {
+            List<CashFlow> cashFlowList = CashFlowUtil.convertCashFlows(invoicePaymentRefundCreated.getCashFlow(),
+                    rfndId, PaymentChangeType.refund);
+            cashFlowDao.save(cashFlowList);
+            refundDao.updateCommissions(rfndId);
 
-        List<CashFlow> cashFlowList = CashFlowUtil.convertCashFlows(invoicePaymentRefundCreated.getCashFlow(),
-                rfndId, PaymentChangeType.refund);
-        cashFlowDao.save(cashFlowList);
-        refundDao.updateCommissions(rfndId);
-
-        log.info("Refund has been saved, sequenceId={}, invoiceId={}, paymentId={}, refundId={}",
-                sequenceId, invoiceId, paymentId, refundId);
+            log.info("Refund has been saved, sequenceId={}, invoiceId={}, paymentId={}, refundId={}",
+                    sequenceId, invoiceId, paymentId, refundId);
+        }
     }
 
     @Override

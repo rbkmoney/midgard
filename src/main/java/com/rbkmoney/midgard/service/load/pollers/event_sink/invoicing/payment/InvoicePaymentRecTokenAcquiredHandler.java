@@ -37,19 +37,7 @@ public class InvoicePaymentRecTokenAcquiredHandler extends AbstractInvoicingHand
     @Override
     @Transactional
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
-        long sequenceId = event.getSequenceId();
-        String invoiceId = event.getSourceId();
-
-        if (paymentDao.isExist(sequenceId, invoiceId, changeId)) {
-            log.warn("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
-                    "A new payment rec token acquired record will not be added", sequenceId, invoiceId, changeId);
-        } else {
-            savePaymentRecTokenAcquired(invoiceChange, event, changeId);
-        }
-    }
-
-    private void savePaymentRecTokenAcquired(InvoiceChange change, SimpleEvent event, Integer changeId) {
-        InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
+        InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String invoiceId = event.getSourceId();
         String paymentId = invoicePaymentChange.getId();
         String token = invoicePaymentChange.getPayload().getInvoicePaymentRecTokenAcquired().getToken();
@@ -75,15 +63,20 @@ public class InvoicePaymentRecTokenAcquiredHandler extends AbstractInvoicingHand
         paymentSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         paymentSource.setRecurrentIntentionToken(token);
         paymentDao.updateNotCurrent(invoiceId, paymentId);
-        long pmntId = paymentDao.save(paymentSource);
-        List<CashFlow> cashFlows = cashFlowDao.getByObjId(paymentSourceId, PaymentChangeType.payment);
-        cashFlows.forEach(pcf -> {
-            pcf.setId(null);
-            pcf.setObjId(pmntId);
-        });
-        cashFlowDao.save(cashFlows);
-        log.info("Payment recurrent token have been saved, sequenceId='{}', invoiceId='{}', paymentId='{}'",
-                sequenceId, invoiceId, paymentId);
+        Long pmntId = paymentDao.save(paymentSource);
+        if (pmntId == null) {
+            log.info("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
+                    "A new payment rec token acquired record will not be added", sequenceId, invoiceId, changeId);
+        } else {
+            List<CashFlow> cashFlows = cashFlowDao.getByObjId(paymentSourceId, PaymentChangeType.payment);
+            cashFlows.forEach(pcf -> {
+                pcf.setId(null);
+                pcf.setObjId(pmntId);
+            });
+            cashFlowDao.save(cashFlows);
+            log.info("Payment recurrent token have been saved, sequenceId='{}', invoiceId='{}', paymentId='{}'",
+                    sequenceId, invoiceId, paymentId);
+        }
     }
 
     @Override

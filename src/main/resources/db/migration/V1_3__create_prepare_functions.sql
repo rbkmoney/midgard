@@ -9,6 +9,8 @@ BEGIN
     WITH clearing_trx_cte as (
         SELECT    src_clearing_id as clearing_id,
                   trx.transaction_id,
+                  trx.invoice_id,
+                  trx.payment_id,
                   cast('PAYMENT' as midgard.clearing_trx_type) as trx_type
         FROM      midgard.clearing_transaction trx
         WHERE     trx.provider_id = src_provider_id
@@ -18,6 +20,8 @@ BEGIN
     clearing_refund_trx_cte as (
         SELECT    src_clearing_id as clearing_id,
                   refund_trx.transaction_id,
+                  refund_trx.invoice_id,
+                  refund_trx.payment_id,
                   cast('REFUND' as midgard.clearing_trx_type) as trx_type
         FROM      midgard.clearing_refund refund_trx
         JOIN      midgard.clearing_transaction trx
@@ -28,7 +32,7 @@ BEGIN
     ),
 
     ordered_clearing_trx_cte as (
-        SELECT clearing_id, transaction_id, trx_type,
+        SELECT clearing_id, transaction_id, invoice_id, payment_id, trx_type,
                row_number() over(partition BY clearing_id ORDER BY trx_type, transaction_id) as row_num
         FROM   (
                SELECT clearing_id, transaction_id, trx_type
@@ -39,7 +43,8 @@ BEGIN
         ) cte
     )
 
-    INSERT INTO midgard.clearing_event_transaction_info(clearing_id, transaction_id, transaction_type, row_number)
+    INSERT INTO midgard.clearing_event_transaction_info(clearing_id, transaction_id, invoice_id,
+                                                        payment_id, transaction_type, row_number)
     SELECT clearing_id, transaction_id, trx_type, row_num
     FROM   ordered_clearing_trx_cte;
 
