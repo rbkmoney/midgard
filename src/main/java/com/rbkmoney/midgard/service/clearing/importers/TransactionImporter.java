@@ -60,15 +60,15 @@ public class TransactionImporter implements Importer {
 
     private void saveTransaction(Payment payment) throws DaoException {
         ClearingTransaction transaction = MappingUtils.transformTransaction(payment);
-        log.info("Saving a clearing refund with sequence id '{}', invoice id '{}' and payment id '{}'",
-                payment.getSequenceId(), payment.getInvoiceId(), payment.getPaymentId());
+        log.info("Saving a clearing refund with invoice id '{}', payment id '{}' and sequence id '{}'",
+                payment.getInvoiceId(), payment.getPaymentId(), payment.getSequenceId());
         log.debug("Saving a transaction {}", transaction);
 
         if (transaction.getTransactionId() == null) {
             transaction.setTransactionClearingState(TransactionClearingState.FATAL);
             transaction.setComment(TRAN_ID_NULL_ERROR);
             transaction.setTransactionId(transaction.getInvoiceId() + transaction.getPaymentId());
-            log.error("The following error was detected during save: {}. \nThe following object will be saved " +
+            log.error("The following error was detected during save: '{}'. The following object will be saved " +
                     "to the database: {}", TRAN_ID_NULL_ERROR, transaction);
         }
         transactionsDao.save(transaction);

@@ -95,8 +95,8 @@ public class InvoicePaymentAdjustmentCreatedHandler extends AbstractInvoicingHan
 
         Long adjId = adjustmentDao.save(adjustment);
         if (adjId == null) {
-            log.info("Received duplicate key value when inserted new payment adjustment with sequenceId='{}', " +
-                    "invoiceId='{}', changeId='{}'", sequenceId, invoiceId, changeId);
+            log.info("Received duplicate key value when inserted new payment adjustment with invoiceId='{}', " +
+                    "changeId='{}', sequenceId='{}',", invoiceId, changeId, sequenceId);
         } else {
             List<CashFlow> newCashFlowList = CashFlowUtil.convertCashFlows(invoicePaymentAdjustment.getNewCashFlow(),
                     adjId, PaymentChangeType.adjustment, AdjustmentCashFlowType.new_cash_flow);
@@ -106,8 +106,8 @@ public class InvoicePaymentAdjustmentCreatedHandler extends AbstractInvoicingHan
             cashFlowDao.save(oldCashFlowList);
             adjustmentDao.updateCommissions(adjId);
 
-            log.info("Adjustment has been saved, sequenceId={}, invoiceId={}, paymentId={}, adjustmentId={}",
-                    sequenceId, invoiceId, paymentId, adjustmentId);
+            log.info("Adjustment with invoiceId={}, paymentId={}, adjustmentId={} and sequenceId={} has been saved",
+                    invoiceId, paymentId, adjustmentId, sequenceId);
         }
     }
 

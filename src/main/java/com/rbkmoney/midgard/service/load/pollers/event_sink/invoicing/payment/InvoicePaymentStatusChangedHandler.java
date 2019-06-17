@@ -48,14 +48,14 @@ public class InvoicePaymentStatusChangedHandler extends AbstractInvoicingHandler
         String invoiceId = event.getSourceId();
         String paymentId = invoiceChange.getInvoicePaymentChange().getId();
 
-        log.info("Start payment status changed handling, sequenceId={}, invoiceId={}, paymentId={}, status={}",
-                sequenceId, invoiceId, paymentId, invoicePaymentStatus.getSetField().getFieldName());
+        log.info("Start payment status changed handling (invoiceId={}, paymentId={}, sequenceId={}, status={})",
+                invoiceId, paymentId, sequenceId, invoicePaymentStatus.getSetField().getFieldName());
 
         Payment paymentSource = paymentDao.get(invoiceId, paymentId);
         if (paymentSource == null) {
             // TODO: исправить после того как прольется БД
-            log.error("Invoice payment not found, sequenceId={}, invoiceId='{}', paymentId='{}'",
-                    sequenceId, invoiceId, paymentId);
+            log.error("Invoice payment not found (invoiceId='{}', paymentId='{}', sequenceId='{}')",
+                    invoiceId, paymentId, sequenceId);
             return;
             //throw new NotFoundException(String.format("Payment not found, invoiceId='%s', paymentId='%s'", invoiceId, paymentId));
         }
@@ -89,8 +89,8 @@ public class InvoicePaymentStatusChangedHandler extends AbstractInvoicingHandler
         paymentDao.updateNotCurrent(invoiceId, paymentId);
         Long pmntId = paymentDao.save(paymentSource);
         if (pmntId == null) {
-            log.info("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
-                    "A new payment status change record will not be added", sequenceId, invoiceId, changeId);
+            log.info("Payment with invoiceId='{}', changeId='{}' and sequenceId='{}' already processed. " +
+                    "A new payment status change record will not be added", invoiceId, changeId, sequenceId);
         } else {
             List<CashFlow> cashFlows = cashFlowDao.getByObjId(paymentSourceId, PaymentChangeType.payment);
             cashFlows.forEach(pcf -> {
@@ -99,8 +99,8 @@ public class InvoicePaymentStatusChangedHandler extends AbstractInvoicingHandler
             });
             cashFlowDao.save(cashFlows);
 
-            log.info("Payment status has been saved, sequenceId={}, invoiceId={}, paymentId={}, status={}",
-                    sequenceId, invoiceId, paymentId, invoicePaymentStatus.getSetField().getFieldName());
+            log.info("Payment status has been saved (invoiceId={}, paymentId={}, sequenceId={}, status={})",
+                    invoiceId, paymentId, sequenceId, invoicePaymentStatus.getSetField().getFieldName());
         }
     }
 

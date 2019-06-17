@@ -43,13 +43,13 @@ public class InvoicePaymentRecTokenAcquiredHandler extends AbstractInvoicingHand
         String token = invoicePaymentChange.getPayload().getInvoicePaymentRecTokenAcquired().getToken();
         long sequenceId = event.getSequenceId();
 
-        log.info("Start handling payment recurrent token acquired, sequenceId='{}', invoiceId='{}', paymentId='{}'",
-                sequenceId, invoiceId, paymentId);
+        log.info("Start handling payment recurrent token acquired (invoiceId='{}', paymentId='{}', sequenceId='{}')",
+                invoiceId, paymentId, sequenceId);
         Payment paymentSource = paymentDao.get(invoiceId, paymentId);
         if (paymentSource == null) {
             // TODO: исправить после того как прольется БД
-            log.error("Invoice payment not found, sequenceId='{}', invoiceId='{}', paymentId='{}'",
-                    sequenceId, invoiceId, paymentId);
+            log.error("Invoice payment not found (invoiceId='{}', paymentId='{}', sequenceId='{}')",
+                    invoiceId, paymentId, sequenceId);
             return;
             //throw new NotFoundException(String.format("Invoice payment not found, invoiceId='%s', paymentId='%s'",
             //        invoiceId, paymentId));
@@ -65,8 +65,8 @@ public class InvoicePaymentRecTokenAcquiredHandler extends AbstractInvoicingHand
         paymentDao.updateNotCurrent(invoiceId, paymentId);
         Long pmntId = paymentDao.save(paymentSource);
         if (pmntId == null) {
-            log.info("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
-                    "A new payment rec token acquired record will not be added", sequenceId, invoiceId, changeId);
+            log.info("Payment with invoiceId='{}', changeId='{}' and sequenceId='{}' already processed. " +
+                    "A new payment rec token acquired record will not be added", invoiceId, changeId, sequenceId);
         } else {
             List<CashFlow> cashFlows = cashFlowDao.getByObjId(paymentSourceId, PaymentChangeType.payment);
             cashFlows.forEach(pcf -> {
@@ -74,8 +74,8 @@ public class InvoicePaymentRecTokenAcquiredHandler extends AbstractInvoicingHand
                 pcf.setObjId(pmntId);
             });
             cashFlowDao.save(cashFlows);
-            log.info("Payment recurrent token have been saved, sequenceId='{}', invoiceId='{}', paymentId='{}'",
-                    sequenceId, invoiceId, paymentId);
+            log.info("Payment recurrent token have been saved (invoiceId='{}', paymentId='{}', sequenceId='{}')",
+                    invoiceId, paymentId, sequenceId);
         }
     }
 

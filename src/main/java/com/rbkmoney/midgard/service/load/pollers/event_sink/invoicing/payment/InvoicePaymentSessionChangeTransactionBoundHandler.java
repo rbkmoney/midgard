@@ -46,13 +46,13 @@ public class InvoicePaymentSessionChangeTransactionBoundHandler extends Abstract
         InvoicePaymentSessionChange sessionChange = invoicePaymentChange.getPayload().getInvoicePaymentSessionChange();
         long sequenceId = event.getSequenceId();
 
-        log.info("Start handling session change transaction info, sequenceId='{}', invoiceId='{}', paymentId='{}'",
-                sequenceId, invoiceId, paymentId);
+        log.info("Start handling session change transaction info (invoiceId='{}', paymentId='{}', sequenceId='{}')",
+                invoiceId, paymentId, sequenceId);
         Payment paymentSource = paymentDao.get(invoiceId, paymentId);
         if (paymentSource == null) {
             // TODO: исправить после того как прольется БД
-            log.error("Invoice payment not found, sequenceId='{}', invoiceId='{}', paymentId='{}'",
-                    sequenceId, invoiceId, paymentId);
+            log.error("Invoice payment not found (invoiceId='{}', paymentId='{}', sequenceId='{}')",
+                    invoiceId, paymentId, sequenceId);
             return;
             //throw new NotFoundException(String.format("Invoice payment not found, invoiceId='%s', paymentId='%s'",
             //        invoiceId, paymentId));
@@ -71,8 +71,8 @@ public class InvoicePaymentSessionChangeTransactionBoundHandler extends Abstract
         paymentDao.updateNotCurrent(invoiceId, paymentId);
         Long pmntId = paymentDao.save(paymentSource);
         if (pmntId == null) {
-            log.info("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
-                    "A new payment session transaction bound record will not be added", sequenceId, invoiceId, changeId);
+            log.info("Payment with invoiceId='{}', changeId='{}' and sequenceId='{}' already processed. " +
+                    "A new payment session transaction bound record will not be added", invoiceId, changeId, sequenceId);
         } else {
             List<CashFlow> cashFlows = cashFlowDao.getByObjId(paymentSourceId, PaymentChangeType.payment);
             cashFlows.forEach(pcf -> {
@@ -80,8 +80,8 @@ public class InvoicePaymentSessionChangeTransactionBoundHandler extends Abstract
                 pcf.setObjId(pmntId);
             });
             cashFlowDao.save(cashFlows);
-            log.info("Payment session transaction info has been saved, sequenceId='{}', invoiceId='{}', paymentId='{}'",
-                    sequenceId, invoiceId, paymentId);
+            log.info("Payment session transaction info has been saved (invoiceId='{}', paymentId='{}', sequenceId='{}')",
+                    invoiceId, paymentId, sequenceId);
         }
     }
 

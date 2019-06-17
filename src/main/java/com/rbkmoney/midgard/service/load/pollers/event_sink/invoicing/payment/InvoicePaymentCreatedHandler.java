@@ -70,8 +70,8 @@ public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
         Invoice invoice = invoiceDao.get(invoiceId);
         if (invoice == null) {
             // TODO: исправить после того как прольется БД
-            log.error("Invoice on payment not found, sequenceId='{}' invoiceId='{}', paymentId='{}'",
-                    sequenceId, invoiceId, invoicePayment.getId());
+            log.error("Invoice on payment not found (invoiceId='{}', paymentId='{}', sequenceId='{}')",
+                    invoiceId, invoicePayment.getId(), sequenceId);
             return;
             //throw new NotFoundException(String.format("Invoice on payment not found, invoiceId='%s', paymentId='%s'",
             //        invoiceId, invoicePayment.getId()));
@@ -131,8 +131,8 @@ public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
 
         Long pmntId = paymentDao.save(payment);
         if (pmntId == null) {
-            log.info("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed",
-                    sequenceId, invoiceId, changeId);
+            log.info("Payment with invoiceId='{}', changeId='{}' and sequenceId='{}' already processed",
+                    invoiceId, changeId, sequenceId);
         }
         if (invoicePaymentStarted.isSetCashFlow()) {
             List<CashFlow> cashFlowList = CashFlowUtil.convertCashFlows(invoicePaymentStarted.getCashFlow(),
@@ -143,8 +143,8 @@ public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
             }
         }
 
-        log.info("Payment has been saved, sequenceId={}, invoiceId={}, paymentId={}",
-                sequenceId, invoiceId, invoicePayment.getId());
+        log.info("Payment has been saved (invoiceId='{}', paymentId='{}', sequenceId='{}')",
+                invoiceId, invoicePayment.getId(), sequenceId);
     }
 
     private void fillContactInfo(Payment payment, ContactInfo contactInfo) {

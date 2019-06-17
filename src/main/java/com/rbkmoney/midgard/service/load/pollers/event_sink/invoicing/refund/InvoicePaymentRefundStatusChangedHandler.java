@@ -53,8 +53,8 @@ public class InvoicePaymentRefundStatusChangedHandler extends AbstractInvoicingH
                 invoicePaymentRefundChange.getPayload().getInvoicePaymentRefundStatusChanged().getStatus();
         String refundId = invoicePaymentRefundChange.getId();
 
-        log.info("Start refund status changed handling, sequenceId={}, invoiceId={}, paymentId={}, refundId={}, status={}",
-                sequenceId, invoiceId, paymentId, refundId, invoicePaymentRefundStatus.getSetField().getFieldName());
+        log.info("Start refund status changed handling (invoiceId={}, paymentId={}, refundId={}, sequenceId={}, status={})",
+                invoiceId, paymentId, refundId, sequenceId, invoicePaymentRefundStatus.getSetField().getFieldName());
         Refund refundSource = refundDao.get(invoiceId, paymentId, refundId);
         if (refundSource == null) {
             // TODO: исправить после того как прольется БД
@@ -80,8 +80,8 @@ public class InvoicePaymentRefundStatusChangedHandler extends AbstractInvoicingH
         refundDao.updateNotCurrent(invoiceId, paymentId, refundId);
         Long rfndId = refundDao.save(refundSource);
         if (rfndId == null) {
-            log.info("Refund event with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
-                    "A new status change record will not be added", sequenceId, invoiceId, changeId);
+            log.info("Refund event with invoiceId='{}', changeId='{}' and sequenceId='{}' already processed. " +
+                    "A new status change record will not be added", invoiceId, changeId, sequenceId);
         } else {
             List<CashFlow> cashFlows = cashFlowDao.getByObjId(refundSourceId, PaymentChangeType.refund);
             cashFlows.forEach(pcf -> {
@@ -90,8 +90,8 @@ public class InvoicePaymentRefundStatusChangedHandler extends AbstractInvoicingH
             });
             cashFlowDao.save(cashFlows);
 
-            log.info("Refund have been succeeded, sequenceId={}, invoiceId={}, paymentId={}, refundId={}, status={}",
-                    sequenceId, invoiceId, paymentId, refundId, invoicePaymentRefundStatus.getSetField().getFieldName());
+            log.info("Refund have been succeeded (invoiceId={}, paymentId={}, refundId={}, sequenceId={}, status={})",
+                    invoiceId, paymentId, refundId, sequenceId, invoicePaymentRefundStatus.getSetField().getFieldName());
         }
     }
 

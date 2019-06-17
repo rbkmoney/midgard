@@ -48,8 +48,9 @@ public class InvoiceStatusChangedHandler extends AbstractInvoicingHandler {
             return;
             //throw new NotFoundException(String.format("Invoice not found, invoiceId='%s'", event.getSource().getInvoiceId()));
         }
-        log.info("Start invoice status changed handling, eventId={}, invoiceId={}, partyId={}, shopId={}, status={}",
-                sequenceId, invoiceId, invoiceSource.getPartyId(), invoiceSource.getShopId(), invoiceStatus.getSetField().getFieldName());
+        log.info("Start invoice status changed handling (invoiceId={}, partyId={}, shopId={}, sequenceId={}, status={})",
+                invoiceId, invoiceSource.getPartyId(), invoiceSource.getShopId(), sequenceId,
+                invoiceStatus.getSetField().getFieldName());
 
         Long invoiceSourceId = invoiceSource.getId();
         invoiceSource.setId(null);
@@ -70,8 +71,8 @@ public class InvoiceStatusChangedHandler extends AbstractInvoicingHandler {
         invoiceDao.updateNotCurrent(invoiceSource.getInvoiceId());
         Long invId = invoiceDao.save(invoiceSource);
         if (invId == null) {
-            log.info("Received duplicate key value when change invoice status with sequenceId='{}', " +
-                    "invoiceId='{}', changeId='{}'", sequenceId, invoiceId, changeId);
+            log.info("Received duplicate key value when change invoice status with " +
+                    "invoiceId='{}', changeId='{}', sequenceId='{}'", invoiceId, changeId, sequenceId);
         } else {
             List<InvoiceCart> invoiceCartList = invoiceCartDao.getByInvId(invoiceSourceId);
             invoiceCartList.forEach(ic -> {
@@ -80,8 +81,8 @@ public class InvoiceStatusChangedHandler extends AbstractInvoicingHandler {
             });
             invoiceCartDao.save(invoiceCartList);
 
-            log.info("Invoice has been saved, sequenceId={}, invoiceId={}, partyId={}, shopId={}, status={}",
-                    sequenceId, invoiceId, invoiceSource.getPartyId(), invoiceSource.getShopId(),
+            log.info("Invoice has been saved (invoiceId={}, partyId={}, shopId={}, sequenceId={}, status={})",
+                    invoiceId, invoiceSource.getPartyId(), invoiceSource.getShopId(), sequenceId,
                     invoiceStatus.getSetField().getFieldName());
         }
 

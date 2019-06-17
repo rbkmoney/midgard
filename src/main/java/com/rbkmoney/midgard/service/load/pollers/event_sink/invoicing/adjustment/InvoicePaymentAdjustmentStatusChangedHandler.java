@@ -37,7 +37,7 @@ public class InvoicePaymentAdjustmentStatusChangedHandler extends AbstractInvoic
     private final Filter filter = new PathConditionFilter(new PathConditionRule(
             "invoice_payment_change.payload.invoice_payment_adjustment_change.payload" +
             ".invoice_payment_adjustment_status_changed",
-                new IsNullCondition().not()));;
+                new IsNullCondition().not()));
 
     @Override
     @Transactional
@@ -57,8 +57,8 @@ public class InvoicePaymentAdjustmentStatusChangedHandler extends AbstractInvoic
         Adjustment adjustmentSource = adjustmentDao.get(invoiceId, paymentId, adjustmentId);
         if (adjustmentSource == null) {
             // TODO: исправить после того как прольется БД
-            log.error("Adjustment not found (sequenceId='{}', invoiceId='{}', paymentId='{}', adjustmentId='{}'",
-                    sequenceId, invoiceId, paymentId, adjustmentId);
+            log.error("Adjustment not found (invoiceId='{}', paymentId='{}', adjustmentId='{}'б sequenceId='{}'",
+                    invoiceId, paymentId, adjustmentId, sequenceId);
             return;
             //throw new NotFoundException(String.format("Adjustment not found, invoiceId='%s', paymentId='%s', adjustmentId='%s'",
             //        invoiceId, paymentId, adjustmentId));
@@ -81,8 +81,8 @@ public class InvoicePaymentAdjustmentStatusChangedHandler extends AbstractInvoic
         adjustmentDao.updateNotCurrent(invoiceId, paymentId, adjustmentId);
         Long adjId = adjustmentDao.save(adjustmentSource);
         if (adjId == null) {
-            log.info("Received duplicate key value when change payment adjustment status with sequenceId='{}', " +
-                    "invoiceId='{}', changeId='{}'", sequenceId, invoiceId, changeId);
+            log.info("Received duplicate key value when change payment adjustment status with " +
+                    "invoiceId='{}', changeId='{}', sequenceId='{}'", invoiceId, changeId, sequenceId);
         } else {
             List<CashFlow> newCashFlows = cashFlowDao.getForAdjustments(adjustmentSourceId, AdjustmentCashFlowType.new_cash_flow);
             newCashFlows.forEach(pcf -> {
@@ -97,8 +97,9 @@ public class InvoicePaymentAdjustmentStatusChangedHandler extends AbstractInvoic
             });
             cashFlowDao.save(oldCashFlows);
 
-            log.info("Adjustment status change has been saved, sequenceId={}, invoiceId={}, paymentId={}, adjustmentId={}, status={}",
-                    sequenceId, invoiceId, paymentId, adjustmentId, invoicePaymentAdjustmentStatus.getSetField().getFieldName());
+            log.info("Adjustment status change has been saved (invoiceId={}, paymentId={}, adjustmentId={}, " +
+                    "sequenceId={}, status={}", invoiceId, paymentId, adjustmentId, sequenceId,
+                    invoicePaymentAdjustmentStatus.getSetField().getFieldName());
         }
     }
 

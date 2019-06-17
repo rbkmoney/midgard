@@ -77,8 +77,8 @@ public class InvoicePaymentRefundCreatedHandler extends AbstractInvoicingHandler
         Payment payment = paymentDao.get(invoiceId, paymentId);
         if (payment == null) {
             // TODO: исправить после того как прольется БД
-            log.error("Payment on refund not found, sequenceId={}, invoiceId='{}', " +
-                    "paymentId='{}', refundId='{}'", sequenceId, invoiceId, paymentId, refundId);
+            log.error("Payment on refund not found (invoiceId='{}', paymentId='{}', refundId='{}', sequenceId={})",
+                    invoiceId, paymentId, refundId, sequenceId);
             return;
             //throw new NotFoundException(String.format("Payment on refund not found, invoiceId='%s', " +
             //                "paymentId='%s', refundId='%s'", invoiceId, paymentId, refundId));
@@ -106,16 +106,16 @@ public class InvoicePaymentRefundCreatedHandler extends AbstractInvoicingHandler
 
         Long rfndId = refundDao.save(refund);
         if (rfndId == null) {
-            log.info("Refund with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed",
-                    sequenceId, invoiceId, changeId);
+            log.info("Refund with invoiceId='{}', refundId='{}', changeId='{}' and sequenceId='{}' already processed",
+                    invoiceId, refundId, changeId, sequenceId);
         } else {
             List<CashFlow> cashFlowList = CashFlowUtil.convertCashFlows(invoicePaymentRefundCreated.getCashFlow(),
                     rfndId, PaymentChangeType.refund);
             cashFlowDao.save(cashFlowList);
             refundDao.updateCommissions(rfndId);
 
-            log.info("Refund has been saved, sequenceId={}, invoiceId={}, paymentId={}, refundId={}",
-                    sequenceId, invoiceId, paymentId, refundId);
+            log.info("Refund has been saved (invoiceId={}, paymentId={}, refundId={}, sequenceId={})",
+                    invoiceId, paymentId, refundId, sequenceId);
         }
     }
 

@@ -43,8 +43,8 @@ public class InvoicePaymentCashFlowChangedHandler extends AbstractInvoicingHandl
         String paymentId = invoicePaymentChange.getId();
         long sequenceId = event.getSequenceId();
 
-        log.info("Start handling payment cashflow change, sequenceId='{}', invoiceId='{}', paymentId='{}'",
-                sequenceId, invoiceId, paymentId);
+        log.info("Start handling payment cashflow change (invoiceId='{}', paymentId='{}', sequenceId='{}')",
+                invoiceId, paymentId, sequenceId);
         Payment paymentSource = paymentDao.get(invoiceId, paymentId);
         if (paymentSource == null) {
             // TODO: исправить после того как прольется БД
@@ -63,8 +63,8 @@ public class InvoicePaymentCashFlowChangedHandler extends AbstractInvoicingHandl
         paymentDao.updateNotCurrent(invoiceId, paymentId);
         Long pmntId = paymentDao.save(paymentSource);
         if (pmntId == null) {
-            log.info("Payment with sequenceId='{}', invoiceId='{}' and changeId='{}' already processed. " +
-                    "A new cash flow status change record will not be added", sequenceId, invoiceId, changeId);
+            log.info("Payment with invoiceId='{}', changeId='{}' and sequenceId='{}' already processed. " +
+                    "A new cash flow status change record will not be added", invoiceId, changeId, sequenceId);
         } else {
             List<CashFlow> cashFlows = CashFlowUtil.convertCashFlows(
                     invoicePaymentChange.getPayload().getInvoicePaymentCashFlowChanged().getCashFlow(),
@@ -73,8 +73,8 @@ public class InvoicePaymentCashFlowChangedHandler extends AbstractInvoicingHandl
             );
             cashFlowDao.save(cashFlows);
             paymentDao.updateCommissions(pmntId);
-            log.info("Payment cashflow has been saved, sequenceId='{}', invoiceId='{}', paymentId='{}'",
-                    sequenceId, invoiceId, paymentId);
+            log.info("Payment cashflow has been saved (invoiceId='{}', paymentId='{}', sequenceId='{}')",
+                    invoiceId, paymentId, sequenceId);
         }
     }
 

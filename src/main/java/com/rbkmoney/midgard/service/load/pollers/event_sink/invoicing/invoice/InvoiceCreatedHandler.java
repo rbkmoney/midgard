@@ -45,8 +45,8 @@ public class InvoiceCreatedHandler extends AbstractInvoicingHandler {
         long sequenceId = event.getSequenceId();
         String invoiceId = event.getSourceId();
 
-        log.info("Start invoice created handling, sequenceId={}, invoiceId={}, partyId={}, shopId={}",
-                sequenceId, invoiceId, invoice.getOwnerId(), invoice.getShopId());
+        log.info("Start invoice created handling with invoiceId={}, partyId={}, shopId={}, sequenceId={}",
+                 invoiceId, invoice.getOwnerId(), invoice.getShopId(), sequenceId);
 
         Invoice invoiceRecord = new Invoice();
         invoiceRecord.setSequenceId(sequenceId);
@@ -76,8 +76,8 @@ public class InvoiceCreatedHandler extends AbstractInvoicingHandler {
 
         Long invId = invoiceDao.save(invoiceRecord);
         if (invId == null) {
-            log.info("Received duplicate key value when inserted new invoice with sequenceId='{}', " +
-                    "invoiceId='{}', changeId='{}'", sequenceId, invoiceId, changeId);
+            log.info("Received duplicate key value when inserted new invoice with " +
+                    "invoiceId='{}', changeId='{}', sequenceId='{}'", invoiceId, changeId, sequenceId);
         } else {
             if (invoice.getDetails().isSetCart()) {
                 List<InvoiceCart> invoiceCarts = invoice.getDetails().getCart().getLines().stream().map(il -> {
@@ -94,8 +94,8 @@ public class InvoiceCreatedHandler extends AbstractInvoicingHandler {
                 }).collect(Collectors.toList());
                 invoiceCartDao.save(invoiceCarts);
 
-                log.info("Invoice has been saved, sequenceId={}, invoiceId={}, partyId={}, shopId={}",
-                        sequenceId, invoiceId, invoice.getOwnerId(), invoice.getShopId());
+                log.info("Invoice with invoiceId={}, partyId={}, shopId={} and sequenceId='{}' has been saved",
+                        invoiceId, invoice.getOwnerId(), invoice.getShopId(), sequenceId);
             }
         }
     }
