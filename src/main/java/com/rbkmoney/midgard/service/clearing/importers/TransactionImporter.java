@@ -60,15 +60,15 @@ public class TransactionImporter implements Importer {
 
     private void saveTransaction(Payment payment) throws DaoException {
         ClearingTransaction transaction = MappingUtils.transformTransaction(payment);
-        log.info("Saving a clearing refund with event id, invoice id {} and payment id {}",
-                payment.getEventId(), payment.getInvoiceId(), payment.getPaymentId());
+        log.info("Saving a clearing refund with invoice id '{}', payment id '{}' and sequence id '{}'",
+                payment.getInvoiceId(), payment.getPaymentId(), payment.getSequenceId());
         log.debug("Saving a transaction {}", transaction);
 
         if (transaction.getTransactionId() == null) {
             transaction.setTransactionClearingState(TransactionClearingState.FATAL);
             transaction.setComment(TRAN_ID_NULL_ERROR);
             transaction.setTransactionId(transaction.getInvoiceId() + transaction.getPaymentId());
-            log.error("The following error was detected during save: {}. \nThe following object will be saved " +
+            log.error("The following error was detected during save: '{}'. The following object will be saved " +
                     "to the database: {}", TRAN_ID_NULL_ERROR, transaction);
         }
         transactionsDao.save(transaction);
@@ -81,7 +81,7 @@ public class TransactionImporter implements Importer {
         List<ClearingTransactionCashFlow> tranCashFlow = cashFlow.stream()
                 .map(flow -> {
                     ClearingTransactionCashFlow transactionCashFlow =
-                            MappingUtils.transformCashFlow(flow, payment.getEventId());
+                            MappingUtils.transformCashFlow(flow, payment.getSequenceId());
                     return transactionCashFlow;
                 })
                 .collect(Collectors.toList());
@@ -94,8 +94,8 @@ public class TransactionImporter implements Importer {
             log.warn("Event ID for clearing transactions was not found!");
             return 0L;
         } else {
-            log.info("Last payment event id {}", clearingTransaction.getEventId());
-            return clearingTransaction.getEventId();
+            log.info("Last payment sequence id {}", clearingTransaction.getSequenceId());
+            return clearingTransaction.getSequenceId();
         }
     }
 

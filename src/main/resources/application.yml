@@ -63,6 +63,28 @@ dmt:
     delay: 3000
     maxQuerySize: 10
 
+kafka:
+  bootstrap-servers: localhost:19092
+  client-id: midgard
+  ssl:
+    enabled: false
+    trust-store-location: "test"
+    trust-store-password: "test"
+    key-store-location: "test"
+    key-store-password: "test"
+    key-password: "test"
+    key-store-type: PKCS12
+    trust-store-type: PKCS12
+  consumer:
+    listener-startup: true
+    concurrency: 8
+    group-id: "MidgardListener"
+    enable-auto-commit: false
+    auto-offset-reset: earliest
+    max-poll-records: 20
+  topics:
+    invoicing: mg-invoice-100-2
+
 management:
   security:
     flag: false

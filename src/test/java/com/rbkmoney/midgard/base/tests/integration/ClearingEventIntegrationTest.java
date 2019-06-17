@@ -3,6 +3,7 @@ package com.rbkmoney.midgard.base.tests.integration;
 import com.rbkmoney.midgard.ClearingAdapterSrv;
 import com.rbkmoney.midgard.ClearingDataPackage;
 import com.rbkmoney.midgard.base.tests.integration.dao.TestTransactionsDao;
+import com.rbkmoney.midgard.base.tests.integration.data.ClearingEventTestData;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.service.clearing.dao.payment.PaymentDao;
 import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
@@ -15,16 +16,18 @@ import org.jooq.generated.midgard.enums.ClearingEventStatus;
 import org.jooq.generated.midgard.enums.TransactionClearingState;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static com.rbkmoney.midgard.base.tests.integration.data.ClearingEventTestData.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -68,6 +71,11 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private PaymentDao paymentDao;
 
+    @Before
+    public void init() throws IOException, SQLException {
+        initDb();
+    }
+
     @Test
     public void clearingEventIntegrationTest() throws Exception {
         testTransactionsDao = new TestTransactionsDao(dataSource);
@@ -81,7 +89,7 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
     }
 
     private ClearingEventInfo initClearingEventTest(long outerEventId) throws Exception {
-        clearingEventService.startClearingEvent(getClearingEvent(outerEventId, PROVIDER_ID));
+        clearingEventService.startClearingEvent(ClearingEventTestData.getClearingEvent(outerEventId, PROVIDER_ID));
         Thread.sleep(SLEEP_TIME);
         ClearingEventInfo clearingEvent = clearingEventInfoDao.getClearingEvent(outerEventId);
         assertNotNull("No clearing event was created for an external event ID " + outerEventId, clearingEvent);
@@ -119,8 +127,8 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
             String uploadId = "uploadId_" + clearingId;
             when(adapterSrv.startClearingEvent(clearingId)).thenReturn(uploadId);
             when(adapterSrv.sendClearingDataPackage(Mockito.any(String.class), Mockito.any(ClearingDataPackage.class)))
-                    .thenReturn(getDataPackageTag(1L, "tag_1"));
-            when(adapterSrv.getBankResponse(clearingId)).thenReturn(getSuccessClearingEventTestResponse(clearingId));
+                    .thenReturn(ClearingEventTestData.getDataPackageTag(1L, "tag_1"));
+            when(adapterSrv.getBankResponse(clearingId)).thenReturn(ClearingEventTestData.getSuccessClearingEventTestResponse(clearingId));
         }
 
         adapters.forEach(clearingAdapter -> clearingAdapter.setAdapter(adapterSrv));

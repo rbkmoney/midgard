@@ -6,10 +6,13 @@ import com.rbkmoney.midgard.service.clearing.importers.Importer;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.tables.pojos.Refund;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +32,11 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private Importer refundsImporter;
 
+    @Before
+    public void init() throws IOException, SQLException {
+        initDb();
+    }
+
     private static final int POOL_SIZE = 30;
 
     @Test
@@ -36,12 +44,14 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
         TestTransactionsDao testTransactionsDao = new TestTransactionsDao(dataSource);
 
         List<Integer> providerIds = new ArrayList<>();
+        providerIds.add(0);
+        String shopId = "Migration";
         List<Refund> refundList = new ArrayList<>();
         // Failure
-        refundList.add(getRefund(1L, "test_1"));
-        refundList.add(getRefund(2L, "test_2"));
-        refundList.add(getRefund(1L, "test_3"));
-        refundList.add(getRefund(3L, "test_2"));
+        refundList.add(getRefund(1L, "test_1", shopId));
+        refundList.add(getRefund(2L, "test_2", shopId));
+        refundList.add(getRefund(1L, "test_3", shopId));
+        refundList.add(getRefund(3L, "test_2", shopId));
         when(refundDao.getRefunds(0L, providerIds, POOL_SIZE)).thenReturn(refundList);
 
         try {
@@ -50,15 +60,15 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
             log.error("MigrationDataIntegrationTest | Error received", ex);
         }
 
-        Integer clearingRefundCount = testTransactionsDao.getClearingRefundCount();
+        Integer clearingRefundCount = testTransactionsDao.getClearingRefundCount(shopId);
         assertEquals("Count of refunds is not equal to the target", new Integer(0), clearingRefundCount);
 
         // Success
         refundList = new ArrayList<>();
-        refundList.add(getRefund(4L, "test_1"));
-        refundList.add(getRefund(5L, "test_2"));
-        refundList.add(getRefund(6L, "test_3"));
-        refundList.add(getRefund(7L, "test_2"));
+        refundList.add(getRefund(4L, "test_1", shopId));
+        refundList.add(getRefund(5L, "test_2", shopId));
+        refundList.add(getRefund(6L, "test_3", shopId));
+        refundList.add(getRefund(7L, "test_2", shopId));
         when(refundDao.getRefunds(0L, providerIds, POOL_SIZE)).thenReturn(refundList);
 
         try {
@@ -67,7 +77,7 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
             log.error("MigrationDataIntegrationTest | Error received", ex);
         }
 
-        clearingRefundCount = testTransactionsDao.getClearingRefundCount();
+        clearingRefundCount = testTransactionsDao.getClearingRefundCount(shopId);
         assertEquals("Count of refunds is not equal to the target", new Integer(4), clearingRefundCount);
 
     }

@@ -13,4 +13,5 @@ public interface PaymentDao extends Dao {
     void updateCommissions(Long pmntId) throws DaoException;
 
     void updateNotCurrent(String invoiceId, String paymentId) throws DaoException;
+
 }

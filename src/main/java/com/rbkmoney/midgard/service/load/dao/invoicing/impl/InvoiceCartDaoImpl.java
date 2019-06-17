@@ -29,7 +29,6 @@ public class InvoiceCartDaoImpl extends AbstractGenericDao implements InvoiceCar
 
     @Override
     public void save(List<InvoiceCart> invoiceCartList) throws DaoException {
-        //todo: Batch insert
         for (InvoiceCart invoiceCart : invoiceCartList) {
             InvoiceCartRecord record = getDslContext().newRecord(INVOICE_CART, invoiceCart);
             Query query = getDslContext().insertInto(INVOICE_CART).set(record);

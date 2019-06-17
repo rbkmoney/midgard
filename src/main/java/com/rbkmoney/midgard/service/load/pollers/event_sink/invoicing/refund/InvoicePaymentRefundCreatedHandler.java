@@ -1,7 +1,10 @@
 package com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.refund;
 
 import com.rbkmoney.damsel.domain.InvoicePaymentRefund;
-import com.rbkmoney.damsel.payment_processing.*;
+import com.rbkmoney.damsel.payment_processing.InvoiceChange;
+import com.rbkmoney.damsel.payment_processing.InvoicePaymentChange;
+import com.rbkmoney.damsel.payment_processing.InvoicePaymentRefundChange;
+import com.rbkmoney.damsel.payment_processing.InvoicePaymentRefundCreated;
 import com.rbkmoney.geck.common.util.TBaseUtil;
 import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.geck.filter.Filter;
@@ -11,16 +14,17 @@ import com.rbkmoney.geck.filter.rule.PathConditionRule;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.CashFlowDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.PaymentDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.RefundDao;
+import com.rbkmoney.midgard.service.load.model.SimpleEvent;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
 import com.rbkmoney.midgard.service.load.utils.CashFlowUtil;
 import com.rbkmoney.midgard.service.load.utils.JsonUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.enums.PaymentChangeType;
 import org.jooq.generated.feed.enums.RefundStatus;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
 import org.jooq.generated.feed.tables.pojos.Payment;
 import org.jooq.generated.feed.tables.pojos.Refund;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +32,7 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class InvoicePaymentRefundCreatedHandler extends AbstractInvoicingHandler {
 
     private final RefundDao refundDao;
@@ -36,25 +41,17 @@ public class InvoicePaymentRefundCreatedHandler extends AbstractInvoicingHandler
 
     private final CashFlowDao cashFlowDao;
 
-    private final Filter filter;
-
-    @Autowired
-    public InvoicePaymentRefundCreatedHandler(RefundDao refundDao, PaymentDao paymentDao, CashFlowDao cashFlowDao) {
-        this.refundDao = refundDao;
-        this.paymentDao = paymentDao;
-        this.filter = new PathConditionFilter(new PathConditionRule(
-                "invoice_payment_change.payload.invoice_payment_refund_change.payload.invoice_payment_refund_created",
-                new IsNullCondition().not()));
-        this.cashFlowDao = cashFlowDao;
-    }
+    private final Filter filter = new PathConditionFilter(new PathConditionRule(
+            "invoice_payment_change.payload.invoice_payment_refund_change.payload.invoice_payment_refund_created",
+            new IsNullCondition().not()));
 
     @Override
     @Transactional
-    public void handle(InvoiceChange invoiceChange, Event event) {
+    public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) {
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         String paymentId = invoicePaymentChange.getId();
-        long eventId = event.getId();
-        String invoiceId = event.getSource().getInvoiceId();
+        long sequenceId = event.getSequenceId();
+        String invoiceId = event.getSourceId();
 
         InvoicePaymentRefundChange invoicePaymentRefundChange = invoicePaymentChange.getPayload()
                 .getInvoicePaymentRefundChange();
@@ -64,22 +61,24 @@ public class InvoicePaymentRefundCreatedHandler extends AbstractInvoicingHandler
         InvoicePaymentRefund invoicePaymentRefund = invoicePaymentRefundCreated.getRefund();
 
         String refundId = invoicePaymentRefund.getId();
-        log.info("Start refund created handling, eventId={}, invoiceId={}, paymentId={}, refundId={}",
-                eventId, invoiceId, paymentId, refundId);
+        log.info("Start refund created handling, sequenceId={}, invoiceId={}, paymentId={}, refundId={}",
+                sequenceId, invoiceId, paymentId, refundId);
 
         Refund refund = new Refund();
-        refund.setEventId(eventId);
+        refund.setChangeId(changeId);
+        refund.setSequenceId(sequenceId);
         refund.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
         refund.setDomainRevision(invoicePaymentRefund.getDomainRevision());
         refund.setRefundId(refundId);
         refund.setPaymentId(paymentId);
         refund.setInvoiceId(invoiceId);
+        refund.setEventId(event.getEventId());
 
         Payment payment = paymentDao.get(invoiceId, paymentId);
         if (payment == null) {
             // TODO: исправить после того как прольется БД
-            log.error("Payment on refund not found, invoiceId='{}', " +
-                    "paymentId='{}', refundId='{}'", invoiceId, paymentId, refundId);
+            log.error("Payment on refund not found (invoiceId='{}', paymentId='{}', refundId='{}', sequenceId={})",
+                    invoiceId, paymentId, refundId, sequenceId);
             return;
             //throw new NotFoundException(String.format("Payment on refund not found, invoiceId='%s', " +
             //                "paymentId='%s', refundId='%s'", invoiceId, paymentId, refundId));
@@ -105,15 +104,19 @@ public class InvoicePaymentRefundCreatedHandler extends AbstractInvoicingHandler
             refund.setPartyRevision(invoicePaymentRefund.getPartyRevision());
         }
 
-        long rfndId = refundDao.save(refund);
+        Long rfndId = refundDao.save(refund);
+        if (rfndId == null) {
+            log.info("Refund with invoiceId='{}', refundId='{}', changeId='{}' and sequenceId='{}' already processed",
+                    invoiceId, refundId, changeId, sequenceId);
+        } else {
+            List<CashFlow> cashFlowList = CashFlowUtil.convertCashFlows(invoicePaymentRefundCreated.getCashFlow(),
+                    rfndId, PaymentChangeType.refund);
+            cashFlowDao.save(cashFlowList);
+            refundDao.updateCommissions(rfndId);
 
-        List<CashFlow> cashFlowList = CashFlowUtil.convertCashFlows(invoicePaymentRefundCreated.getCashFlow(),
-                rfndId, PaymentChangeType.refund);
-        cashFlowDao.save(cashFlowList);
-        refundDao.updateCommissions(rfndId);
-
-        log.info("Refund has been saved, eventId={}, invoiceId={}, paymentId={}, refundId={}",
-                eventId, invoiceId, paymentId, refundId);
+            log.info("Refund has been saved (invoiceId={}, paymentId={}, refundId={}, sequenceId={})",
+                    invoiceId, paymentId, refundId, sequenceId);
+        }
     }
 
     @Override

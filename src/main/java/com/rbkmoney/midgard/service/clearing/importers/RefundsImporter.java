@@ -64,8 +64,8 @@ public class RefundsImporter implements Importer {
 
     private void saveClearingRefundData(Refund refund) throws DaoException {
         ClearingRefund clearingRefund = MappingUtils.transformRefund(refund);
-        log.info("Saving a clearing refund with event id {} and invoice id {}",
-                refund.getEventId(), refund.getInvoiceId());
+        log.info("Saving a clearing refund with sequence id '{}' and invoice id '{}'",
+                refund.getSequenceId(), refund.getInvoiceId());
         log.debug("Saving a clearing refund {}", clearingRefund);
 
         if (clearingRefund.getTransactionId() == null) {
@@ -79,7 +79,7 @@ public class RefundsImporter implements Importer {
 
         List<CashFlow> cashFlow = paymentDao.getCashFlow(refund.getId());
         List<ClearingTransactionCashFlow> transactionCashFlowList =
-                transformCashFlow(cashFlow, clearingRefund.getEventId());
+                transformCashFlow(cashFlow, clearingRefund.getSequenceId());
         clearingCashFlowDao.save(transactionCashFlowList);
     }
 
@@ -89,8 +89,8 @@ public class RefundsImporter implements Importer {
             log.warn("Event ID for clearing refund was not found!");
             return 0L;
         } else {
-            log.info("Last refund event id {}", clearingRefund.getEventId());
-            return clearingRefund.getEventId();
+            log.info("Last refund sequence id {}", clearingRefund.getSequenceId());
+            return clearingRefund.getSequenceId();
         }
     }
 
