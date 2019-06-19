@@ -34,9 +34,6 @@ public class RefundsImporter implements Importer {
 
     private final ClearingCashFlowDao clearingCashFlowDao;
 
-    @Value("${import.trx-pool-size}")
-    private int poolSize;
-
     private static final String TRAN_ID_NULL_ERROR = "NULL value in column 'transaction_id'";
 
     /**
@@ -54,12 +51,12 @@ public class RefundsImporter implements Importer {
     @Override
     @Transactional
     public boolean importData(List<Integer> providerIds) throws DaoException {
-        List<Refund> refunds = refundDao.getRefunds(getLastTransactionEventId(), providerIds, poolSize);
+        List<Refund> refunds = refundDao.getRefunds(getLastTransactionEventId(), providerIds);
         for (Refund refund : refunds) {
             saveClearingRefundData(refund);
         }
         log.info("Number of imported refunds {}", refunds.size());
-        return refunds.size() == poolSize;
+        return refunds.size() > 0;
     }
 
     private void saveClearingRefundData(Refund refund) throws DaoException {
