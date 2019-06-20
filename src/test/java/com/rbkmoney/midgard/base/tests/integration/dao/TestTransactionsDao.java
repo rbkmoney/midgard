@@ -6,6 +6,8 @@ import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import org.jooq.Field;
 import org.jooq.Query;
 import org.jooq.Record1;
+import org.jooq.generated.feed.enums.PaymentStatus;
+import org.jooq.generated.feed.tables.Payment;
 import org.jooq.generated.midgard.enums.TransactionClearingState;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
 import org.springframework.jdbc.core.RowMapper;
@@ -13,6 +15,7 @@ import org.springframework.jdbc.core.RowMapper;
 import javax.sql.DataSource;
 import java.util.List;
 
+import static org.jooq.generated.feed.Tables.PAYMENT;
 import static org.jooq.generated.midgard.tables.ClearingRefund.CLEARING_REFUND;
 import static org.jooq.generated.midgard.tables.ClearingTransaction.CLEARING_TRANSACTION;
 import static org.jooq.impl.DSL.count;
@@ -48,6 +51,16 @@ public class TestTransactionsDao extends AbstractGenericDao {
         Record1<Integer> record = getDslContext().select(rowCount)
                 .from(CLEARING_REFUND)
                 .where(CLEARING_REFUND.SHOP_ID.equal(shopId))
+                .fetchOne();
+        return record.value1();
+    }
+
+    public Integer getPaymentsCount(List<Integer> providerIds) throws DaoException {
+        Field<Integer> rowCount = count(PAYMENT.INVOICE_ID).as("rowCount");
+        Record1<Integer> record = getDslContext().select(rowCount)
+                .from(PAYMENT)
+                .where(PAYMENT.STATUS.eq(PaymentStatus.captured))
+                .and(PAYMENT.ROUTE_PROVIDER_ID.in(providerIds))
                 .fetchOne();
         return record.value1();
     }

@@ -52,7 +52,7 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
         refundList.add(getRefund(2L, "test_2", shopId));
         refundList.add(getRefund(1L, "test_3", shopId));
         refundList.add(getRefund(3L, "test_2", shopId));
-        when(refundDao.getRefunds(0L, providerIds, POOL_SIZE)).thenReturn(refundList);
+        when(refundDao.getRefunds(0L, providerIds)).thenReturn(refundList);
 
         try {
             refundsImporter.importData(providerIds);
@@ -69,7 +69,7 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
         refundList.add(getRefund(5L, "test_2", shopId));
         refundList.add(getRefund(6L, "test_3", shopId));
         refundList.add(getRefund(7L, "test_2", shopId));
-        when(refundDao.getRefunds(0L, providerIds, POOL_SIZE)).thenReturn(refundList);
+        when(refundDao.getRefunds(0L, providerIds)).thenReturn(refundList);
 
         try {
             refundsImporter.importData(providerIds);

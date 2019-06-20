@@ -34,7 +34,7 @@ public class PaymentDaoImpl extends AbstractGenericDao implements PaymentDao {
         PaymentRecord paymentRecord = getDslContext().newRecord(PAYMENT, payment);
         Query query = getDslContext().insertInto(PAYMENT)
                 .set(paymentRecord)
-                .onConflict(PAYMENT.INVOICE_ID, PAYMENT.CHANGE_ID, PAYMENT.SEQUENCE_ID)
+                .onConflict(PAYMENT.INVOICE_ID, PAYMENT.SEQUENCE_ID, PAYMENT.CHANGE_ID)
                 .doNothing()
                 .returning(PAYMENT.ID);
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
