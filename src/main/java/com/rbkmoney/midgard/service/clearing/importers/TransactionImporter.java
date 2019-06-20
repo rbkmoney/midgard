@@ -30,6 +30,9 @@ public class TransactionImporter implements Importer {
 
     private final ClearingCashFlowDao cashFlowDao   ;
 
+    @Value("${import.trx-pool-size}")
+    private int poolSize;
+
     private static final String TRAN_ID_NULL_ERROR = "NULL value in column 'transaction_id'";
 
     /**
@@ -47,7 +50,7 @@ public class TransactionImporter implements Importer {
     @Override
     @Transactional
     public boolean importData(List<Integer> providerIds) throws DaoException {
-        List<Payment> payments = paymentDao.getPayments(getLastTransactionEventId(), providerIds);
+        List<Payment> payments = paymentDao.getPayments(getLastTransactionEventId(), providerIds, poolSize);
         for (Payment payment : payments) {
             saveTransaction(payment);
         }
@@ -65,7 +68,7 @@ public class TransactionImporter implements Importer {
             transaction.setTransactionClearingState(TransactionClearingState.FATAL);
             transaction.setComment(TRAN_ID_NULL_ERROR);
             transaction.setTransactionId(transaction.getInvoiceId() + transaction.getPaymentId());
-            log.error("The following error was detected during save: '{}'. The following object will be saved " +
+            log.error("The following error was detected during save: '{}'. \nThe following object will be saved " +
                     "to the database: {}", TRAN_ID_NULL_ERROR, transaction);
         }
         transactionsDao.save(transaction);

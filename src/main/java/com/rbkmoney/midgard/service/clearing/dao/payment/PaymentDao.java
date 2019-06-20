@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface PaymentDao {
 
-    List<Payment> getPayments(long eventId, List<Integer> providerIds) throws DaoException;
+    List<Payment> getPayments(long eventId, List<Integer> providerIds, int poolSize) throws DaoException;
 
     List<CashFlow> getCashFlow(long objId) throws DaoException;
 

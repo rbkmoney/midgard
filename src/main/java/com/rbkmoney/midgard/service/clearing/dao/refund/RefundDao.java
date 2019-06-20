@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface RefundDao {
 
-    List<Refund> getRefunds(long eventId, List<Integer> providerIds) throws DaoException;
+    List<Refund> getRefunds(long eventId, List<Integer> providerIds, int poolSize) throws DaoException;
 
 }
