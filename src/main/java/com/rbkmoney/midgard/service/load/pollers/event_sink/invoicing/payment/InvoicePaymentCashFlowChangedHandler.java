@@ -60,12 +60,12 @@ public class InvoicePaymentCashFlowChangedHandler extends AbstractInvoicingHandl
         paymentSource.setSequenceId(sequenceId);
         paymentSource.setEventId(event.getEventId());
         paymentSource.setEventCreatedAt(TypeUtil.stringToLocalDateTime(event.getCreatedAt()));
-        paymentDao.updateNotCurrent(invoiceId, paymentId);
         Long pmntId = paymentDao.save(paymentSource);
         if (pmntId == null) {
             log.info("Payment with invoiceId='{}', changeId='{}' and sequenceId='{}' already processed. " +
                     "A new cash flow status change record will not be added", invoiceId, changeId, sequenceId);
         } else {
+            paymentDao.updateNotCurrent(paymentSource.getId());
             List<CashFlow> cashFlows = CashFlowUtil.convertCashFlows(
                     invoicePaymentChange.getPayload().getInvoicePaymentCashFlowChanged().getCashFlow(),
                     pmntId,

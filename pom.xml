@@ -201,12 +201,12 @@
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>eventstock-client-damsel</artifactId>
-            <version>1.2.5</version>
+            <version>1.2.7</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>eventstock-client-fistful</artifactId>
-            <version>1.2.5</version>
+            <version>1.2.7</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>

@@ -69,13 +69,14 @@ public class InvoicePaymentRefundSessionChangeTransactionBoundHandler extends Ab
         TransactionInfo transactionInfo = payload.getSessionTransactionBound().getTrx();
         refundSource.setSessionPayloadTransactionBoundTrxId(transactionInfo.getId());
         refundSource.setSessionPayloadTransactionBoundTrxExtraJson(JsonUtil.objectToJsonString(transactionInfo.getExtra()));
-        refundDao.updateNotCurrent(invoiceId, paymentId, refundId);
+
         Long rfndId = refundDao.save(refundSource);
         if (rfndId == null) {
             log.info("Refund event with invoiceId='{}', changeId='{}' and sequenceId='{}' already processed. " +
                             "A new refund session transaction bound change record will not be added",
                     invoiceId, changeId, sequenceId);
         } else {
+            refundDao.updateNotCurrent(refundSourceId);
             List<CashFlow> cashFlows = cashFlowDao.getByObjId(refundSourceId, PaymentChangeType.refund);
             cashFlows.forEach(pcf -> {
                 pcf.setId(null);

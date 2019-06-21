@@ -63,9 +63,8 @@ public class PaymentDaoImpl extends AbstractGenericDao implements PaymentDao {
     }
 
     @Override
-    public void updateNotCurrent(String invoiceId, String paymentId) throws DaoException {
-        Query query = getDslContext().update(PAYMENT).set(PAYMENT.CURRENT, false)
-                .where(PAYMENT.INVOICE_ID.eq(invoiceId).and(PAYMENT.PAYMENT_ID.eq(paymentId).and(PAYMENT.CURRENT)));
+    public void updateNotCurrent(Long id) throws DaoException {
+        Query query = getDslContext().update(PAYMENT).set(PAYMENT.CURRENT, false).where(PAYMENT.ID.eq(id));
         execute(query);
     }
 

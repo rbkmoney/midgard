@@ -30,6 +30,7 @@ public class DataLoadConfig {
                 .withEventRetryDelay(partyManagementProperties.getPolling().getRetryDelay())
                 .withPollDelay(partyManagementProperties.getPolling().getDelay())
                 .withMaxQuerySize(partyManagementProperties.getPolling().getMaxQuerySize())
+                .withPollerName("PartyPoller")
                 .build();
     }
 
@@ -59,6 +60,7 @@ public class DataLoadConfig {
                     .withEventRetryDelay(invoicingProperties.getPolling().getRetryDelay())
                     .withPollDelay(invoicingProperties.getPolling().getDelay())
                     .withMaxQuerySize(invoicingProperties.getPolling().getMaxQuerySize())
+                    .withPollerName("InvoicePoller-" + i)
                     .build());
         }
         return eventPublishers;
