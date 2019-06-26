@@ -54,6 +54,7 @@ public class InvoicePaymentCashFlowChangedHandler extends AbstractInvoicingHandl
             //throw new NotFoundException(String.format("Payment not found, invoiceId='%s', paymentId='%s'",
             //        invoiceId, paymentId));
         }
+        Long paymentSourceId = paymentSource.getId();
         paymentSource.setId(null);
         paymentSource.setWtime(null);
         paymentSource.setChangeId(changeId);
@@ -65,7 +66,7 @@ public class InvoicePaymentCashFlowChangedHandler extends AbstractInvoicingHandl
             log.info("Payment with invoiceId='{}', changeId='{}' and sequenceId='{}' already processed. " +
                     "A new cash flow status change record will not be added", invoiceId, changeId, sequenceId);
         } else {
-            paymentDao.updateNotCurrent(paymentSource.getId());
+            paymentDao.updateNotCurrent(paymentSourceId);
             List<CashFlow> cashFlows = CashFlowUtil.convertCashFlows(
                     invoicePaymentChange.getPayload().getInvoicePaymentCashFlowChanged().getCashFlow(),
                     pmntId,

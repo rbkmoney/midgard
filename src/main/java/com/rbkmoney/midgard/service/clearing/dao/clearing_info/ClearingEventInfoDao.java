@@ -13,6 +13,8 @@ public interface ClearingEventInfoDao extends ClearingDao<ClearingEventInfo, Lon
 
     void updateClearingStatus(Long clearingId, ClearingEventStatus status);
 
+    void updateClearingStatus(Long eventId, Integer providerId, ClearingEventStatus status);
+
     List<ClearingEventInfo> getAllClearingEvents(ClearingEventStatus status);
 
     Long prepareTransactionData(long clearingId, int providerId);
