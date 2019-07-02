@@ -83,7 +83,9 @@ kafka:
     auto-offset-reset: earliest
     max-poll-records: 20
   topics:
-    invoicing: mg-invoice-100-2
+    invoice:
+      id: mg-invoice-100-2
+      enabled: false
 
 management:
   security:

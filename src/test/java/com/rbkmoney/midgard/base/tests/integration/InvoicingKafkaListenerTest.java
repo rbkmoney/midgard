@@ -1,13 +1,12 @@
 package com.rbkmoney.midgard.base.tests.integration;
 
 import com.rbkmoney.damsel.payment_processing.EventPayload;
-import com.rbkmoney.kafka.common.serializer.ThriftSerializer;
+import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.machinegun.eventsink.SinkEvent;
 import com.rbkmoney.machinegun.msgpack.Value;
-import com.rbkmoney.midgard.base.tests.integration.AbstractIntegrationTest;
-import com.rbkmoney.midgard.service.load.converter.SourceEventParser;
 import com.rbkmoney.midgard.service.load.services.InvoicingService;
+import com.rbkmoney.sink.common.parser.impl.MachineEventParser;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -31,14 +30,14 @@ import static org.mockito.ArgumentMatchers.any;
 @Slf4j
 public class InvoicingKafkaListenerTest extends AbstractIntegrationTest {
 
-    @org.springframework.beans.factory.annotation.Value("${kafka.topics.invoicing}")
+    @org.springframework.beans.factory.annotation.Value("${kafka.topics.invoice.id}")
     public String topic;
 
     @MockBean
     InvoicingService invoicingService;
 
     @MockBean
-    SourceEventParser eventParser;
+    MachineEventParser eventParser;
 
     @Before
     public void init() throws IOException, SQLException {
@@ -47,7 +46,7 @@ public class InvoicingKafkaListenerTest extends AbstractIntegrationTest {
 
     @Test
     public void listenEmptyChanges() throws InterruptedException {
-        Mockito.when(eventParser.parseEvent(any())).thenReturn(EventPayload.invoice_changes(emptyList()));
+        Mockito.when(eventParser.parse(any())).thenReturn(EventPayload.invoice_changes(emptyList()));
 
         SinkEvent sinkEvent = new SinkEvent();
         sinkEvent.setEvent(createMessage());
@@ -56,7 +55,7 @@ public class InvoicingKafkaListenerTest extends AbstractIntegrationTest {
 
         waitForTopicSync();
 
-        Mockito.verify(eventParser, Mockito.times(1)).parseEvent(any());
+        Mockito.verify(eventParser, Mockito.times(1)).parse(any());
         Mockito.verify(invoicingService, Mockito.times(1)).handleEvents(any(), any());
     }
 
