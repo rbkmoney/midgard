@@ -31,17 +31,9 @@ public class FeedPaymentDaoImpl extends AbstractGenericDao implements PaymentDao
     }
 
     @Override
-    public List<Payment> getPayments(long sequenceId, List<Integer> providerIds, int poolSize) throws DaoException {
+    public List<Payment> getPayments(long sourceRowId, List<Integer> providerIds, int poolSize) throws DaoException {
         Query query = getDslContext().selectFrom(PAYMENT)
-                .where(PAYMENT.SEQUENCE_ID.in(
-                        getDslContext()
-                                .select(PAYMENT.SEQUENCE_ID)
-                                .from(PAYMENT)
-                                .where(PAYMENT.SEQUENCE_ID.greaterThan(sequenceId))
-                                .and(PAYMENT.STATUS.eq(PaymentStatus.captured))
-                                .and(PAYMENT.ROUTE_PROVIDER_ID.in(providerIds))
-                                .groupBy(PAYMENT.SEQUENCE_ID).limit(poolSize)
-                ))
+                .where(PAYMENT.ID.greaterThan(sourceRowId))
                 .and(PAYMENT.STATUS.eq(PaymentStatus.captured))
                 .and(PAYMENT.ROUTE_PROVIDER_ID.in(providerIds));
         return fetch(query, paymentRowMapper);

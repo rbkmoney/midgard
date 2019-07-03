@@ -50,7 +50,7 @@ public class TransactionImporter implements Importer {
     @Override
     @Transactional
     public boolean importData(List<Integer> providerIds) throws DaoException {
-        List<Payment> payments = paymentDao.getPayments(getLastTransactionEventId(), providerIds, poolSize);
+        List<Payment> payments = paymentDao.getPayments(getLastTransactionRowId(), providerIds, poolSize);
         for (Payment payment : payments) {
             saveTransaction(payment);
         }
@@ -88,14 +88,14 @@ public class TransactionImporter implements Importer {
         cashFlowDao.save(tranCashFlow);
     }
 
-    private long getLastTransactionEventId() {
+    private long getLastTransactionRowId() {
         ClearingTransaction clearingTransaction = transactionsDao.getLastTransaction();
         if (clearingTransaction == null) {
             log.warn("Event ID for clearing transactions was not found!");
             return 0L;
         } else {
-            log.info("Last payment sequence id {}", clearingTransaction.getSequenceId());
-            return clearingTransaction.getSequenceId();
+            log.info("Last payment source row id {}", clearingTransaction.getSourceRowId());
+            return clearingTransaction.getSourceRowId();
         }
     }
 

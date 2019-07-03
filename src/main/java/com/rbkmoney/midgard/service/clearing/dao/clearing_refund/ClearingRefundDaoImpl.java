@@ -59,7 +59,8 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
     @Override
     public ClearingRefund getLastTransactionEvent() throws DaoException {
         Query query = getDslContext().selectFrom(CLEARING_REFUND)
-                .orderBy(CLEARING_REFUND.SEQUENCE_ID.desc())
+                .where(CLEARING_REFUND.SOURCE_ROW_ID.isNotNull())
+                .orderBy(CLEARING_REFUND.SOURCE_ROW_ID.desc())
                 .limit(1);
         return fetchOne(query, clearingRefundRowMapper);
     }
