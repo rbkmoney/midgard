@@ -141,6 +141,7 @@ public abstract class AbstractIntegrationTest {
                     "flyway.password=" + dbPassword,
                     "clearing-service.adapters.mts.providerId=1",
                     "bm.pollingEnabled=false",
+                    "import.migration.delay=10000",
 
                     "kafka.bootstrap-servers=" + kafka.getBootstrapServers(),
                     "kafka.ssl.enabled=false",
@@ -149,7 +150,8 @@ public abstract class AbstractIntegrationTest {
                     "kafka.consumer.auto-offset-reset=earliest",
                     "kafka.consumer.client-id=initConsumerTestClient",
                     "kafka.client-id=initTestClient",
-                    "kafka.topics.invoicing=test-topic")
+                    "kafka.topics.invoice.id=test-topic",
+                    "kafka.topics.invoice.enabled=true")
                     .applyTo(configurableApplicationContext.getEnvironment(), MAP, "testcontainers");
 
             if (postgres == null) {

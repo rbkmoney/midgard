@@ -8,6 +8,7 @@ import com.rbkmoney.midgard.service.clearing.handlers.Handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
+import org.jooq.generated.midgard.enums.ClearingEventStatus;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
 import org.springframework.stereotype.Service;
 
@@ -73,5 +74,15 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
         }
         return response;
     }
+
+    @Override
+    public void resendClearingFile(int providerId, long eventId) throws NoClearingEvent, TException {
+        log.info("Resend clearing file for provider id {} and event id {}. Update event status get started",
+                providerId, eventId);
+        clearingEventInfoDao.updateClearingStatus(eventId, providerId, ClearingEventStatus.STARTED);
+        log.info("Resend clearing file for provider id {} and event id {}. Update event status finished",
+                providerId, eventId);
+    }
+
 
 }

@@ -1,7 +1,6 @@
 package com.rbkmoney.midgard.service.load.converter;
 
 import com.rbkmoney.damsel.payment_processing.EventPayload;
-import com.rbkmoney.kafka.common.converter.BinaryConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TDeserializer;
 import org.apache.thrift.TException;

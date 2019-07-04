@@ -21,6 +21,8 @@ public final class MappingUtils {
     public static ClearingTransaction transformTransaction(Payment payment) {
         ClearingTransaction trx = new ClearingTransaction();
         trx.setSequenceId(payment.getSequenceId());
+        trx.setChangeId(payment.getChangeId());
+        trx.setSourceRowId(payment.getId());
         trx.setInvoiceId(payment.getInvoiceId());
         trx.setPaymentId(payment.getPaymentId());
         trx.setProviderId(payment.getRouteProviderId());
@@ -156,6 +158,8 @@ public final class MappingUtils {
     public static ClearingRefund transformRefund(Refund refund) {
         ClearingRefund clearingRefund = new ClearingRefund();
         clearingRefund.setSequenceId(refund.getSequenceId());
+        clearingRefund.setChangeId(refund.getChangeId());
+        clearingRefund.setSourceRowId(refund.getId());
         clearingRefund.setInvoiceId(refund.getInvoiceId());
         clearingRefund.setPaymentId(refund.getPaymentId());
         clearingRefund.setRefundId(refund.getRefundId());

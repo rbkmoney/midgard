@@ -54,12 +54,12 @@ public class RefundsImporter implements Importer {
     @Override
     @Transactional
     public boolean importData(List<Integer> providerIds) throws DaoException {
-        List<Refund> refunds = refundDao.getRefunds(getLastTransactionEventId(), providerIds, poolSize);
+        List<Refund> refunds = refundDao.getRefunds(getLastTransactionRowId(), providerIds, poolSize);
         for (Refund refund : refunds) {
             saveClearingRefundData(refund);
         }
         log.info("Number of imported refunds {}", refunds.size());
-        return refunds.size() == poolSize;
+        return refunds.size() > 0;
     }
 
     private void saveClearingRefundData(Refund refund) throws DaoException {
@@ -83,14 +83,14 @@ public class RefundsImporter implements Importer {
         clearingCashFlowDao.save(transactionCashFlowList);
     }
 
-    private long getLastTransactionEventId() {
+    private long getLastTransactionRowId() {
         ClearingRefund clearingRefund = clearingRefundDao.getLastTransactionEvent();
         if (clearingRefund == null) {
             log.warn("Event ID for clearing refund was not found!");
             return 0L;
         } else {
-            log.info("Last refund sequence id {}", clearingRefund.getSequenceId());
-            return clearingRefund.getSequenceId();
+            log.info("Last refund sequence id {}", clearingRefund.getSourceRowId());
+            return clearingRefund.getSourceRowId();
         }
     }
 

@@ -101,9 +101,11 @@ public class InvoicePaymentAdjustmentCreatedHandler extends AbstractInvoicingHan
             List<CashFlow> newCashFlowList = CashFlowUtil.convertCashFlows(invoicePaymentAdjustment.getNewCashFlow(),
                     adjId, PaymentChangeType.adjustment, AdjustmentCashFlowType.new_cash_flow);
             cashFlowDao.save(newCashFlowList);
+
             List<CashFlow> oldCashFlowList = CashFlowUtil.convertCashFlows(invoicePaymentAdjustment.getOldCashFlowInverse(),
                     adjId, PaymentChangeType.adjustment, AdjustmentCashFlowType.old_cash_flow_inverse);
             cashFlowDao.save(oldCashFlowList);
+
             adjustmentDao.updateCommissions(adjId);
 
             log.info("Adjustment with invoiceId={}, paymentId={}, adjustmentId={} and sequenceId={} has been saved",

@@ -68,7 +68,7 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
             }
 
             adapter.completeClearingEvent(uploadId, clearingId, tagList);
-            eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.EXECUTE);
+            eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.COMPLETE);
             log.info("Transfer data to clearing adapter {} with clearing id {} was finished",
                     event.getClearingAdapter().getAdapterName(), clearingId);
         } catch (ClearingAdapterException ex) {

@@ -50,12 +50,12 @@ public class TransactionImporter implements Importer {
     @Override
     @Transactional
     public boolean importData(List<Integer> providerIds) throws DaoException {
-        List<Payment> payments = paymentDao.getPayments(getLastTransactionEventId(), providerIds, poolSize);
+        List<Payment> payments = paymentDao.getPayments(getLastTransactionRowId(), providerIds, poolSize);
         for (Payment payment : payments) {
             saveTransaction(payment);
         }
         log.info("Number of imported payments {}", payments.size());
-        return payments.size() == poolSize;
+        return payments.size() > 0;
     }
 
     private void saveTransaction(Payment payment) throws DaoException {
@@ -68,7 +68,7 @@ public class TransactionImporter implements Importer {
             transaction.setTransactionClearingState(TransactionClearingState.FATAL);
             transaction.setComment(TRAN_ID_NULL_ERROR);
             transaction.setTransactionId(transaction.getInvoiceId() + transaction.getPaymentId());
-            log.error("The following error was detected during save: '{}'. The following object will be saved " +
+            log.error("The following error was detected during save: '{}'. \nThe following object will be saved " +
                     "to the database: {}", TRAN_ID_NULL_ERROR, transaction);
         }
         transactionsDao.save(transaction);
@@ -88,14 +88,14 @@ public class TransactionImporter implements Importer {
         cashFlowDao.save(tranCashFlow);
     }
 
-    private long getLastTransactionEventId() {
+    private long getLastTransactionRowId() {
         ClearingTransaction clearingTransaction = transactionsDao.getLastTransaction();
         if (clearingTransaction == null) {
             log.warn("Event ID for clearing transactions was not found!");
             return 0L;
         } else {
-            log.info("Last payment sequence id {}", clearingTransaction.getSequenceId());
-            return clearingTransaction.getSequenceId();
+            log.info("Last payment source row id {}", clearingTransaction.getSourceRowId());
+            return clearingTransaction.getSourceRowId();
         }
     }
 

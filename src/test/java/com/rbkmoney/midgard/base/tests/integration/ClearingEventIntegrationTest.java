@@ -8,9 +8,11 @@ import com.rbkmoney.midgard.service.clearing.dao.clearing_info.ClearingEventInfo
 import com.rbkmoney.midgard.service.clearing.dao.payment.PaymentDao;
 import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
 import com.rbkmoney.midgard.service.clearing.data.ClearingAdapter;
+import com.rbkmoney.midgard.service.clearing.importers.Importer;
 import com.rbkmoney.midgard.service.clearing.services.ClearingEventService;
 import com.rbkmoney.midgard.service.clearing.services.ClearingRevisionService;
 import com.rbkmoney.midgard.service.clearing.services.MigrationDataService;
+import edu.emory.mathcs.backport.java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.midgard.enums.ClearingEventStatus;
 import org.jooq.generated.midgard.enums.TransactionClearingState;
@@ -45,7 +47,7 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
     private MigrationDataService migrationDataService;
 
     @Autowired
-    private ClearingRevisionService clearingRevisionService;
+    private Importer transactionImporter;
 
     @Autowired
     private TransactionsDao transactionsDao;
@@ -58,7 +60,7 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
 
     private TestTransactionsDao testTransactionsDao;
 
-    private static final int PROVIDER_ID = 1;
+    private static final Integer PROVIDER_ID = 1;
 
     private static final int CLEARING_EVENTS_COUNT = 5;
 
@@ -66,7 +68,7 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
 
     private static final int RETRY_COUNT = 12;
 
-    private static final long SLEEP_TIME = 10000;
+    private static final long SLEEP_TIME = 15000;
 
     @Autowired
     private PaymentDao paymentDao;
@@ -105,7 +107,9 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
     }
 
     private void revisionTest(long outerEventId, long clearingId) throws Exception {
-        clearingRevisionService.process();
+        List<Integer> providers = new ArrayList<>();
+        providers.add(PROVIDER_ID);
+        transactionImporter.importData(providers);
         Thread.sleep(SLEEP_TIME);
 
         ClearingTransaction lastTransaction = transactionsDao.getLastTransaction();
@@ -128,7 +132,8 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
             when(adapterSrv.startClearingEvent(clearingId)).thenReturn(uploadId);
             when(adapterSrv.sendClearingDataPackage(Mockito.any(String.class), Mockito.any(ClearingDataPackage.class)))
                     .thenReturn(ClearingEventTestData.getDataPackageTag(1L, "tag_1"));
-            when(adapterSrv.getBankResponse(clearingId)).thenReturn(ClearingEventTestData.getSuccessClearingEventTestResponse(clearingId));
+            when(adapterSrv.getBankResponse(clearingId))
+                    .thenReturn(ClearingEventTestData.getSuccessClearingEventTestResponse(clearingId));
         }
 
         adapters.forEach(clearingAdapter -> clearingAdapter.setAdapter(adapterSrv));
@@ -136,7 +141,8 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
 
         List<Integer> providerIds = new ArrayList<>();
         providerIds.add(PROVIDER_ID);
-        Supplier paymentSupplier = () -> paymentDao.getPayments(0, providerIds, 100).size();
+
+        Supplier paymentSupplier = () -> testTransactionsDao.getPaymentsCount(providerIds);
         waitingFillingTable(paymentSupplier, CLEARING_TRX_COUNT, "Payment");
 
         Supplier trxSupplier = () -> testTransactionsDao.getReadyClearingTransactionsCount(PROVIDER_ID);

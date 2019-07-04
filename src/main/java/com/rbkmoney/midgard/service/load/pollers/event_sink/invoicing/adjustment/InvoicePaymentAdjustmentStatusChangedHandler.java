@@ -78,12 +78,13 @@ public class InvoicePaymentAdjustmentStatusChangedHandler extends AbstractInvoic
             adjustmentSource.setStatusCapturedAt(null);
             adjustmentSource.setStatusCancelledAt(TypeUtil.stringToLocalDateTime(invoicePaymentAdjustmentStatus.getCancelled().getAt()));
         }
-        adjustmentDao.updateNotCurrent(invoiceId, paymentId, adjustmentId);
+
         Long adjId = adjustmentDao.save(adjustmentSource);
         if (adjId == null) {
             log.info("Received duplicate key value when change payment adjustment status with " +
                     "invoiceId='{}', changeId='{}', sequenceId='{}'", invoiceId, changeId, sequenceId);
         } else {
+            adjustmentDao.updateNotCurrent(adjustmentSourceId);
             List<CashFlow> newCashFlows = cashFlowDao.getForAdjustments(adjustmentSourceId, AdjustmentCashFlowType.new_cash_flow);
             newCashFlows.forEach(pcf -> {
                 pcf.setId(null);

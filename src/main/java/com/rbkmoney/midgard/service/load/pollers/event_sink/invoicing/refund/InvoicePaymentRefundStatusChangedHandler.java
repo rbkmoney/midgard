@@ -77,12 +77,12 @@ public class InvoicePaymentRefundStatusChangedHandler extends AbstractInvoicingH
         } else {
             refundSource.setStatusFailedFailure(null);
         }
-        refundDao.updateNotCurrent(invoiceId, paymentId, refundId);
         Long rfndId = refundDao.save(refundSource);
         if (rfndId == null) {
             log.info("Refund event with invoiceId='{}', changeId='{}' and sequenceId='{}' already processed. " +
                     "A new status change record will not be added", invoiceId, changeId, sequenceId);
         } else {
+            refundDao.updateNotCurrent(refundSourceId);
             List<CashFlow> cashFlows = cashFlowDao.getByObjId(refundSourceId, PaymentChangeType.refund);
             cashFlows.forEach(pcf -> {
                 pcf.setId(null);

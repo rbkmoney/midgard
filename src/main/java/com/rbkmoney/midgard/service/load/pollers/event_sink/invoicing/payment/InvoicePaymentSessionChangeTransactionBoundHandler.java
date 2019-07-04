@@ -68,12 +68,12 @@ public class InvoicePaymentSessionChangeTransactionBoundHandler extends Abstract
         TransactionInfo transactionInfo = payload.getSessionTransactionBound().getTrx();
         paymentSource.setSessionPayloadTransactionBoundTrxId(transactionInfo.getId());
         paymentSource.setSessionPayloadTransactionBoundTrxExtraJson(JsonUtil.objectToJsonString(transactionInfo.getExtra()));
-        paymentDao.updateNotCurrent(invoiceId, paymentId);
         Long pmntId = paymentDao.save(paymentSource);
         if (pmntId == null) {
             log.info("Payment with invoiceId='{}', changeId='{}' and sequenceId='{}' already processed. " +
                     "A new payment session transaction bound record will not be added", invoiceId, changeId, sequenceId);
         } else {
+            paymentDao.updateNotCurrent(paymentSourceId);
             List<CashFlow> cashFlows = cashFlowDao.getByObjId(paymentSourceId, PaymentChangeType.payment);
             cashFlows.forEach(pcf -> {
                 pcf.setId(null);

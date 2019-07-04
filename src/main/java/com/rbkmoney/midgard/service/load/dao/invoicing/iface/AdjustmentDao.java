@@ -12,6 +12,6 @@ public interface AdjustmentDao extends Dao {
 
     void updateCommissions(Long adjId) throws DaoException;
 
-    void updateNotCurrent(String invoiceId, String paymentId, String adjustmentId) throws DaoException;
+    void updateNotCurrent(Long id) throws DaoException;
 
 }

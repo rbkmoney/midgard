@@ -86,12 +86,12 @@ public class InvoicePaymentStatusChangedHandler extends AbstractInvoicingHandler
             paymentSource.setStatusFailedFailure(JsonUtil.tBaseToJsonString(invoicePaymentStatus.getFailed()));
         }
 
-        paymentDao.updateNotCurrent(invoiceId, paymentId);
         Long pmntId = paymentDao.save(paymentSource);
         if (pmntId == null) {
             log.info("Payment with invoiceId='{}', changeId='{}' and sequenceId='{}' already processed. " +
                     "A new payment status change record will not be added", invoiceId, changeId, sequenceId);
         } else {
+            paymentDao.updateNotCurrent(paymentSourceId);
             List<CashFlow> cashFlows = cashFlowDao.getByObjId(paymentSourceId, PaymentChangeType.payment);
             cashFlows.forEach(pcf -> {
                 pcf.setId(null);

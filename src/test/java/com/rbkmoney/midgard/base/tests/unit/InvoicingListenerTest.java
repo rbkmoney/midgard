@@ -5,10 +5,10 @@ import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.machinegun.eventsink.SinkEvent;
-import com.rbkmoney.midgard.service.load.converter.SourceEventParser;
 import com.rbkmoney.midgard.service.load.exceptions.ParseException;
 import com.rbkmoney.midgard.service.load.pollers.listeners.InvoicingKafkaListener;
 import com.rbkmoney.midgard.service.load.services.InvoicingService;
+import com.rbkmoney.sink.common.parser.impl.MachineEventParser;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -26,7 +26,7 @@ public class InvoicingListenerTest {
     @Mock
     private InvoicingService invoicingService;
     @Mock
-    private SourceEventParser eventParser;
+    private MachineEventParser eventParser;
     @Mock
     private Acknowledgment ack;
 
@@ -46,7 +46,7 @@ public class InvoicingListenerTest {
         EventPayload payload = new EventPayload();
         payload.setCustomerChanges(List.of());
         event.setPayload(payload);
-        Mockito.when(eventParser.parseEvent(message)).thenReturn(payload);
+        Mockito.when(eventParser.parse(message)).thenReturn(payload);
 
         SinkEvent sinkEvent = new SinkEvent();
         sinkEvent.setEvent(message);
@@ -64,7 +64,7 @@ public class InvoicingListenerTest {
         SinkEvent sinkEvent = new SinkEvent();
         sinkEvent.setEvent(message);
 
-        Mockito.when(eventParser.parseEvent(message)).thenThrow(new ParseException());
+        Mockito.when(eventParser.parse(message)).thenThrow(new ParseException());
 
         listener.handle(sinkEvent, ack);
 
@@ -80,7 +80,7 @@ public class InvoicingListenerTest {
         invoiceChanges.add(new InvoiceChange());
         payload.setInvoiceChanges(invoiceChanges);
         event.setPayload(payload);
-        Mockito.when(eventParser.parseEvent(message)).thenReturn(payload);
+        Mockito.when(eventParser.parse(message)).thenReturn(payload);
 
         SinkEvent sinkEvent = new SinkEvent();
         sinkEvent.setEvent(message);

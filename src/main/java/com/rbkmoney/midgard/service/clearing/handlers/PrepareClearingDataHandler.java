@@ -10,6 +10,7 @@ import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.jooq.generated.midgard.enums.ClearingEventStatus.CREATED;
 import static org.jooq.generated.midgard.enums.ClearingEventStatus.STARTED;
 
 @Slf4j
@@ -29,6 +30,7 @@ public class PrepareClearingDataHandler implements Handler<ClearingEvent> {
             // Подготовка транзакций для клиринга
             Long clearingId = createNewClearingEvent(eventId, providerId);
             clearingEventInfoDao.prepareTransactionData(clearingId, providerId);
+            clearingEventInfoDao.updateClearingStatus(clearingId, STARTED);
             log.info("Clearint event {} was created. Clearing data for provider id {} prepared",
                     clearingId, providerId);
         } catch (AdapterNotFoundException ex) {
@@ -44,7 +46,7 @@ public class PrepareClearingDataHandler implements Handler<ClearingEvent> {
         ClearingEventInfo clearingEvent = new ClearingEventInfo();
         clearingEvent.setProviderId(providerId);
         clearingEvent.setEventId(eventId);
-        clearingEvent.setStatus(STARTED);
+        clearingEvent.setStatus(CREATED);
         return clearingEventInfoDao.save(clearingEvent);
     }
 
