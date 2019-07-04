@@ -31,11 +31,17 @@ public class ClearingEventTestData {
         return response;
     }
 
-    public static Refund getRefund(Long sequenceId, String transactionId, String shopId) {
+    public static Refund getRefund(Long id,
+                                   String invoiceId,
+                                   Long sequenceId,
+                                   Integer changeId,
+                                   String transactionId,
+                                   String shopId) {
         Refund refund = new Refund();
-        refund.setId(0L);
+        refund.setId(id);
+        refund.setInvoiceId(invoiceId);
         refund.setSequenceId(sequenceId);
-        refund.setInvoiceId("inv_id");
+        refund.setChangeId(changeId);
         refund.setPaymentId("pmt_id");
         refund.setRefundId("rfnd_id");
         refund.setSessionPayloadTransactionBoundTrxId(transactionId);

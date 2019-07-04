@@ -48,10 +48,11 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
         String shopId = "Migration";
         List<Refund> refundList = new ArrayList<>();
         // Failure
-        refundList.add(getRefund(1L, "test_1", shopId));
-        refundList.add(getRefund(2L, "test_2", shopId));
-        refundList.add(getRefund(1L, "test_3", shopId));
-        refundList.add(getRefund(3L, "test_2", shopId));
+        refundList.add(getRefund(1L,"invoice_1", 1L, 1, "tran_id_1", shopId));
+        refundList.add(getRefund(2L,"invoice_2", 1L, 1, "tran_id_2", shopId));
+        refundList.add(getRefund(3L,"invoice_3", 1L, 1, "tran_id_3", shopId));
+        refundList.add(getRefund(4L,"invoice_2", 1L, 1, "tran_id_2", shopId));
+
         when(refundDao.getRefunds(0L, providerIds, POOL_SIZE)).thenReturn(refundList);
 
         try {
@@ -65,10 +66,11 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
 
         // Success
         refundList = new ArrayList<>();
-        refundList.add(getRefund(4L, "test_1", shopId));
-        refundList.add(getRefund(5L, "test_2", shopId));
-        refundList.add(getRefund(6L, "test_3", shopId));
-        refundList.add(getRefund(7L, "test_2", shopId));
+        refundList.add(getRefund(4L,"invoice_4", 1L, 1, "tran_id_4", shopId));
+        refundList.add(getRefund(5L,"invoice_5", 1L, 1, "tran_id_5", shopId));
+        refundList.add(getRefund(6L,"invoice_6", 1L, 1, "tran_id_6", shopId));
+        refundList.add(getRefund(7L,"invoice_7", 1L, 1, "tran_id_7", shopId));
+
         when(refundDao.getRefunds(0L, providerIds, POOL_SIZE)).thenReturn(refundList);
 
         try {

@@ -141,6 +141,7 @@ public abstract class AbstractIntegrationTest {
                     "flyway.password=" + dbPassword,
                     "clearing-service.adapters.mts.providerId=1",
                     "bm.pollingEnabled=false",
+                    "import.migration.delay=10000",
 
                     "kafka.bootstrap-servers=" + kafka.getBootstrapServers(),
                     "kafka.ssl.enabled=false",

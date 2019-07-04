@@ -13,8 +13,8 @@ import org.springframework.kafka.annotation.EnableKafka;
 @EnableKafka
 public class KafkaConsumerBeanEnableConfig {
 
-    @Bean
-    @ConditionalOnProperty(value = "kafka.topics.invoice.enabled", havingValue = "true")
+    //@Bean
+    //@ConditionalOnProperty(value = "kafka.topics.invoice.enabled", havingValue = "true")
     public InvoicingKafkaListener paymentEventsKafkaListener(InvoicingService invoicingService,
                                                              MachineEventParser<EventPayload> parser) {
         return new InvoicingKafkaListener(invoicingService, parser);
