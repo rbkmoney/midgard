@@ -8,8 +8,8 @@ BEGIN
      ALTER TABLE feed.invoice ALTER COLUMN event_id DROP NOT NULL;
      ALTER TABLE feed.invoice ADD COLUMN sequence_id BIGINT;
      ALTER TABLE feed.invoice ADD COLUMN change_id INT;
-     UPDATE feed.invoice SET sequence_id = event_id, change_id = id;
-     ALTER TABLE feed.invoice ADD CONSTRAINT invoice_uniq UNIQUE (invoice_id, sequence_id, change_id);
+     UPDATE feed.invoice SET sequence_id = event_id, change_id = id WHERE sequence_id IS NULL OR change_id IS NULL;
+     CREATE UNIQUE INDEX IF NOT EXISTS invoice_uniq ON feed.invoice(invoice_id, sequence_id, change_id);
  END IF;
 
 
@@ -22,7 +22,7 @@ THEN
     ALTER TABLE feed.payment ADD COLUMN sequence_id BIGINT;
     ALTER TABLE feed.payment ADD COLUMN change_id INT;
     UPDATE feed.payment SET sequence_id = event_id, change_id = id;
-    ALTER TABLE feed.payment ADD CONSTRAINT payment_uniq UNIQUE (invoice_id, sequence_id, change_id);
+    CREATE UNIQUE INDEX IF NOT EXISTS payment_uniq ON feed.payment(invoice_id, sequence_id, change_id);
 END IF;
 
 
@@ -35,7 +35,7 @@ END IF;
      ALTER TABLE feed.refund ADD COLUMN sequence_id BIGINT;
      ALTER TABLE feed.refund ADD COLUMN change_id INT;
      UPDATE feed.refund SET sequence_id = event_id, change_id = id;
-     ALTER TABLE feed.refund ADD CONSTRAINT refund_uniq UNIQUE (invoice_id, sequence_id, change_id);
+     CREATE UNIQUE INDEX IF NOT EXISTS refund_uniq ON feed.refund(invoice_id, sequence_id, change_id);
  END IF;
 
 
@@ -48,7 +48,7 @@ END IF;
      ALTER TABLE feed.adjustment ADD COLUMN sequence_id BIGINT;
      ALTER TABLE feed.adjustment ADD COLUMN change_id INT;
      UPDATE feed.adjustment SET sequence_id = event_id, change_id = id;
-     ALTER TABLE feed.adjustment ADD CONSTRAINT adjustment_uniq UNIQUE (invoice_id, sequence_id, change_id);
+     CREATE UNIQUE INDEX IF NOT EXISTS adjustment_uniq ON feed.adjustment(invoice_id, sequence_id, change_id);
  END IF;
 
 
@@ -62,7 +62,7 @@ END IF;
      ALTER TABLE midgard.clearing_transaction ADD COLUMN sequence_id BIGINT;
      ALTER TABLE midgard.clearing_transaction ADD COLUMN change_id INT;
      UPDATE midgard.clearing_transaction SET sequence_id = event_id, change_id = event_id;
-     ALTER TABLE midgard.clearing_transaction ADD CONSTRAINT clearing_transaction_uniq UNIQUE (invoice_id, sequence_id, change_id);
+     CREATE UNIQUE INDEX IF NOT EXISTS clearing_transaction_uniq ON midgard.clearing_transaction(invoice_id, sequence_id, change_id);
  END IF;
 
 
@@ -76,7 +76,7 @@ END IF;
      ALTER TABLE midgard.clearing_refund ADD COLUMN sequence_id BIGINT;
      ALTER TABLE midgard.clearing_refund ADD COLUMN change_id INT;
      UPDATE midgard.clearing_refund SET sequence_id = event_id, change_id = event_id;
-     ALTER TABLE midgard.clearing_refund ADD CONSTRAINT clearing_refund_uniq UNIQUE (invoice_id, sequence_id, change_id);
+     CREATE UNIQUE INDEX IF NOT EXISTS clearing_refund_uniq ON midgard.clearing_refund(invoice_id, sequence_id, change_id);
  END IF;
 
 END; $$
