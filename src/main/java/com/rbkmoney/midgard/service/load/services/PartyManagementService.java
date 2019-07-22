@@ -42,8 +42,8 @@ public class PartyManagementService implements EventService<Event, EventPayload>
     }
 
     @Override
-    public Optional<Long> getLastEventId(int div, int mod) throws Exception {
-        throw new Exception("The method is not implemented");
+    public Optional<Long> getLastEventId(int div, int mod) {
+        throw new RuntimeException("Not supported");
     }
 
 }
