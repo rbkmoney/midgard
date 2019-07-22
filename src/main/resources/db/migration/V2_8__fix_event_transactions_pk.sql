@@ -1,4 +1,0 @@
-ALTER TABLE midgard.clearing_event_transaction_info DROP CONSTRAINT clearing_event_transaction_info_pk;
-
-ALTER TABLE midgard.clearing_event_transaction_info
-ADD CONSTRAINT clearing_event_transaction_info_pk PRIMARY KEY (clearing_id, invoice_id, payment_id, transaction_type);
