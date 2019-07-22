@@ -80,7 +80,7 @@ kafka:
     concurrency: 8
     group-id: "MidgardListener"
     enable-auto-commit: false
-    auto-offset-reset: earliest
+    auto-offset-reset: latest
     max-poll-records: 20
   topics:
     invoice:

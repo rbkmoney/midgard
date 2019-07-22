@@ -60,4 +60,9 @@ public class InvoicingService implements EventService<SimpleEvent, EventPayload>
         }
     }
 
+    @Override
+    public Optional<Long> getLastEventId() {
+        throw new RuntimeException("No longer supported");
+    }
+
 }
