@@ -60,4 +60,9 @@ public class InvoicingService implements EventService<SimpleEvent, EventPayload>
         }
     }
 
+    @Override
+    public Optional<Long> getLastEventId() throws Exception {
+        throw new Exception("The method is not implemented");
+    }
+
 }

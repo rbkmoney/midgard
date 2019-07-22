@@ -40,4 +40,10 @@ public class PartyManagementService implements EventService<Event, EventPayload>
         log.info("Last party management eventId={}", lastEventId);
         return lastEventId;
     }
+
+    @Override
+    public Optional<Long> getLastEventId(int div, int mod) throws Exception {
+        throw new Exception("The method is not implemented");
+    }
+
 }

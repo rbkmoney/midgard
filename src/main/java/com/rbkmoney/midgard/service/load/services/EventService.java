@@ -4,13 +4,9 @@ import java.util.Optional;
 
 public interface EventService<TEvent, TPayload> {
 
-    default Optional<Long> getLastEventId() throws Exception {
-        throw new Exception("The method is not implemented");
-    }
+    Optional<Long> getLastEventId() throws Exception;
 
-    default Optional<Long> getLastEventId(int div, int mod) throws Exception {
-        throw new Exception("The method is not implemented");
-    }
+    Optional<Long> getLastEventId(int div, int mod) throws Exception;
 
     void handleEvents(TEvent processingEvent, TPayload payload);
 
