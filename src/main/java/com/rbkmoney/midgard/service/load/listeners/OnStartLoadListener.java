@@ -7,6 +7,7 @@ import com.rbkmoney.eventstock.client.EventConstraint;
 import com.rbkmoney.eventstock.client.EventPublisher;
 import com.rbkmoney.eventstock.client.SubscriberConfig;
 import com.rbkmoney.eventstock.client.poll.EventFlowFilter;
+import com.rbkmoney.midgard.service.load.model.SimpleEvent;
 import com.rbkmoney.midgard.service.load.pollers.event_sink.InvoicingEventStockHandler;
 import com.rbkmoney.midgard.service.load.services.EventService;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,7 @@ public class OnStartLoadListener implements ApplicationListener<ApplicationReady
 
     private final List<InvoicingEventStockHandler> invoicingEventStockHandlers;
 
-    private final EventService<Event, EventPayload> invoicingService;
+    private final EventService<SimpleEvent, EventPayload> invoicingService;
 
     public OnStartLoadListener(EventPublisher partyManagementEventPublisher,
                                @Qualifier("invoicingEventPublishers")
@@ -40,7 +41,7 @@ public class OnStartLoadListener implements ApplicationListener<ApplicationReady
                                List<InvoicingEventStockHandler> invoicingEventStockHandlers,
 
                                EventService<Event, EventPayload> partyManagementService,
-                               EventService<Event, EventPayload> invoicingService) {
+                               EventService<SimpleEvent, EventPayload> invoicingService) {
         this.partyManagementEventPublisher = partyManagementEventPublisher;
         this.invoicingEventPublishers = invoicingEventPublishers;
         this.invoicingEventStockHandlers = invoicingEventStockHandlers;

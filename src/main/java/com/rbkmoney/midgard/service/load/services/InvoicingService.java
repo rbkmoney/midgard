@@ -2,7 +2,6 @@ package com.rbkmoney.midgard.service.load.services;
 
 import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
-import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.InvoiceDao;
 import com.rbkmoney.midgard.service.load.model.SimpleEvent;
