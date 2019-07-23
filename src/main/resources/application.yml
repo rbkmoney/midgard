@@ -56,13 +56,6 @@ bm:
       maxPoolSize: 1
       maxQuerySize: 300
 
-dmt:
-  url: http://dominant:8022/v1/domain/repository
-  networkTimeout: 5000
-  polling:
-    delay: 3000
-    maxQuerySize: 10
-
 kafka:
   bootstrap-servers: localhost:19092
   client-id: midgard
@@ -76,7 +69,6 @@ kafka:
     key-store-type: PKCS12
     trust-store-type: PKCS12
   consumer:
-    listener-startup: true
     concurrency: 8
     group-id: "MidgardListener"
     enable-auto-commit: false
