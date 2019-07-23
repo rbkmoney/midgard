@@ -11,7 +11,7 @@ import com.rbkmoney.midgard.service.load.pollers.event_sink.InvoicingEventStockH
 import com.rbkmoney.midgard.service.load.services.EventService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -21,6 +21,7 @@ import java.util.Optional;
 
 @Slf4j
 @Component
+@ConditionalOnProperty(value = "bm.pollingEnabled", havingValue = "true")
 public class OnStartLoadListener implements ApplicationListener<ApplicationReadyEvent> {
 
     private final EventPublisher partyManagementEventPublisher;
@@ -32,9 +33,6 @@ public class OnStartLoadListener implements ApplicationListener<ApplicationReady
     private final List<InvoicingEventStockHandler> invoicingEventStockHandlers;
 
     private final EventService<Event, EventPayload> invoicingService;
-
-    @Value("${bm.pollingEnabled}")
-    private boolean pollingEnabled;
 
     public OnStartLoadListener(EventPublisher partyManagementEventPublisher,
                                @Qualifier("invoicingEventPublishers")
@@ -54,14 +52,12 @@ public class OnStartLoadListener implements ApplicationListener<ApplicationReady
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
         try {
-            if (pollingEnabled) {
-                partyManagementEventPublisher.subscribe(buildSubscriberConfig(partyManagementService.getLastEventId()));
-                for (int i = 0; i < invoicingEventPublishers.size(); ++i) {
-                    InvoicingEventStockHandler invoicingEventStockHandler = invoicingEventStockHandlers.get(i);
-                    Optional<Long> lastEventId = invoicingService.getLastEventId(invoicingEventStockHandler.getDivider(),
-                            invoicingEventStockHandler.getMod());
-                    invoicingEventPublishers.get(i).subscribe(buildSubscriberConfig(lastEventId));
-                }
+            partyManagementEventPublisher.subscribe(buildSubscriberConfig(partyManagementService.getLastEventId()));
+            for (int i = 0; i < invoicingEventPublishers.size(); ++i) {
+                InvoicingEventStockHandler invoicingEventStockHandler = invoicingEventStockHandlers.get(i);
+                Optional<Long> lastEventId = invoicingService.getLastEventId(invoicingEventStockHandler.getDivider(),
+                        invoicingEventStockHandler.getMod());
+                invoicingEventPublishers.get(i).subscribe(buildSubscriberConfig(lastEventId));
             }
         } catch (Exception e) {
             log.error("Error occurred while subscribing", e);

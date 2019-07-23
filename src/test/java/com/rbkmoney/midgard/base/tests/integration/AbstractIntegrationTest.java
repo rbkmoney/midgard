@@ -31,9 +31,6 @@ import java.util.Date;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.boot.test.util.TestPropertyValues.Type.MAP;
 
-/**
- * Created by jeckep on 08.02.17.
- */
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)

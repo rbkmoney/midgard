@@ -70,9 +70,6 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
 
     private static final long SLEEP_TIME = 15000;
 
-    @Autowired
-    private PaymentDao paymentDao;
-
     @Before
     public void init() throws IOException, SQLException {
         initDb();
