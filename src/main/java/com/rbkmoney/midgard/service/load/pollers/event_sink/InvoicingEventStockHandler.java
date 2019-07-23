@@ -25,10 +25,10 @@ public class InvoicingEventStockHandler implements EventHandler<StockEvent> {
 
     @Override
     public EventAction handle(StockEvent stockEvent, String subsKey) {
-        SimpleEvent event = MapperUtil.transformSinkEvent(stockEvent.getSourceEvent().getProcessingEvent());
         EventPayload payload = stockEvent.getSourceEvent().getProcessingEvent().getPayload();
 
         if (payload.isSetInvoiceChanges()) {
+            SimpleEvent event = MapperUtil.transformSinkEvent(stockEvent.getSourceEvent().getProcessingEvent());
             if (HashUtil.checkHashMod(event.getSourceId(), divider, mod)) {
                 try {
                     invoicingService.handleEvents(event, payload);

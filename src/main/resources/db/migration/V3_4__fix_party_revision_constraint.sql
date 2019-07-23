@@ -1,0 +1,4 @@
+ALTER TABLE feed.party ALTER COLUMN revision DROP NOT NULL;
+ALTER TABLE feed.contract ALTER COLUMN revision DROP NOT NULL;
+ALTER TABLE feed.contractor ALTER COLUMN revision DROP NOT NULL;
+ALTER TABLE feed.shop ALTER COLUMN revision DROP NOT NULL;
