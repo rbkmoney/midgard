@@ -7,7 +7,7 @@ import com.rbkmoney.midgard.service.load.model.SimpleEvent;
 public final class MapperUtil {
 
     private static final String KAFKA_SOURCE_NAME = "kafka";
-    private static final String BASTERMASE_SOURCE_NAME = "bastermase";
+    private static final String BUSTERMASE_SOURCE_NAME = "bustermase";
 
     public static SimpleEvent transformMachineEvent(MachineEvent event) {
         return SimpleEvent.builder()
@@ -24,7 +24,7 @@ public final class MapperUtil {
                 .sequenceId(event.getId())
                 .sourceId(event.getSource().getInvoiceId())
                 .createdAt(event.getCreatedAt())
-                .eventSourceName(BASTERMASE_SOURCE_NAME)
+                .eventSourceName(BUSTERMASE_SOURCE_NAME)
                 .build();
     }
 
