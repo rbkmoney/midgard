@@ -27,7 +27,7 @@ clearing-service:
       networkTimeout: 5000
       providerId: 115
   schedule:
-    mts: "00 30 00 * * *"
+    mts: "00 01 00 * * *"
 
 import:
   trx-pool-size: 30
@@ -69,7 +69,7 @@ kafka:
     key-store-type: PKCS12
     trust-store-type: PKCS12
   consumer:
-    concurrency: 8
+    concurrency: 5
     group-id: "MidgardListener"
     enable-auto-commit: false
     auto-offset-reset: latest
