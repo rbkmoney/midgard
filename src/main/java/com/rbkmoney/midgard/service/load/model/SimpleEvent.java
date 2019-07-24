@@ -12,5 +12,6 @@ public class SimpleEvent {
     private long sequenceId;
     private String sourceId;
     private String createdAt;
+    private String eventSourceName;
 
 }

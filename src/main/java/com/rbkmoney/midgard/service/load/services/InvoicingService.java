@@ -31,6 +31,8 @@ public class InvoicingService implements EventService<SimpleEvent, EventPayload>
     @Transactional
     public void handleEvents(SimpleEvent simpleEvent, EventPayload payload) {
         try {
+            log.info("Handling event with machineId='{}' and eventId='{}' received from {}",
+                    simpleEvent.getSourceId(), simpleEvent.getEventId(), simpleEvent.getEventSourceName());
             List<InvoiceChange> invoiceChanges = payload.getInvoiceChanges();
             for (int i = 0; i < invoiceChanges.size(); i++) {
                 InvoiceChange change = invoiceChanges.get(i);
@@ -41,8 +43,8 @@ public class InvoicingService implements EventService<SimpleEvent, EventPayload>
                 }
             }
         } catch (Throwable e) {
-            log.error("Unexpected error while handling events; machineId: {},  eventId: {}",
-                    simpleEvent.getSourceId(), simpleEvent.getEventId(), e);
+            log.error("Unexpected error while handling event with machineId='{}' and eventId='{}' received from {}",
+                    simpleEvent.getSourceId(), simpleEvent.getEventId(), simpleEvent.getEventSourceName(), e);
             throw e;
         }
     }
