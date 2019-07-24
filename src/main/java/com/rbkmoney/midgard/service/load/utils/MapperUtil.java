@@ -21,7 +21,7 @@ public final class MapperUtil {
     public static SimpleEvent transformSinkEvent(Event event) {
         return SimpleEvent.builder()
                 .eventId(event.getId())
-                .sequenceId(event.getId())
+                .sequenceId(event.getSequence())
                 .sourceId(event.getSource().getInvoiceId())
                 .createdAt(event.getCreatedAt())
                 .eventSourceName(BUSTERMASE_SOURCE_NAME)
