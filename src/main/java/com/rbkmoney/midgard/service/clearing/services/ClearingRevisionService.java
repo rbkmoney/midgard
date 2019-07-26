@@ -42,7 +42,7 @@ public class ClearingRevisionService implements GenericService {
     private long retriesHourCount;
 
     @Override
-    @Scheduled(fixedRateString = "${clearing-service.revision}")
+    @Scheduled(fixedDelayString = "${clearing-service.revision}")
     public void process() {
         log.info("Clearing revision process get started");
 
