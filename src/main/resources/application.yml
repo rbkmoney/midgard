@@ -20,6 +20,7 @@ clearing-service:
   package-size: 25
   revision: 60000
   retries-hour-count: 23
+  scheduler-pool-size: 5
   adapters:
     mts:
       name: MTS
