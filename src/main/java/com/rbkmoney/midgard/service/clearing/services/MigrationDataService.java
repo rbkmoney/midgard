@@ -31,7 +31,7 @@ public class MigrationDataService implements GenericService {
     private final List<AdapterProps> adaptersProps;
 
     @Override
-    @Scheduled(fixedDelayString = "${import.migration.delay}")
+    @Scheduled(fixedRateString = "${import.migration.delay}")
     public void process() {
         log.info("Migration data get started");
         List<Integer> providerIds = adaptersProps.stream()

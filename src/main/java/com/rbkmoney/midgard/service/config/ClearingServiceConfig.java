@@ -6,6 +6,7 @@ import com.rbkmoney.midgard.service.config.props.MtsAdapterProps;
 import com.rbkmoney.woody.thrift.impl.http.THSpawnClientBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import java.io.IOException;
 
@@ -25,6 +26,13 @@ public class ClearingServiceConfig {
         return new ClearingAdapter(mtsClearingAdapterThriftClient(props),
                 props.getName(),
                 props.getProviderId());
+    }
+
+    @Bean
+    public ThreadPoolTaskScheduler taskScheduler(){
+        ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+        taskScheduler.setPoolSize(5);
+        return  taskScheduler;
     }
 
 }
