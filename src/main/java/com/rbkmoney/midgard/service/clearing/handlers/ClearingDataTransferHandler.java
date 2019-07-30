@@ -156,6 +156,7 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
         failureTransaction.setTransactionId(transactionInfo.getTransactionId());
         failureTransaction.setInvoiceId(transactionInfo.getInvoiceId());
         failureTransaction.setPaymentId(transactionInfo.getPaymentId());
+        failureTransaction.setRefundId(transactionInfo.getRefundId());
         failureTransaction.setErrorReason(transaction.getComment());
         failureTransaction.setTransactionType(ClearingTrxType.valueOf(transactionInfo.getTransactionType()));
         return failureTransaction;
@@ -169,6 +170,7 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
         failureTransaction.setTransactionId(info.getTransactionId());
         failureTransaction.setInvoiceId(info.getInvoiceId());
         failureTransaction.setPaymentId(info.getPaymentId());
+        failureTransaction.setRefundId(info.getRefundId());
         failureTransaction.setErrorReason(th.getMessage());
         failureTransaction.setTransactionType(type);
         return failureTransaction;
