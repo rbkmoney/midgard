@@ -1,18 +1,15 @@
 package com.rbkmoney.midgard.base.tests.integration;
 
 import com.rbkmoney.midgard.ClearingAdapterSrv;
-import com.rbkmoney.midgard.ClearingDataPackage;
+import com.rbkmoney.midgard.ClearingDataRequest;
 import com.rbkmoney.midgard.base.tests.integration.dao.TestTransactionsDao;
 import com.rbkmoney.midgard.base.tests.integration.data.ClearingEventTestData;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_info.ClearingEventInfoDao;
-import com.rbkmoney.midgard.service.clearing.dao.payment.PaymentDao;
 import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
 import com.rbkmoney.midgard.service.clearing.data.ClearingAdapter;
 import com.rbkmoney.midgard.service.clearing.importers.Importer;
 import com.rbkmoney.midgard.service.clearing.services.ClearingEventService;
-import com.rbkmoney.midgard.service.clearing.services.ClearingRevisionService;
 import com.rbkmoney.midgard.service.clearing.services.MigrationDataService;
-import edu.emory.mathcs.backport.java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.midgard.enums.ClearingEventStatus;
 import org.jooq.generated.midgard.enums.TransactionClearingState;
@@ -127,8 +124,8 @@ public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
         for (int clearingId = 1; clearingId <= CLEARING_EVENTS_COUNT; clearingId++) {
             String uploadId = "uploadId_" + clearingId;
             when(adapterSrv.startClearingEvent(clearingId)).thenReturn(uploadId);
-            when(adapterSrv.sendClearingDataPackage(Mockito.any(String.class), Mockito.any(ClearingDataPackage.class)))
-                    .thenReturn(ClearingEventTestData.getDataPackageTag(1L, "tag_1"));
+            when(adapterSrv.sendClearingDataPackage(Mockito.any(String.class), Mockito.any(ClearingDataRequest.class)))
+                    .thenReturn(ClearingEventTestData.getDataPackageTag(1, "tag_1"));
             when(adapterSrv.getBankResponse(clearingId))
                     .thenReturn(ClearingEventTestData.getSuccessClearingEventTestResponse(clearingId));
         }

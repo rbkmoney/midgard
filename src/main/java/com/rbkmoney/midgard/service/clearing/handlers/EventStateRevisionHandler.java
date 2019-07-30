@@ -73,7 +73,7 @@ public class EventStateRevisionHandler implements Handler<ClearingProcessingEven
             FailureTransaction transaction = new FailureTransaction();
             transaction.setTransactionId(failureTransaction.getTransactionId());
             transaction.setClearingId(clearingEventId);
-            transaction.setReason(failureTransaction.getComment());
+            transaction.setErrorReason(failureTransaction.getComment());
             transactionsDao.saveFailureTransaction(transaction);
         }
     }

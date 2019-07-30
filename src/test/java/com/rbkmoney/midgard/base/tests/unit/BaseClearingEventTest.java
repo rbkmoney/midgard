@@ -1,7 +1,7 @@
 package com.rbkmoney.midgard.base.tests.unit;
 
 import com.rbkmoney.midgard.ClearingAdapterSrv;
-import com.rbkmoney.midgard.ClearingDataPackage;
+import com.rbkmoney.midgard.ClearingDataRequest;
 import com.rbkmoney.midgard.ProviderNotFound;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.service.clearing.data.ClearingAdapter;
@@ -60,16 +60,16 @@ public class BaseClearingEventTest {
             String uploadId = adapterWorkflow.getUploadId();
             when(adapter.startClearingEvent(clearingId)).thenReturn(uploadId);
             when(adapter.sendClearingDataPackage(uploadId, getDataPackage(clearingId)))
-                    .thenReturn(getDataPackageTag(1L, "tag_1"));
+                    .thenReturn(getDataPackageTag(1, "tag_1"));
         }
         return new ClearingAdapter(adapter, adapterName, adapterId);
     }
 
-    private ClearingDataPackage getDataPackage(long clearingId) {
-        ClearingDataPackage dataPackage = new ClearingDataPackage();
-        dataPackage.setClearingId(clearingId);
-        dataPackage.setPackageNumber(1);
-        return dataPackage;
+    private ClearingDataRequest getDataPackage(long clearingId) {
+        ClearingDataRequest request = new ClearingDataRequest();
+        request.setClearingId(clearingId);
+        request.setPackageNumber(1);
+        return request;
     }
 
     @Getter
