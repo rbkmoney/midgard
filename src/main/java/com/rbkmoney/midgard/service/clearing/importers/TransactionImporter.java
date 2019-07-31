@@ -49,16 +49,16 @@ public class TransactionImporter implements Importer {
      */
     @Override
     @Transactional
-    public boolean importData(List<Integer> providerIds) throws DaoException {
+    public boolean importData(List<Integer> providerIds) {
         List<Payment> payments = paymentDao.getPayments(getLastTransactionRowId(), providerIds, poolSize);
         for (Payment payment : payments) {
             saveTransaction(payment);
         }
         log.info("Number of imported payments {}", payments.size());
-        return payments.size() > 0;
+        return !payments.isEmpty();
     }
 
-    private void saveTransaction(Payment payment) throws DaoException {
+    private void saveTransaction(Payment payment) {
         ClearingTransaction transaction = MappingUtils.transformTransaction(payment);
         log.info("Saving a clearing refund with invoice id '{}', payment id '{}' and sequence id '{}'",
                 payment.getInvoiceId(), payment.getPaymentId(), payment.getSequenceId());
@@ -79,11 +79,7 @@ public class TransactionImporter implements Importer {
 
     private void saveCashFlow(Payment payment, List<CashFlow> cashFlow) {
         List<ClearingTransactionCashFlow> tranCashFlow = cashFlow.stream()
-                .map(flow -> {
-                    ClearingTransactionCashFlow transactionCashFlow =
-                            MappingUtils.transformCashFlow(flow, payment.getSequenceId());
-                    return transactionCashFlow;
-                })
+                .map(flow -> MappingUtils.transformCashFlow(flow, payment.getSequenceId()))
                 .collect(Collectors.toList());
         cashFlowDao.save(tranCashFlow);
     }

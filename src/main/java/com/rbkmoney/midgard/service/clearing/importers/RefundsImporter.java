@@ -59,7 +59,7 @@ public class RefundsImporter implements Importer {
             saveClearingRefundData(refund);
         }
         log.info("Number of imported refunds {}", refunds.size());
-        return refunds.size() > 0;
+        return !refunds.isEmpty();
     }
 
     private void saveClearingRefundData(Refund refund) throws DaoException {

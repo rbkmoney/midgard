@@ -35,7 +35,7 @@ public class MigrationDataService implements GenericService {
     public void process() {
         log.info("Migration data get started");
         List<Integer> providerIds = adaptersProps.stream()
-                .map(adapterProps -> adapterProps.getProviderId())
+                .map(AdapterProps::getProviderId)
                 .collect(Collectors.toList());
 
         try {
