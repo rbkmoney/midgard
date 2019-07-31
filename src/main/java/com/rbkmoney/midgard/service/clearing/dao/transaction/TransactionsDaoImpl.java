@@ -33,14 +33,14 @@ import static org.jooq.impl.DSL.count;
 @Component
 public class TransactionsDaoImpl extends AbstractGenericDao implements TransactionsDao {
 
-    private final RowMapper<ClearingTransaction> transactionRowMapper =
-            new RecordRowMapper<>(CLEARING_TRANSACTION, ClearingTransaction.class);
+    private final RowMapper<ClearingTransaction> transactionRowMapper;
 
-    private final RowMapper<ClearingEventTransactionInfo> transactionEventInfoRowMapper =
-            new RecordRowMapper<>(CLEARING_EVENT_TRANSACTION_INFO, ClearingEventTransactionInfo.class);
+    private final RowMapper<ClearingEventTransactionInfo> transactionEventInfoRowMapper;
 
     public TransactionsDaoImpl(DataSource dataSource) {
         super(dataSource);
+        transactionRowMapper = new RecordRowMapper<>(CLEARING_TRANSACTION, ClearingTransaction.class);
+        transactionEventInfoRowMapper = new RecordRowMapper<>(CLEARING_EVENT_TRANSACTION_INFO, ClearingEventTransactionInfo.class);
     }
 
     @Override

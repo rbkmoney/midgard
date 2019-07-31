@@ -17,10 +17,11 @@ import static org.jooq.generated.midgard.tables.ClearingRefund.CLEARING_REFUND;
 @Repository
 public class ClearingRefundDaoImpl extends AbstractGenericDao implements ClearingRefundDao {
 
-    private final RowMapper<ClearingRefund> clearingRefundRowMapper = new RecordRowMapper<>(CLEARING_REFUND, ClearingRefund.class);
+    private final RowMapper<ClearingRefund> clearingRefundRowMapper;
 
     public ClearingRefundDaoImpl(DataSource dataSource) {
         super(dataSource);
+        clearingRefundRowMapper = new RecordRowMapper<>(CLEARING_REFUND, ClearingRefund.class);
     }
 
     @Override

@@ -17,10 +17,11 @@ import static org.jooq.generated.feed.Tables.REFUND;
 @Component
 public class FeedRefundDaoImpl extends AbstractGenericDao implements RefundDao {
 
-    private final RowMapper<Refund> refundRowMapper = new RecordRowMapper<>(REFUND, Refund.class);
+    private final RowMapper<Refund> refundRowMapper;
 
     public FeedRefundDaoImpl(DataSource dataSource) {
         super(dataSource);
+        refundRowMapper = new RecordRowMapper<>(REFUND, Refund.class);
     }
 
     @Override

@@ -25,11 +25,11 @@ import static org.jooq.generated.midgard.tables.ClearingEventInfo.CLEARING_EVENT
 @Component
 public class ClearingEventInfoDaoImpl extends AbstractGenericDao implements ClearingEventInfoDao {
 
-    private final RowMapper<ClearingEventInfo> clearingEventsRowMapper =
-            new RecordRowMapper<>(CLEARING_EVENT_INFO, ClearingEventInfo.class);
+    private final RowMapper<ClearingEventInfo> clearingEventsRowMapper;
 
     public ClearingEventInfoDaoImpl(DataSource dataSource) {
         super(dataSource);
+        clearingEventsRowMapper = new RecordRowMapper<>(CLEARING_EVENT_INFO, ClearingEventInfo.class);
     }
 
     @Override
