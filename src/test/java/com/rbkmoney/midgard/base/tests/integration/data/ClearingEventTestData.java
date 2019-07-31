@@ -1,20 +1,19 @@
 package com.rbkmoney.midgard.base.tests.integration.data;
 
-import com.rbkmoney.midgard.ClearingDataPackageTag;
-import com.rbkmoney.midgard.ClearingEvent;
-import com.rbkmoney.midgard.ClearingEventResponse;
-import com.rbkmoney.midgard.ClearingEventState;
+import com.rbkmoney.midgard.*;
 import org.jooq.generated.feed.tables.pojos.Refund;
 
 import java.time.LocalDateTime;
 
 public class ClearingEventTestData {
 
-    public static ClearingDataPackageTag getDataPackageTag(Long packageNumber, String tagName) {
+    public static ClearingDataResponse getDataPackageTag(int packageNumber, String tagName) {
         ClearingDataPackageTag tag = new ClearingDataPackageTag();
         tag.setPackageNumber(packageNumber);
         tag.setPackageTagId(tagName);
-        return tag;
+        ClearingDataResponse response = new ClearingDataResponse();
+        response.setClearingDataPackageTag(tag);
+        return response;
     }
 
     public static ClearingEvent getClearingEvent(long eventId, int providerId) {
