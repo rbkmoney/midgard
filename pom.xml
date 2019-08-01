@@ -27,6 +27,7 @@
         <fistful-proto.version>1.8-37ccefb</fistful-proto.version>
         <shared.resources.version>0.3.6</shared.resources.version>
         <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
+        <sonar.cobertura.reportPath>target/site/cobertura/coverage.xml</sonar.cobertura.reportPath>
         <!-- Ports -->
         <server.port>8022</server.port>
         <exposed.ports>${server.port}</exposed.ports>
