@@ -55,6 +55,8 @@ public class ErrorTrxProcessingIntegrationTest extends AbstractIntegrationTest {
         when(transactionsDao.getClearingTransactionsByClearingId(Mockito.any(Long.class),
                 Mockito.any(Integer.class), Mockito.any(Integer.class))).thenReturn(getTrxList(TRX_INFO_COUNT, REFUND_INFO_COUNT));
 
+        when(transactionsDao.getLastTransaction()).thenReturn(getTestClearingTransaction());
+
         when(transactionsDao.getTransaction(Mockito.any(String.class), Mockito.any(String.class)))
                 .thenReturn(getTestClearingTransaction());
 
