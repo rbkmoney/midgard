@@ -2,27 +2,24 @@ package com.rbkmoney.midgard.service.clearing.dao.transaction;
 
 import com.rbkmoney.midgard.service.clearing.dao.common.AbstractGenericDao;
 import com.rbkmoney.midgard.service.clearing.dao.common.RecordRowMapper;
-import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.Field;
 import org.jooq.Query;
 import org.jooq.Record1;
-import org.jooq.generated.midgard.enums.TransactionClearingState;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventTransactionInfo;
-import org.jooq.generated.midgard.tables.pojos.FailureTransaction;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
+import org.jooq.generated.midgard.tables.pojos.FailureTransaction;
 import org.jooq.generated.midgard.tables.records.ClearingTransactionRecord;
 import org.jooq.generated.midgard.tables.records.FailureTransactionRecord;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
-
 import java.util.List;
 
 import static org.jooq.generated.midgard.Tables.CLEARING_EVENT_TRANSACTION_INFO;
 import static org.jooq.generated.midgard.tables.ClearingTransaction.CLEARING_TRANSACTION;
-import static org.jooq.generated.midgard.tables.FailureTransaction.*;
+import static org.jooq.generated.midgard.tables.FailureTransaction.FAILURE_TRANSACTION;
 import static org.jooq.impl.DSL.count;
 
 /**
@@ -43,12 +40,11 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
     public TransactionsDaoImpl(DataSource dataSource) {
         super(dataSource);
         transactionRowMapper = new RecordRowMapper<>(CLEARING_TRANSACTION, ClearingTransaction.class);
-        transactionEventInfoRowMapper =
-                new RecordRowMapper<>(CLEARING_EVENT_TRANSACTION_INFO, ClearingEventTransactionInfo.class);
+        transactionEventInfoRowMapper = new RecordRowMapper<>(CLEARING_EVENT_TRANSACTION_INFO, ClearingEventTransactionInfo.class);
     }
 
     @Override
-    public Long save(ClearingTransaction transaction) throws DaoException {
+    public Long save(ClearingTransaction transaction) {
         ClearingTransactionRecord record = getDslContext().newRecord(CLEARING_TRANSACTION, transaction);
         Query query = getDslContext().insertInto(CLEARING_TRANSACTION).set(record);
         int addedRows = execute(query);
@@ -57,7 +53,7 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
     }
 
     @Override
-    public ClearingTransaction get(String transactionId) throws DaoException {
+    public ClearingTransaction get(String transactionId) {
         Query query = getDslContext().selectFrom(CLEARING_TRANSACTION)
                 .where(CLEARING_TRANSACTION.TRANSACTION_ID.eq(transactionId));
         ClearingTransaction clearingTransaction = fetchOne(query, transactionRowMapper);
@@ -66,7 +62,7 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
     }
 
     @Override
-    public ClearingTransaction getTransaction(String invoiceId, String paymentId) throws DaoException {
+    public ClearingTransaction getTransaction(String invoiceId, String paymentId) {
         Query query = getDslContext().selectFrom(CLEARING_TRANSACTION)
                 .where(CLEARING_TRANSACTION.INVOICE_ID.eq(invoiceId)
                         .and(CLEARING_TRANSACTION.PAYMENT_ID.eq(paymentId)));
@@ -77,16 +73,14 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
     }
 
     @Override
-    public void saveFailureTransaction(FailureTransaction failureTransaction) throws DaoException {
+    public void saveFailureTransaction(FailureTransaction failureTransaction) {
         FailureTransactionRecord record = getDslContext().newRecord(FAILURE_TRANSACTION, failureTransaction);
         Query query = getDslContext().insertInto(FAILURE_TRANSACTION).set(record);
         execute(query);
     }
 
     @Override
-    public List<ClearingEventTransactionInfo> getClearingTransactionsByClearingId(Long clearingId,
-                                                                                  int rowFrom,
-                                                                                  int rowTo) throws DaoException {
+    public List<ClearingEventTransactionInfo> getClearingTransactionsByClearingId(Long clearingId, int rowFrom, int rowTo) {
         Query query = getDslContext().selectFrom(CLEARING_EVENT_TRANSACTION_INFO)
                 .where(CLEARING_EVENT_TRANSACTION_INFO.CLEARING_ID.eq(clearingId))
                 .and(CLEARING_EVENT_TRANSACTION_INFO.ROW_NUMBER.greaterThan(rowFrom))
@@ -95,7 +89,7 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
     }
 
     @Override
-    public Integer getProcessedClearingTransactionCount(long clearingId) throws DaoException {
+    public Integer getProcessedClearingTransactionCount(long clearingId) {
         Field<Integer> rowCount = count(CLEARING_EVENT_TRANSACTION_INFO.CLEARING_ID).as("rowCount");
         Record1<Integer> record = getDslContext().select(rowCount)
                 .from(CLEARING_EVENT_TRANSACTION_INFO)
@@ -105,7 +99,7 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
     }
 
     @Override
-    public ClearingTransaction getLastTransaction() throws DaoException {
+    public ClearingTransaction getLastTransaction() {
         Query query = getDslContext().selectFrom(CLEARING_TRANSACTION)
                 .where(CLEARING_TRANSACTION.SOURCE_ROW_ID.isNotNull())
                 .orderBy(CLEARING_TRANSACTION.SOURCE_ROW_ID.desc())

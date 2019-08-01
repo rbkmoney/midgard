@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jooq.Query;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransactionCashFlow;
 import org.jooq.generated.midgard.tables.records.ClearingTransactionCashFlowRecord;
-import org.jooq.impl.DSL;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
@@ -32,7 +31,7 @@ public class ClearingCashFlowDaoImpl extends AbstractGenericDao implements Clear
     public Long save(List<ClearingTransactionCashFlow> cashFlowList) throws DaoException {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         Long sourceEventId = cashFlowList.stream()
-                .map(cashFlow -> cashFlow.getSourceEventId())
+                .map(ClearingTransactionCashFlow::getSourceEventId)
                 .findFirst()
                 .orElse(0L);
         for (ClearingTransactionCashFlow cashFlow : cashFlowList) {

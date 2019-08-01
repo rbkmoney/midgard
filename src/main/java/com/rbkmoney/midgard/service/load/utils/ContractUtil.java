@@ -74,7 +74,7 @@ public class ContractUtil {
                 payoutTool.setPayoutToolInfoInternationalBankAbaRtn(bankDetails.getAbaRtn());
                 payoutTool.setPayoutToolInfoInternationalBankCountryCode(
                         Optional.ofNullable(bankDetails.getCountry())
-                                .map(country -> country.toString())
+                                .map(Residence::toString)
                                 .orElse(null)
                 );
             }
@@ -92,7 +92,7 @@ public class ContractUtil {
                     payoutTool.setPayoutToolInfoInternationalCorrespondentBankAbaRtn(correspondentBankDetails.getAbaRtn());
                     payoutTool.setPayoutToolInfoInternationalCorrespondentBankCountryCode(
                             Optional.ofNullable(correspondentBankDetails.getCountry())
-                                    .map(country -> country.toString())
+                                    .map(Residence::toString)
                                     .orElse(null)
                     );
                 }

@@ -1,5 +1,6 @@
 package com.rbkmoney.midgard.service.clearing.dao.common;
 
+import lombok.RequiredArgsConstructor;
 import org.jooq.Field;
 import org.jooq.Table;
 import org.jooq.TableRecord;
@@ -11,16 +12,12 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 public class RecordRowMapper<T> implements RowMapper<T> {
 
     private final Table table;
 
     private final Class<T> type;
-
-    public RecordRowMapper(Table table, Class<T> type) {
-        this.table = table;
-        this.type = type;
-    }
 
     @Override
     public T mapRow(ResultSet resultSet, int i) throws SQLException {

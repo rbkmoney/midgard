@@ -2,7 +2,6 @@ package com.rbkmoney.midgard.service.clearing.dao.payment;
 
 import com.rbkmoney.midgard.service.clearing.dao.common.AbstractGenericDao;
 import com.rbkmoney.midgard.service.clearing.dao.common.RecordRowMapper;
-import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import org.jooq.Query;
 import org.jooq.generated.feed.enums.PaymentStatus;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
@@ -31,7 +30,7 @@ public class FeedPaymentDaoImpl extends AbstractGenericDao implements PaymentDao
     }
 
     @Override
-    public List<Payment> getPayments(long sourceRowId, List<Integer> providerIds, int poolSize) throws DaoException {
+    public List<Payment> getPayments(long sourceRowId, List<Integer> providerIds, int poolSize) {
         Query query = getDslContext().selectFrom(PAYMENT)
                 .where(PAYMENT.ID.greaterThan(sourceRowId))
                 .and(PAYMENT.STATUS.eq(PaymentStatus.captured))
@@ -40,7 +39,7 @@ public class FeedPaymentDaoImpl extends AbstractGenericDao implements PaymentDao
     }
 
     @Override
-    public List<CashFlow> getCashFlow(long objId) throws DaoException {
+    public List<CashFlow> getCashFlow(long objId) {
         Query query = getDslContext().selectFrom(CASH_FLOW)
                 .where(CASH_FLOW.OBJ_ID.eq(objId));
         return fetch(query, cashFlowRowMapper);

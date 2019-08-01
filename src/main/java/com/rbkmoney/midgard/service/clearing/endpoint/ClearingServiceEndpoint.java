@@ -11,10 +11,10 @@ import java.io.IOException;
 @WebServlet("/v1/clearing_service")
 public class ClearingServiceEndpoint extends GenericServlet {
 
-    private Servlet thriftServlet;
+    private transient Servlet thriftServlet;
 
     @Autowired
-    private ClearingServiceSrv.Iface clearingServiceHandler;
+    private transient ClearingServiceSrv.Iface clearingServiceHandler;
 
     @Override
     public void init(ServletConfig config) throws ServletException {

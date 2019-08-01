@@ -10,16 +10,14 @@ import java.util.List;
 
 public interface TransactionsDao extends ClearingDao<ClearingTransaction, String> {
 
-    ClearingTransaction getTransaction(String invoiceId, String paymentId) throws DaoException;
+    ClearingTransaction getTransaction(String invoiceId, String paymentId);
 
-    void saveFailureTransaction(FailureTransaction failureTransaction) throws DaoException;
+    void saveFailureTransaction(FailureTransaction failureTransaction);
 
-    List<ClearingEventTransactionInfo> getClearingTransactionsByClearingId(Long clearingId,
-                                                                           int rowFrom,
-                                                                           int rowTo) throws DaoException;
+    List<ClearingEventTransactionInfo> getClearingTransactionsByClearingId(Long clearingId, int rowFrom, int rowTo);
 
-    Integer getProcessedClearingTransactionCount(long clearingId) throws DaoException;
+    Integer getProcessedClearingTransactionCount(long clearingId);
 
-    ClearingTransaction getLastTransaction() throws DaoException;
+    ClearingTransaction getLastTransaction();
 
 }

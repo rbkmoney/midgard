@@ -2,7 +2,6 @@ package com.rbkmoney.midgard.service.clearing.dao.refund;
 
 import com.rbkmoney.midgard.service.clearing.dao.common.AbstractGenericDao;
 import com.rbkmoney.midgard.service.clearing.dao.common.RecordRowMapper;
-import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import org.jooq.Query;
 import org.jooq.generated.feed.enums.RefundStatus;
 import org.jooq.generated.feed.tables.pojos.Refund;
@@ -10,7 +9,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.jooq.generated.feed.Tables.PAYMENT;
@@ -27,7 +25,7 @@ public class FeedRefundDaoImpl extends AbstractGenericDao implements RefundDao {
     }
 
     @Override
-    public List<Refund> getRefunds(long sourceRowId, List<Integer> providerIds, int poolSize) throws DaoException {
+    public List<Refund> getRefunds(long sourceRowId, List<Integer> providerIds, int poolSize) {
         Query query = getDslContext().select(REFUND.fields())
                 .from(REFUND)
                 .join(PAYMENT).on(

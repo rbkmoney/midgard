@@ -17,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.rbkmoney.midgard.ClearingEventState.FAILED;
+import static com.rbkmoney.midgard.ClearingEventState.SUCCESS;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -35,7 +38,7 @@ public class EventStateRevisionHandler implements Handler<ClearingProcessingEven
             ClearingAdapterSrv.Iface adapter = event.getClearingAdapter().getAdapter();
             ClearingEventResponse response = adapter.getBankResponse(clearingId);
             ClearingEventState clearingState = response.getClearingState();
-            if (clearingState == ClearingEventState.SUCCESS || clearingState == ClearingEventState.FAILED) {
+            if (clearingState == SUCCESS || clearingState == FAILED) {
                 setClearingEventState(response);
                 List<FailureTransactionData> failureTransactions = response.getFailureTransactions();
                 saveFailureTransactions(clearingId, failureTransactions);
@@ -50,18 +53,17 @@ public class EventStateRevisionHandler implements Handler<ClearingProcessingEven
 
     private void setClearingEventState(ClearingEventResponse response) {
         long clearingId = response.getClearingId();
-
-        switch (response.getClearingState()) {
-            case SUCCESS:
-                if (response.getFailureTransactions() == null || response.getFailureTransactions().isEmpty()) {
-                    clearingEventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.COMPLETE);
-                } else {
-                    clearingEventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.COMPLETE_WITH_ERRORS);
-                }
-                break;
-            case FAILED:
-                clearingEventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.FAILED);
-                break;
+        ClearingEventState clearingState = response.getClearingState();
+        if (clearingState == SUCCESS) {
+            if (response.getFailureTransactions() == null || response.getFailureTransactions().isEmpty()) {
+                clearingEventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.COMPLETE);
+            } else {
+                clearingEventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.COMPLETE_WITH_ERRORS);
+            }
+        } else if (clearingState == FAILED) {
+            clearingEventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.FAILED);
+        } else {
+            log.info("For clearing event {} received state {}. No change of status will be made");
         }
     }
 

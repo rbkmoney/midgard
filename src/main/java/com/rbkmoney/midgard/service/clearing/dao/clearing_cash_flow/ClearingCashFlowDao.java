@@ -5,5 +5,4 @@ import org.jooq.generated.midgard.tables.pojos.ClearingTransactionCashFlow;
 
 import java.util.List;
 
-public interface ClearingCashFlowDao extends ClearingDao<List<ClearingTransactionCashFlow>, Long> {
-}
+public interface ClearingCashFlowDao extends ClearingDao<List<ClearingTransactionCashFlow>, Long> { }

@@ -2,7 +2,6 @@ package com.rbkmoney.midgard.service.clearing.dao.clearing_refund;
 
 import com.rbkmoney.midgard.service.clearing.dao.common.AbstractGenericDao;
 import com.rbkmoney.midgard.service.clearing.dao.common.RecordRowMapper;
-import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.Query;
 import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
@@ -26,7 +25,7 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
     }
 
     @Override
-    public Long save(ClearingRefund clearingRefund) throws DaoException {
+    public Long save(ClearingRefund clearingRefund) {
         log.debug("Adding new clearing refund: {}", clearingRefund);
         ClearingRefundRecord record = getDslContext().newRecord(CLEARING_REFUND, clearingRefund);
         Query query = getDslContext().insertInto(CLEARING_REFUND).set(record);
@@ -37,7 +36,7 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
     }
 
     @Override
-    public ClearingRefund get(String refundId) throws DaoException {
+    public ClearingRefund get(String refundId) {
         log.debug("Getting a refund with refundId {}", refundId);
         Query query = getDslContext().selectFrom(CLEARING_REFUND)
                 .where(CLEARING_REFUND.REFUND_ID.eq(refundId));
@@ -47,7 +46,7 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
     }
 
     @Override
-    public ClearingRefund getRefund(String invoiceId, String paymentId, String refundId) throws DaoException {
+    public ClearingRefund getRefund(String invoiceId, String paymentId, String refundId) {
         Query query = getDslContext().selectFrom(CLEARING_REFUND)
                 .where(CLEARING_REFUND.INVOICE_ID.eq(invoiceId))
                 .and(CLEARING_REFUND.PAYMENT_ID.eq(paymentId))
@@ -59,13 +58,12 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
     }
 
     @Override
-    public ClearingRefund getLastTransactionEvent() throws DaoException {
+    public ClearingRefund getLastTransactionEvent() {
         Query query = getDslContext().selectFrom(CLEARING_REFUND)
                 .where(CLEARING_REFUND.SOURCE_ROW_ID.isNotNull())
                 .orderBy(CLEARING_REFUND.SOURCE_ROW_ID.desc())
                 .limit(1);
         return fetchOne(query, clearingRefundRowMapper);
     }
-
 
 }

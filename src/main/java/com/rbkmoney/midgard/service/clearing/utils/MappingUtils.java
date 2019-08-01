@@ -1,21 +1,22 @@
 package com.rbkmoney.midgard.service.clearing.utils;
 
 import com.rbkmoney.midgard.*;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
 import org.jooq.generated.feed.tables.pojos.Payment;
 import org.jooq.generated.feed.tables.pojos.Refund;
 import org.jooq.generated.midgard.enums.CashFlowAccount;
+import org.jooq.generated.midgard.enums.ClearingTrxType;
 import org.jooq.generated.midgard.enums.PaymentChangeType;
 import org.jooq.generated.midgard.enums.TransactionClearingState;
-import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
-import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
-import org.jooq.generated.midgard.tables.pojos.ClearingTransactionCashFlow;
+import org.jooq.generated.midgard.tables.pojos.*;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO: переделать на Spring Converter / MapStruct
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MappingUtils {
 
     public static ClearingTransaction transformTransaction(Payment payment) {
@@ -176,6 +177,31 @@ public final class MappingUtils {
         return clearingRefund;
     }
 
-    private MappingUtils() { }
+    public static FailureTransaction getFailureTransaction(Transaction transaction, Long clearingId) {
+        FailureTransaction failureTransaction = new FailureTransaction();
+        GeneralTransactionInfo transactionInfo = transaction.getGeneralTransactionInfo();
+        failureTransaction.setClearingId(clearingId);
+        failureTransaction.setTransactionId(transactionInfo.getTransactionId());
+        failureTransaction.setInvoiceId(transactionInfo.getInvoiceId());
+        failureTransaction.setPaymentId(transactionInfo.getPaymentId());
+        failureTransaction.setRefundId(transactionInfo.getRefundId());
+        failureTransaction.setErrorReason(transaction.getComment());
+        failureTransaction.setTransactionType(ClearingTrxType.valueOf(transactionInfo.getTransactionType()));
+        return failureTransaction;
+    }
+
+    public static FailureTransaction getFailureTransaction(ClearingEventTransactionInfo info,
+                                                           String errorMessage,
+                                                           ClearingTrxType type) {
+        FailureTransaction failureTransaction = new FailureTransaction();
+        failureTransaction.setClearingId(info.getClearingId());
+        failureTransaction.setTransactionId(info.getTransactionId());
+        failureTransaction.setInvoiceId(info.getInvoiceId());
+        failureTransaction.setPaymentId(info.getPaymentId());
+        failureTransaction.setRefundId(info.getRefundId());
+        failureTransaction.setErrorReason(errorMessage);
+        failureTransaction.setTransactionType(type);
+        return failureTransaction;
+    }
 
 }
