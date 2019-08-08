@@ -52,11 +52,13 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
                 tagList.add(response.getClearingDataPackageTag());
             } else {
                 for (int packageNumber = INIT_PACKAGE_NUMBER; packageNumber < packagesCount; packageNumber++) {
+                    log.info("Start sending package {} for clearing event {}", packageNumber, clearingId);
                     ClearingDataRequest request =
                             clearingTransactionPackageHandler.getClearingPackage(clearingId, packageNumber);
                     ClearingDataResponse response = adapter.sendClearingDataPackage(uploadId, request);
-                    processAdapterFailureTransactions(response.getFailureTransactions(), clearingId);
+                    processAdapterFailureTransactions(response.getFailureTransactions(), clearingId, packageNumber);
                     tagList.add(response.getClearingDataPackageTag());
+                    log.info("Finish sending package {} for clearing event {}", packageNumber, clearingId);
                 }
             }
 
@@ -72,13 +74,23 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
             log.error("Data transfer error while processing clearing event {}", clearingId, ex);
             eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.ADAPTER_FAULT);
             throw new Exception(ex);
+        } catch (Exception ex) {
+            log.error("Received exception while sending clearing data to adapter", ex);
+        } catch (Throwable th) {
+            log.error("Received throwable while sending clearing data to adapter", th);
         }
     }
 
-    private void processAdapterFailureTransactions(List<Transaction> failureTransactions, Long clearingId) {
+    private void processAdapterFailureTransactions(List<Transaction> failureTransactions,
+                                                   Long clearingId,
+                                                   int packageNumber) {
+        log.info("Start processing failure transactions for package id {} and clearing id {}", packageNumber, clearingId);
         if (failureTransactions != null) {
             failureTransactions.forEach(transaction ->
                     adapterFailureTransactionHandler.handleTransaction(transaction, clearingId));
+            log.info("Finish processing failure transactions for package id {} and clearing id {}", packageNumber, clearingId);
+        } else {
+            log.info("List of failure transactions for package id {} and clearing id {} is empty", packageNumber, clearingId);
         }
     }
 

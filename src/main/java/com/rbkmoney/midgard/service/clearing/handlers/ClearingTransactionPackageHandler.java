@@ -37,12 +37,14 @@ public class ClearingTransactionPackageHandler implements ClearingPackageHandler
 
     @Override
     public ClearingDataRequest getClearingPackage(Long clearingId, int packageNumber) {
+        log.info("Start processing the package {} for clearing event {}", packageNumber, clearingId);
         List<ClearingEventTransactionInfo> trxEventInfo = getActualClearingTransactionsInfo(clearingId, packageNumber);
         ClearingDataRequest dataPackage = new ClearingDataRequest();
         dataPackage.setClearingId(clearingId);
         dataPackage.setPackageNumber(packageNumber + 1);
         dataPackage.setFinalPackage(trxEventInfo.size() != packageSize);
         dataPackage.setTransactions(getTransactionList(trxEventInfo, clearingId, packageNumber));
+        log.info("Finish processing the package {} for clearing event {}", packageNumber, clearingId);
         return dataPackage;
     }
 
