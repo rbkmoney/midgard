@@ -44,8 +44,10 @@ public class ClearingTransactionPackageHandler implements ClearingPackageHandler
         dataPackage.setClearingId(clearingId);
         dataPackage.setPackageNumber(packageNumber + 1);
         dataPackage.setFinalPackage(trxEventInfo.size() != packageSize);
-        dataPackage.setTransactions(getTransactionList(trxEventInfo, clearingId, packageNumber));
-        log.info("Finish processing the package {} for clearing event {}", packageNumber, clearingId);
+        List<Transaction> transactionList = getTransactionList(trxEventInfo, clearingId, packageNumber);
+        dataPackage.setTransactions(transactionList);
+        log.info("Finish processing the package {} for clearing event {}. Transaction list size: {}", packageNumber,
+                clearingId, transactionList.size());
         return dataPackage;
     }
 
@@ -94,6 +96,9 @@ public class ClearingTransactionPackageHandler implements ClearingPackageHandler
                 packageNumber, clearingId);
         List<ClearingTransactionCashFlow> cashFlowList =
                 cashFlowDao.get(clearingTransaction.getSequenceId());
+        log.info("For transaction with invoice id {} and payment id {} in clearing event {} received " +
+                "cashFlowList with size {}", clearingTransaction.getInvoiceId(), clearingTransaction.getPaymentId(),
+                clearingId, cashFlowList == null ? "NULL" : cashFlowList.size());
         return MappingUtils.transformClearingTransaction(clearingTransaction, cashFlowList);
     }
 
