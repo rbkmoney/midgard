@@ -40,7 +40,7 @@ retry-policy:
   maxAttempts: 10
 
 bm:
-  pollingEnabled: true
+  pollingEnabled: false
   invoicing:
     url: http://bustermaze:8022/repo
     workersCount: 5
