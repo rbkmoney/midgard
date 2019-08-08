@@ -3,6 +3,7 @@ package com.rbkmoney.midgard.service.clearing.utils;
 import com.rbkmoney.midgard.*;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
 import org.jooq.generated.feed.tables.pojos.Payment;
 import org.jooq.generated.feed.tables.pojos.Refund;
@@ -16,6 +17,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MappingUtils {
 
@@ -72,6 +74,8 @@ public final class MappingUtils {
         generalTranInfo.setPaymentId(clrTran.getPaymentId());
         generalTranInfo.setTransactionType("PAYMENT");
 
+        log.info("Transform clearing transaction with invoice id '{}' and payment id '{}' completed",
+                clrTran.getInvoiceId(), clrTran.getPaymentId());
         return fillAdditionalInfo(generalTranInfo, clrTran, clrTran.getExtra(), cashFlowList);
     }
 
@@ -82,8 +86,17 @@ public final class MappingUtils {
         Transaction transaction = new Transaction();
         transaction.setGeneralTransactionInfo(generalTranInfo);
         transaction.setTransactionCardInfo(getTransactionCardInfo(clrTran));
+        log.info("Transform card info for transaction with invoice id '{}' and payment id " +
+                "'{}' completed", clrTran.getInvoiceId(), clrTran.getPaymentId());
+
         transaction.setAdditionalTransactionData(transformContent(extra));
+        log.info("Transform content for transaction with invoice id '{}' and payment id " +
+                "'{}' completed", clrTran.getInvoiceId(), clrTran.getPaymentId());
+
         transaction.setTransactionCashFlow(transformTranCashFlow(cashFlowList));
+
+        log.info("Transform additional info for transaction with invoice id '{}' and payment id " +
+                "'{}' completed", clrTran.getInvoiceId(), clrTran.getPaymentId());
         return transaction;
     }
 
