@@ -79,7 +79,7 @@ public class TransactionImporter implements Importer {
 
     private void saveCashFlow(Payment payment, List<CashFlow> cashFlow) {
         List<ClearingTransactionCashFlow> tranCashFlow = cashFlow.stream()
-                .map(flow -> MappingUtils.transformCashFlow(flow, payment.getSequenceId()))
+                .map(flow -> MappingUtils.transformCashFlow(flow, payment.getId()))
                 .collect(Collectors.toList());
         cashFlowDao.save(tranCashFlow);
     }

@@ -95,7 +95,7 @@ public class ClearingTransactionPackageHandler implements ClearingPackageHandler
                         "for clearing event {}", clearingTransaction.getInvoiceId(), clearingTransaction.getPaymentId(),
                 packageNumber, clearingId);
         List<ClearingTransactionCashFlow> cashFlowList =
-                cashFlowDao.get(clearingTransaction.getSequenceId());
+                cashFlowDao.get(clearingTransaction.getSourceRowId());
         log.info("For transaction with invoice id {} and payment id {} in clearing event {} received " +
                 "cashFlowList with size {}", clearingTransaction.getInvoiceId(), clearingTransaction.getPaymentId(),
                 clearingId, cashFlowList == null ? "NULL" : cashFlowList.size());

@@ -74,8 +74,6 @@ public final class MappingUtils {
         generalTranInfo.setPaymentId(clrTran.getPaymentId());
         generalTranInfo.setTransactionType("PAYMENT");
 
-        log.info("Transform clearing transaction with invoice id '{}' and payment id '{}' completed",
-                clrTran.getInvoiceId(), clrTran.getPaymentId());
         return fillAdditionalInfo(generalTranInfo, clrTran, clrTran.getExtra(), cashFlowList);
     }
 
@@ -86,17 +84,9 @@ public final class MappingUtils {
         Transaction transaction = new Transaction();
         transaction.setGeneralTransactionInfo(generalTranInfo);
         transaction.setTransactionCardInfo(getTransactionCardInfo(clrTran));
-        log.info("Transform card info for transaction with invoice id '{}' and payment id " +
-                "'{}' completed", clrTran.getInvoiceId(), clrTran.getPaymentId());
-
         transaction.setAdditionalTransactionData(transformContent(extra));
-        log.info("Transform content for transaction with invoice id '{}' and payment id " +
-                "'{}' completed", clrTran.getInvoiceId(), clrTran.getPaymentId());
-
         transaction.setTransactionCashFlow(transformTranCashFlow(cashFlowList));
 
-        log.info("Transform additional info for transaction with invoice id '{}' and payment id " +
-                "'{}' completed", clrTran.getInvoiceId(), clrTran.getPaymentId());
         return transaction;
     }
 
@@ -119,6 +109,10 @@ public final class MappingUtils {
 
     private static List<TransactionCashFlow> transformTranCashFlow(List<ClearingTransactionCashFlow> cashFlowList) {
         List<TransactionCashFlow> transactionCashFlowList = new ArrayList<>();
+        if (cashFlowList == null) {
+            return transactionCashFlowList;
+        }
+
         for (ClearingTransactionCashFlow cashFlow : cashFlowList) {
             transactionCashFlowList.add(transformCashFlow(cashFlow));
         }
