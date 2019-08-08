@@ -9,6 +9,7 @@ import com.rbkmoney.midgard.service.clearing.handlers.failure.FailureTransaction
 import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jooq.generated.midgard.enums.ClearingTrxType;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventTransactionInfo;
 import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
@@ -52,9 +53,21 @@ public class ClearingTransactionPackageHandler implements ClearingPackageHandler
                                                  Long clearingId,
                                                  int packageNumber) {
         List<Transaction> transactions = new ArrayList<>();
+        int transactionPackageCount = 0;
         for (ClearingEventTransactionInfo info : trxEventInfo) {
             try {
                 transactions.add(getTransaction(info, clearingId, packageNumber));
+
+                if (info.getTransactionType() == ClearingTrxType.PAYMENT) {
+                    log.info("Payment transaction with invoice id = '{}' and payment id = '{}' " +
+                            "was added to package {} for clearing event {} with number {}", info.getInvoiceId(),
+                            info.getPaymentId(), packageNumber, clearingId, ++transactionPackageCount);
+                } else {
+                    log.info("Refund transaction with invoice id = '{}', payment id = '{}' and refund id = '{}' " +
+                                    "was added to package {} for clearing event {} with number {}", info.getInvoiceId(),
+                            info.getPaymentId(), info.getRefundId(), packageNumber, clearingId,
+                            ++transactionPackageCount);
+                }
             } catch (Throwable th) {
                 serviceFailureTransactionHandler.handleTransaction(info, th.getMessage());
             }
