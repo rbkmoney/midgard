@@ -32,12 +32,13 @@ public class FeedRefundDaoImpl extends AbstractGenericDao implements RefundDao {
                         REFUND.INVOICE_ID.eq(PAYMENT.INVOICE_ID)
                                 .and(REFUND.PAYMENT_ID.eq(PAYMENT.PAYMENT_ID))
                                 .and(PAYMENT.ROUTE_PROVIDER_ID.in(providerIds))
-                                .and(REFUND.SEQUENCE_ID.greaterThan(sourceRowId))
+                                .and(REFUND.ID.greaterThan(sourceRowId))
                                 .and(REFUND.STATUS.eq(RefundStatus.succeeded))
                                 .and(PAYMENT.CURRENT)
                                 .and(REFUND.CURRENT)
                 )
-                .orderBy(REFUND.SEQUENCE_ID).limit(poolSize);
+                .orderBy(REFUND.SEQUENCE_ID)
+                .limit(poolSize);
         return fetch(query, refundRowMapper);
 
     }
