@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface TransactionsDao extends ClearingDao<ClearingTransaction, String> {
 
-    ClearingTransaction getTransaction(String invoiceId, String paymentId);
+    ClearingTransaction getTransaction(String invoiceId, String paymentId, Integer trxVersion);
 
     void saveFailureTransaction(FailureTransaction failureTransaction);
 

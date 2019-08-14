@@ -90,7 +90,8 @@ public class ClearingTransactionPackageHandler implements ClearingPackageHandler
     }
 
     private Transaction getClearingPayment(ClearingEventTransactionInfo info, Long clearingId, int packageNumber) {
-        ClearingTransaction clearingTransaction = transactionsDao.getTransaction(info.getInvoiceId(), info.getPaymentId());
+        ClearingTransaction clearingTransaction =
+                transactionsDao.getTransaction(info.getInvoiceId(), info.getPaymentId(), info.getTrxVersion());
         log.info("Transaction with invoice id {} and payment id {} will added to package {} " +
                         "for clearing event {}", clearingTransaction.getInvoiceId(), clearingTransaction.getPaymentId(),
                 packageNumber, clearingId);
@@ -103,12 +104,13 @@ public class ClearingTransactionPackageHandler implements ClearingPackageHandler
     }
 
     private Transaction getClearingRefund(ClearingEventTransactionInfo info, Long clearingId, int packageNumber) {
-        ClearingRefund refund = clearingRefundDao.getRefund(info.getInvoiceId(), info.getPaymentId(), info.getRefundId());
+        ClearingRefund refund =
+                clearingRefundDao.getRefund(info.getInvoiceId(), info.getPaymentId(), info.getRefundId(), info.getTrxVersion());
         log.info("Refund transaction with invoice id {}, payment id {} and refund id {} will added to package {} " +
                         "for clearing event {}", refund.getInvoiceId(), refund.getPaymentId(), refund.getRefundId(),
                 packageNumber, clearingId);
         ClearingTransaction clearingTransaction =
-                transactionsDao.getTransaction(refund.getInvoiceId(), refund.getPaymentId());
+                transactionsDao.getTransaction(refund.getInvoiceId(), refund.getPaymentId(), MappingUtils.DEFAULT_TRX_VERSION);
         List<ClearingTransactionCashFlow> cashFlowList = cashFlowDao.get(refund.getSequenceId());
         return MappingUtils.transformRefundTransaction(clearingTransaction, cashFlowList, refund);
     }

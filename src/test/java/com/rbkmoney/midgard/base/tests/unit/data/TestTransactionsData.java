@@ -65,6 +65,7 @@ public final class TestTransactionsData {
         trx.setPayerBankCardMaskedPan("4545 45** **** 9809");
         trx.setPayerBankCardTokenProvider("provider_1");
         trx.setExtra("extra json");
+        trx.setTrxVersion(1);
 
         return trx;
     }
@@ -186,6 +187,7 @@ public final class TestTransactionsData {
         clearingRefund.setDomainRevision(1L);
         clearingRefund.setClearingState(TransactionClearingState.READY);
         clearingRefund.setExtra("extra json");
+        clearingRefund.setTrxVersion(1);
 
         return clearingRefund;
     }

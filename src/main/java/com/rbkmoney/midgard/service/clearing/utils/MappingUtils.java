@@ -21,6 +21,8 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MappingUtils {
 
+    public static final int DEFAULT_TRX_VERSION = 1;
+
     public static ClearingTransaction transformTransaction(Payment payment) {
         ClearingTransaction trx = new ClearingTransaction();
         trx.setSequenceId(payment.getSequenceId());
@@ -45,6 +47,12 @@ public final class MappingUtils {
         trx.setPayerBankCardMaskedPan(payment.getPayerBankCardMaskedPan());
         trx.setPayerBankCardTokenProvider(payment.getPayerBankCardTokenProvider());
         trx.setExtra(payment.getSessionPayloadTransactionBoundTrxExtraJson());
+        trx.setTrxVersion(DEFAULT_TRX_VERSION);
+        trx.setIsRecurrent(payment.getMakeRecurrent());
+        trx.setRouteTerminalId(payment.getRouteTerminalId());
+        trx.setPayerType(payment.getPayerType() == null ? null : payment.getPayerType().getName());
+        trx.setPayerRecurrentParentInvoiceId(payment.getPayerRecurrentParentInvoiceId());
+        trx.setPayerRecurrentParentPaymentId(payment.getPayerRecurrentParentPaymentId());
         return trx;
     }
 
@@ -181,6 +189,7 @@ public final class MappingUtils {
         clearingRefund.setDomainRevision(refund.getDomainRevision());
         clearingRefund.setExtra(refund.getSessionPayloadTransactionBoundTrxExtraJson());
         clearingRefund.setClearingState(TransactionClearingState.READY);
+        clearingRefund.setTrxVersion(DEFAULT_TRX_VERSION);
         return clearingRefund;
     }
 
