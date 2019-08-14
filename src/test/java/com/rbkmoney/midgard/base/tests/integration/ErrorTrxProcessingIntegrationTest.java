@@ -5,6 +5,7 @@ import com.rbkmoney.midgard.service.clearing.dao.clearing_cash_flow.ClearingCash
 import com.rbkmoney.midgard.service.clearing.dao.clearing_refund.ClearingRefundDao;
 import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
 import com.rbkmoney.midgard.service.clearing.handlers.ClearingPackageHandler;
+import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
 import org.jooq.generated.midgard.enums.ClearingTrxType;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventTransactionInfo;
 import org.junit.Test;
@@ -57,12 +58,12 @@ public class ErrorTrxProcessingIntegrationTest extends AbstractIntegrationTest {
 
         when(transactionsDao.getLastTransaction()).thenReturn(getTestClearingTransaction());
 
-        when(transactionsDao.getTransaction(Mockito.any(String.class), Mockito.any(String.class)))
+        when(transactionsDao.getTransaction(Mockito.any(String.class), Mockito.any(String.class), Mockito.any(Integer.class)))
                 .thenReturn(getTestClearingTransaction());
 
         when(cashFlowDao.get(Mockito.any(Long.class))).thenReturn(new ArrayList<>());
 
-        when(clearingRefundDao.getRefund(Mockito.any(String.class), Mockito.any(String.class), Mockito.any(String.class)))
+        when(clearingRefundDao.getRefund(Mockito.any(String.class), Mockito.any(String.class), Mockito.any(String.class), Mockito.any(Integer.class)))
                 .thenReturn(null);
 
     }
@@ -92,6 +93,7 @@ public class ErrorTrxProcessingIntegrationTest extends AbstractIntegrationTest {
         } else {
             info.setTransactionType(ClearingTrxType.PAYMENT);
         }
+        info.setTrxVersion(MappingUtils.DEFAULT_TRX_VERSION);
         return info;
     }
 

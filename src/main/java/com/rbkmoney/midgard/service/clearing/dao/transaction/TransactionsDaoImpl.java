@@ -62,10 +62,11 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
     }
 
     @Override
-    public ClearingTransaction getTransaction(String invoiceId, String paymentId) {
+    public ClearingTransaction getTransaction(String invoiceId, String paymentId, Integer trxVersion) {
         Query query = getDslContext().selectFrom(CLEARING_TRANSACTION)
                 .where(CLEARING_TRANSACTION.INVOICE_ID.eq(invoiceId)
-                        .and(CLEARING_TRANSACTION.PAYMENT_ID.eq(paymentId)));
+                        .and(CLEARING_TRANSACTION.PAYMENT_ID.eq(paymentId))
+                        .and(CLEARING_TRANSACTION.TRX_VERSION.eq(trxVersion)));
         ClearingTransaction clearingTransaction = fetchOne(query, transactionRowMapper);
         log.debug("Transaction with invoice id id {} and payment id {} {}", invoiceId, paymentId,
                 clearingTransaction == null ? "not found" : "found");

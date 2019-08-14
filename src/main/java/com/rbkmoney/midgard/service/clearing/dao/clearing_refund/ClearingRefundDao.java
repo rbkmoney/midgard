@@ -5,7 +5,7 @@ import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
 
 public interface ClearingRefundDao extends ClearingDao<ClearingRefund, String> {
 
-    ClearingRefund getRefund(String invoiceId, String paymentId, String refundId);
+    ClearingRefund getRefund(String invoiceId, String paymentId, String refundId, Integer trxVersion);
 
     ClearingRefund getLastTransactionEvent();
 

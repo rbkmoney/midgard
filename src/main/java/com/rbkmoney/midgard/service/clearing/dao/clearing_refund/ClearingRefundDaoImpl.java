@@ -46,11 +46,12 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
     }
 
     @Override
-    public ClearingRefund getRefund(String invoiceId, String paymentId, String refundId) {
+    public ClearingRefund getRefund(String invoiceId, String paymentId, String refundId, Integer trxVersion) {
         Query query = getDslContext().selectFrom(CLEARING_REFUND)
                 .where(CLEARING_REFUND.INVOICE_ID.eq(invoiceId))
                 .and(CLEARING_REFUND.PAYMENT_ID.eq(paymentId))
-                .and(CLEARING_REFUND.REFUND_ID.eq(refundId));
+                .and(CLEARING_REFUND.REFUND_ID.eq(refundId)
+                .and(CLEARING_REFUND.TRX_VERSION.eq(trxVersion)));
         ClearingRefund clearingRefund = fetchOne(query, clearingRefundRowMapper);
         log.debug("Refund with invoice id {} and payment id {} {}", invoiceId, paymentId,
                 clearingRefund == null ? "not found" : "found");
