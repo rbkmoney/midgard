@@ -29,14 +29,15 @@ public class ServiceFailureTransactionHandler implements FailureTransactionHandl
     private void saveFailureTransaction(ClearingEventTransactionInfo info, String errorMessage) throws Exception {
         switch (info.getTransactionType()) {
             case PAYMENT:
-                log.error("Error was caught while clearing processed {} transaction with invoice_id {} and payment id {}",
-                        info.getTransactionType(), info.getInvoiceId(), info.getPaymentId());
+                log.error("Error was caught while clearing processed {} transaction with invoice_id {} and " +
+                                "payment id {}. Reason: \n{}", info.getTransactionType(), info.getInvoiceId(),
+                        info.getPaymentId(), errorMessage);
                 transactionsDao.saveFailureTransaction(getFailureTransaction(info, errorMessage, PAYMENT));
                 break;
             case REFUND:
                 log.error("Error was caught while clearing processed {} transaction with invoice_id {}, payment id {} " +
-                                "and refund id {}", info.getTransactionType(), info.getInvoiceId(), info.getPaymentId(),
-                        info.getRefundId());
+                                "and refund id {}. Reason: \n{}", info.getTransactionType(), info.getInvoiceId(),
+                        info.getPaymentId(), info.getRefundId(), errorMessage);
                 transactionsDao.saveFailureTransaction(getFailureTransaction(info, errorMessage, REFUND));
                 break;
             default:

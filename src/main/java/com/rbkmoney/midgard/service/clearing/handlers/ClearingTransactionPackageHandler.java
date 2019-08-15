@@ -71,7 +71,7 @@ public class ClearingTransactionPackageHandler implements ClearingPackageHandler
                             ++transactionPackageCount);
                 }
             } catch (Throwable th) {
-                serviceFailureTransactionHandler.handleTransaction(info, th.getMessage());
+                serviceFailureTransactionHandler.handleTransaction(info, th.toString());
             }
         }
         return transactions;
