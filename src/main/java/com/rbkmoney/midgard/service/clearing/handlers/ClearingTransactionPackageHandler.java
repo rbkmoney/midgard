@@ -71,6 +71,7 @@ public class ClearingTransactionPackageHandler implements ClearingPackageHandler
                             ++transactionPackageCount);
                 }
             } catch (Throwable th) {
+                log.error("Cought error while processing transaction {}:", info, th);
                 serviceFailureTransactionHandler.handleTransaction(info, th.toString());
             }
         }
