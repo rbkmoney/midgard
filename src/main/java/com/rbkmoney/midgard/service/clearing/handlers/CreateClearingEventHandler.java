@@ -43,10 +43,10 @@ public class CreateClearingEventHandler implements Handler<ClearingEvent> {
             log.info("Clearing event {} was created. Clearing data for provider id {} prepared",
                     clearingId, providerId);
         } catch (AdapterNotFoundException ex) {
-            log.error("Error in identification of a provider", ex);
+            log.error("Error in identification of a provider {} for event id {}", providerId, eventId, ex);
             throw new ProviderNotFound();
         } catch (Exception ex) {
-            log.error("Error during clearing event execution", ex);
+            log.error("Error during clearing event {} for provider id {} execution", eventId, providerId, ex);
         }
     }
 
