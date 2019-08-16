@@ -2,6 +2,7 @@ package com.rbkmoney.midgard.service.clearing.dao.clearing_info;
 
 import com.rbkmoney.midgard.service.clearing.dao.common.AbstractGenericDao;
 import com.rbkmoney.midgard.service.clearing.dao.common.RecordRowMapper;
+import com.rbkmoney.midgard.service.clearing.exception.PreparingDataException;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.Query;
 import org.jooq.generated.midgard.enums.ClearingEventStatus;
@@ -100,12 +101,16 @@ public class ClearingEventInfoDaoImpl extends AbstractGenericDao implements Clea
     }
 
     @Override
-    public Long prepareTransactionData(long clearingId, int providerId) {
-        PrepareTransactionData prepareTransactionData = new PrepareTransactionData();
-        prepareTransactionData.setSrcClearingId(clearingId);
-        prepareTransactionData.setSrcProviderId(providerId);
-        executeProc(prepareTransactionData);
-        return clearingId;
+    public Long prepareTransactionData(long clearingId, int providerId) throws PreparingDataException {
+        try {
+            PrepareTransactionData prepareTransactionData = new PrepareTransactionData();
+            prepareTransactionData.setSrcClearingId(clearingId);
+            prepareTransactionData.setSrcProviderId(providerId);
+            executeProc(prepareTransactionData);
+            return clearingId;
+        } catch (Exception ex) {
+            throw new PreparingDataException(ex);
+        }
     }
 
 }

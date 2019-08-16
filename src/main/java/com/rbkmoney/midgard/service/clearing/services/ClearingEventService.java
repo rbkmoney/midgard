@@ -29,7 +29,7 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
 
     private final ClearingEventInfoDao clearingEventInfoDao;
 
-    private final Handler prepareClearingDataHandler;
+    private final Handler createClearingEventHandler;
 
     private final List<ClearingAdapter> adapters;
 
@@ -49,7 +49,8 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
             Long eventId = clearingEvent.getEventId();
             if (clearingEventInfoDao.getClearingEvent(eventId) == null) {
                 getClearingAdapter(adapters, clearingEvent.getProviderId());
-                prepareClearingDataHandler.handle(clearingEvent);
+
+                createClearingEventHandler.handle(clearingEvent);
             } else {
                 log.warn("For a event with id " + eventId + " a clearing event already exists");
             }
