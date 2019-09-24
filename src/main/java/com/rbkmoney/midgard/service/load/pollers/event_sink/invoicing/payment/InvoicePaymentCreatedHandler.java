@@ -169,6 +169,11 @@ public class InvoicePaymentCreatedHandler extends AbstractInvoicingHandler {
             payment.setPayerDigitalWalletProvider(paymentTool.getDigitalWallet().getProvider().name());
         } else if (paymentTool.isSetCryptoCurrency()) {
             payment.setCryptoCurrency(paymentTool.getCryptoCurrency().toString());
+        } else if (paymentTool.isSetMobileCommerce()) {
+            payment.setPayerMobileOperator(TypeUtil.toEnumField(paymentTool.getMobileCommerce().getOperator().name(),
+                    MobileOperatorType.class));
+            payment.setPayerMobilePhoneCc(paymentTool.getMobileCommerce().getPhone().getCc());
+            payment.setPayerMobilePhoneCtn(paymentTool.getMobileCommerce().getPhone().getCtn());
         }
     }
 

@@ -1,0 +1,1 @@
+ALTER TYPE feed.payment_tool_type ADD VALUE 'mobile_commerce';

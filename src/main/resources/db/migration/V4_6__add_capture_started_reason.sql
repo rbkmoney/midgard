@@ -1,0 +1,1 @@
+ALTER TABLE feed.payment ADD status_captured_started_reason CHARACTER VARYING;
