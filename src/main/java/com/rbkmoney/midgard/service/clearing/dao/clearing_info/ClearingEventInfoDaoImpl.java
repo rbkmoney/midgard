@@ -2,11 +2,9 @@ package com.rbkmoney.midgard.service.clearing.dao.clearing_info;
 
 import com.rbkmoney.midgard.service.clearing.dao.common.AbstractGenericDao;
 import com.rbkmoney.midgard.service.clearing.dao.common.RecordRowMapper;
-import com.rbkmoney.midgard.service.clearing.exception.PreparingDataException;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.Query;
 import org.jooq.generated.midgard.enums.ClearingEventStatus;
-import org.jooq.generated.midgard.routines.PrepareTransactionData;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
 import org.jooq.generated.midgard.tables.records.ClearingEventInfoRecord;
 import org.springframework.jdbc.core.RowMapper;
@@ -94,23 +92,18 @@ public class ClearingEventInfoDaoImpl extends AbstractGenericDao implements Clea
     }
 
     @Override
-    public List<ClearingEventInfo> getAllClearingEvents(ClearingEventStatus status) {
+    public List<ClearingEventInfo> getAllClearingEventsByStatus(ClearingEventStatus status) {
         Query query = getDslContext().selectFrom(CLEARING_EVENT_INFO)
                 .where(CLEARING_EVENT_INFO.STATUS.eq(status));
         return fetch(query, clearingEventsRowMapper);
     }
 
     @Override
-    public Long prepareTransactionData(long clearingId, int providerId) throws PreparingDataException {
-        try {
-            PrepareTransactionData prepareTransactionData = new PrepareTransactionData();
-            prepareTransactionData.setSrcClearingId(clearingId);
-            prepareTransactionData.setSrcProviderId(providerId);
-            executeProc(prepareTransactionData);
-            return clearingId;
-        } catch (Exception ex) {
-            throw new PreparingDataException(ex);
-        }
+    public List<ClearingEventInfo> getAllClearingEventsForProviderByStatus(int providerId, ClearingEventStatus status) {
+        Query query = getDslContext().selectFrom(CLEARING_EVENT_INFO)
+                .where(CLEARING_EVENT_INFO.PROVIDER_ID.eq(providerId))
+                .and(CLEARING_EVENT_INFO.STATUS.eq(status));
+        return fetch(query, clearingEventsRowMapper);
     }
 
 }

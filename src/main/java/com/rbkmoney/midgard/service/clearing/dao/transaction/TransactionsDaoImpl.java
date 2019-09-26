@@ -6,11 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.jooq.Field;
 import org.jooq.Query;
 import org.jooq.Record1;
+import org.jooq.generated.midgard.enums.TransactionClearingState;
 import org.jooq.generated.midgard.tables.pojos.ClearingEventTransactionInfo;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
 import org.jooq.generated.midgard.tables.pojos.FailureTransaction;
+import org.jooq.generated.midgard.tables.records.ClearingEventTransactionInfoRecord;
 import org.jooq.generated.midgard.tables.records.ClearingTransactionRecord;
 import org.jooq.generated.midgard.tables.records.FailureTransactionRecord;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +21,8 @@ import javax.sql.DataSource;
 import java.util.List;
 
 import static org.jooq.generated.midgard.Tables.CLEARING_EVENT_TRANSACTION_INFO;
+import static org.jooq.generated.midgard.enums.TransactionClearingState.FAILED;
+import static org.jooq.generated.midgard.enums.TransactionClearingState.READY;
 import static org.jooq.generated.midgard.tables.ClearingTransaction.CLEARING_TRANSACTION;
 import static org.jooq.generated.midgard.tables.FailureTransaction.FAILURE_TRANSACTION;
 import static org.jooq.impl.DSL.count;
@@ -37,10 +42,12 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
 
     private final RowMapper<ClearingEventTransactionInfo> transactionEventInfoRowMapper;
 
-    public TransactionsDaoImpl(DataSource dataSource) {
+    public TransactionsDaoImpl(@Qualifier("dataSource") DataSource dataSource) {
         super(dataSource);
-        transactionRowMapper = new RecordRowMapper<>(CLEARING_TRANSACTION, ClearingTransaction.class);
-        transactionEventInfoRowMapper = new RecordRowMapper<>(CLEARING_EVENT_TRANSACTION_INFO, ClearingEventTransactionInfo.class);
+        transactionRowMapper =
+                new RecordRowMapper<>(CLEARING_TRANSACTION, ClearingTransaction.class);
+        transactionEventInfoRowMapper =
+                new RecordRowMapper<>(CLEARING_EVENT_TRANSACTION_INFO, ClearingEventTransactionInfo.class);
     }
 
     @Override
@@ -81,12 +88,25 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
     }
 
     @Override
-    public List<ClearingEventTransactionInfo> getClearingTransactionsByClearingId(Long clearingId, int rowFrom, int rowTo) {
+    public List<ClearingEventTransactionInfo> getClearingTransactionsByClearingId(Long clearingId,
+                                                                                  int providerId,
+                                                                                  long lastRowNumber,
+                                                                                  int rowLimit) {
         Query query = getDslContext().selectFrom(CLEARING_EVENT_TRANSACTION_INFO)
                 .where(CLEARING_EVENT_TRANSACTION_INFO.CLEARING_ID.eq(clearingId))
-                .and(CLEARING_EVENT_TRANSACTION_INFO.ROW_NUMBER.greaterThan(rowFrom))
-                .and(CLEARING_EVENT_TRANSACTION_INFO.ROW_NUMBER.lessOrEqual(rowTo));
+                .and(CLEARING_EVENT_TRANSACTION_INFO.PROVIDER_ID.eq(providerId))
+                .and(CLEARING_EVENT_TRANSACTION_INFO.ROW_NUMBER.greaterThan(lastRowNumber))
+                .orderBy(CLEARING_EVENT_TRANSACTION_INFO.ROW_NUMBER)
+                .limit(rowLimit);
         return fetch(query, transactionEventInfoRowMapper);
+    }
+
+    @Override
+    public void saveClearingEventTransactionInfo(ClearingEventTransactionInfo transactionInfo) {
+        ClearingEventTransactionInfoRecord record =
+                getDslContext().newRecord(CLEARING_EVENT_TRANSACTION_INFO, transactionInfo);
+        Query query = getDslContext().insertInto(CLEARING_EVENT_TRANSACTION_INFO).set(record);
+        execute(query);
     }
 
     @Override
@@ -106,6 +126,46 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
                 .orderBy(CLEARING_TRANSACTION.SOURCE_ROW_ID.desc())
                 .limit(1);
         return fetchOne(query, transactionRowMapper);
+    }
+
+    @Override
+    public ClearingTransaction getLastActiveTransaction(int providerId) {
+        Query query = getDslContext().selectFrom(CLEARING_TRANSACTION)
+                .where(CLEARING_TRANSACTION.SOURCE_ROW_ID.isNotNull())
+                .and(CLEARING_TRANSACTION.PROVIDER_ID.eq(providerId))
+                .and(CLEARING_TRANSACTION.TRANSACTION_CLEARING_STATE.notIn(READY, FAILED))
+                .orderBy(CLEARING_TRANSACTION.SOURCE_ROW_ID.desc())
+                .limit(1);
+        return fetchOne(query, transactionRowMapper);
+    }
+
+    @Override
+    public List<ClearingTransaction> getClearingTransactions(long lastSourceRowId,
+                                                             int providerId,
+                                                             int packageSize) {
+        Query query = getDslContext().selectFrom(CLEARING_TRANSACTION)
+                .where(CLEARING_TRANSACTION.SOURCE_ROW_ID.greaterThan(lastSourceRowId)
+                        .and(CLEARING_TRANSACTION.PROVIDER_ID.eq(providerId))
+                        .and(CLEARING_TRANSACTION.TRANSACTION_CLEARING_STATE.in(READY, FAILED)))
+                .orderBy(CLEARING_TRANSACTION.SOURCE_ROW_ID.asc())
+                .limit(packageSize);
+        return fetch(query, transactionRowMapper);
+    }
+
+    @Override
+    public void updateClearingTransactionState(String invoiceId,
+                                               String paymentId,
+                                               int version,
+                                               long clearingId,
+                                               TransactionClearingState state) {
+        Query query = getDslContext().update(CLEARING_TRANSACTION)
+                .set(CLEARING_TRANSACTION.TRANSACTION_CLEARING_STATE, state)
+                .set(CLEARING_TRANSACTION.CLEARING_ID, clearingId)
+                .where(CLEARING_TRANSACTION.INVOICE_ID.eq(invoiceId)
+                        .and(CLEARING_TRANSACTION.PAYMENT_ID.eq(paymentId))
+                        .and(CLEARING_TRANSACTION.TRX_VERSION.eq(version)));
+
+        execute(query);
     }
 
 }

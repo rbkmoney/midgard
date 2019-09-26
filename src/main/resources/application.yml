@@ -18,6 +18,7 @@ spring:
 
 clearing-service:
   package-size: 25
+  inner-package-size: 500
   revision: 60000
   retries-hour-count: 23
   scheduler-pool-size: 5

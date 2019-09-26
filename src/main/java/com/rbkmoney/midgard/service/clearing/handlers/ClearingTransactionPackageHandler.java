@@ -5,6 +5,7 @@ import com.rbkmoney.midgard.Transaction;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_cash_flow.ClearingCashFlowDao;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_refund.ClearingRefundDao;
 import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
+import com.rbkmoney.midgard.service.clearing.data.ClearingDataPackage;
 import com.rbkmoney.midgard.service.clearing.handlers.failure.FailureTransactionHandler;
 import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.rbkmoney.midgard.service.clearing.utils.ClearingEventUtils.getLastRowId;
 
 @Slf4j
 @Component
@@ -37,17 +40,24 @@ public class ClearingTransactionPackageHandler implements ClearingPackageHandler
     private int packageSize;
 
     @Override
-    public ClearingDataRequest getClearingPackage(Long clearingId, int packageNumber) {
-        log.info("Start processing the package {} for clearing event {}", packageNumber, clearingId);
-        List<ClearingEventTransactionInfo> trxEventInfo = getActualClearingTransactionsInfo(clearingId, packageNumber);
-        ClearingDataRequest dataPackage = new ClearingDataRequest();
-        dataPackage.setClearingId(clearingId);
-        dataPackage.setPackageNumber(packageNumber + 1);
-        dataPackage.setFinalPackage(trxEventInfo.size() != packageSize);
+    public ClearingDataPackage getClearingPackage(Long clearingId, int providerId, long lastRowId, int packageNumber) {
+        log.info("Start processing the package {} for clearing event {} for provider id {} with last row id '{}'",
+                packageNumber, clearingId, providerId, lastRowId);
+        List<ClearingEventTransactionInfo> trxEventInfo =
+                transactionsDao.getClearingTransactionsByClearingId(clearingId, providerId, lastRowId, packageSize);
+        ClearingDataRequest clearingDataRequest = new ClearingDataRequest();
+        clearingDataRequest.setClearingId(clearingId);
+        clearingDataRequest.setPackageNumber(packageNumber);
+        clearingDataRequest.setFinalPackage(trxEventInfo.size() != packageSize);
         List<Transaction> transactionList = getTransactionList(trxEventInfo, clearingId, packageNumber);
-        dataPackage.setTransactions(transactionList);
-        log.info("Finish processing the package {} for clearing event {}. Transaction list size: {}", packageNumber,
-                clearingId, transactionList.size());
+        clearingDataRequest.setTransactions(transactionList);
+
+        ClearingDataPackage dataPackage = new ClearingDataPackage();
+        dataPackage.setClearingDataRequest(clearingDataRequest);
+        dataPackage.setLastRowId(getLastRowId(trxEventInfo));
+        log.info("Finish processing the package {} for clearing event {} for provider id {} with " +
+                        "last row id '{}'. Transaction list size: {}", packageNumber, clearingId, providerId,
+                lastRowId, transactionList.size());
         return dataPackage;
     }
 
@@ -114,12 +124,6 @@ public class ClearingTransactionPackageHandler implements ClearingPackageHandler
                 transactionsDao.getTransaction(refund.getInvoiceId(), refund.getPaymentId(), MappingUtils.DEFAULT_TRX_VERSION);
         List<ClearingTransactionCashFlow> cashFlowList = cashFlowDao.get(refund.getSequenceId());
         return MappingUtils.transformRefundTransaction(clearingTransaction, cashFlowList, refund);
-    }
-
-    private List<ClearingEventTransactionInfo> getActualClearingTransactionsInfo(Long clearingId, int packageNumber) {
-        int rowFrom = packageNumber * packageSize;
-        int rowTo = rowFrom + packageSize;
-        return transactionsDao.getClearingTransactionsByClearingId(clearingId, rowFrom, rowTo);
     }
 
 }
