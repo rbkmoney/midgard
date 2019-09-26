@@ -49,7 +49,6 @@ public class ClearingRevisionService implements GenericService {
     public void process() {
         log.info("Clearing revision process get started");
 
-        processClearingEventsByStatus(PREPARING_DATA_FAULT, prepareClearingDataHandler);
         processClearingEventsByStatus(STARTED, clearingDataTransferHandler);
         processAdapterFaultClearingEvents();
         processClearingEventsByStatus(EXECUTE, eventStateRevisionHandler);
