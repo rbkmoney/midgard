@@ -28,7 +28,6 @@ public class InvoicingService implements EventService<SimpleEvent, EventPayload>
     private long initLastEventId;
 
     @Override
-    @Transactional
     public void handleEvents(SimpleEvent simpleEvent, EventPayload payload) {
         try {
             log.info("Handling event with machineId='{}' and eventId='{}' received from {}",

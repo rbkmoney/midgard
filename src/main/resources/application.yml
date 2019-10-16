@@ -76,6 +76,8 @@ kafka:
     enable-auto-commit: false
     auto-offset-reset: latest
     max-poll-records: 20
+    conn-max-idle-ms: 300000
+    session-timeout-ms: 300000
   topics:
     invoice:
       id: mg-invoice-100-2
