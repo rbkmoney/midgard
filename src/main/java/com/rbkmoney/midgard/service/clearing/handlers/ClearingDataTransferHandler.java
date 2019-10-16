@@ -36,6 +36,7 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
     @Override
     public void handle(ClearingProcessingEvent event) throws Exception {
         Long clearingId = event.getClearingId();
+        int providerId = event.getClearingAdapter().getAdapterId();
         log.info("Transfer data to clearing adapter {} with clearing id {} get started",
                 event.getClearingAdapter().getAdapterName(), clearingId);
         try {
@@ -61,7 +62,7 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
                     log.info("Start sending package {} for clearing event {}", packageNumber, clearingId);
                     ClearingDataPackage clearingDataPackage = clearingTransactionPackageHandler.getClearingPackage(
                             clearingId,
-                            packageNumber,
+                            providerId,
                             lastRowId,
                             packageNumber
                     );
