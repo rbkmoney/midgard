@@ -52,6 +52,10 @@ public class KafkaConfig {
     private String clientId;
     @Value("${kafka.consumer.max-poll-records}")
     private int maxPollRecords;
+    @Value("${kafka.consumer.conn-max-idle-ms}")
+    private int connectionsMaxIdleMsConfig;
+    @Value("${kafka.consumer.session-timeout-ms}")
+    private int sessionTimeoutMs;
 
     @Value("${kafka.bootstrap-servers}")
     private String bootstrapServers;
@@ -74,6 +78,8 @@ public class KafkaConfig {
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enableAutoCommit);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
+        props.put(ConsumerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG, connectionsMaxIdleMsConfig);
+        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, sessionTimeoutMs);
 
         configureSsl(props, kafkaSslProperties);
 
