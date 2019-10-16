@@ -1,9 +1,9 @@
 package com.rbkmoney.midgard.service.clearing.handlers;
 
-import com.rbkmoney.midgard.ClearingDataRequest;
+import com.rbkmoney.midgard.service.clearing.data.ClearingDataPackage;
 
 public interface ClearingPackageHandler {
 
-    ClearingDataRequest getClearingPackage(Long clearingId, int packageNumber);
+    ClearingDataPackage getClearingPackage(Long clearingId, int providerId, long lastRowId, int packageNumber);
 
 }

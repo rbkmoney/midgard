@@ -4,6 +4,7 @@ import com.rbkmoney.midgard.ClearingDataRequest;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_cash_flow.ClearingCashFlowDao;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_refund.ClearingRefundDao;
 import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
+import com.rbkmoney.midgard.service.clearing.data.ClearingDataPackage;
 import com.rbkmoney.midgard.service.clearing.handlers.ClearingPackageHandler;
 import com.rbkmoney.midgard.service.clearing.utils.MappingUtils;
 import org.jooq.generated.midgard.enums.ClearingTrxType;
@@ -21,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
-
 public class ErrorTrxProcessingIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
@@ -38,6 +38,8 @@ public class ErrorTrxProcessingIntegrationTest extends AbstractIntegrationTest {
 
     private static final long CLEARING_ID = 1;
 
+    private static final int PROVIDER_ID = 1;
+
     private static final int TRX_INFO_COUNT = 10;
 
     private static final int REFUND_INFO_COUNT = 3;
@@ -45,16 +47,22 @@ public class ErrorTrxProcessingIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void testFailureProcessing() {
         mockDao();
-        ClearingDataRequest clearingPackage = clearingTransactionPackageHandler.getClearingPackage(CLEARING_ID, 1);
+        ClearingDataPackage clearingPackage = clearingTransactionPackageHandler.getClearingPackage(
+                CLEARING_ID,
+                PROVIDER_ID,
+                0L,
+                1
+        );
         assertTrue("The clearing package must not be null", clearingPackage != null);
-        assertTrue("The list of transactions must not be null", clearingPackage.getTransactions() != null);
+        ClearingDataRequest request = clearingPackage.getClearingDataRequest();
+        assertTrue("The list of transactions must not be null", request.getTransactions() != null);
         assertEquals("Count of expected transactions is not equal to the received",
-                TRX_INFO_COUNT, clearingPackage.getTransactions().size());
+                TRX_INFO_COUNT, request.getTransactions().size());
     }
 
     private void mockDao() {
         when(transactionsDao.getClearingTransactionsByClearingId(Mockito.any(Long.class),
-                Mockito.any(Integer.class), Mockito.any(Integer.class))).thenReturn(getTrxList(TRX_INFO_COUNT, REFUND_INFO_COUNT));
+                Mockito.any(Integer.class), Mockito.any(Long.class), Mockito.any(Integer.class))).thenReturn(getTrxList(TRX_INFO_COUNT, REFUND_INFO_COUNT));
 
         when(transactionsDao.getLastTransaction()).thenReturn(getTestClearingTransaction());
 
@@ -80,7 +88,7 @@ public class ErrorTrxProcessingIntegrationTest extends AbstractIntegrationTest {
         return trxList;
     }
 
-    private ClearingEventTransactionInfo getClearingTrxInfo(int number, ClearingTrxType type) {
+    private ClearingEventTransactionInfo getClearingTrxInfo(long number, ClearingTrxType type) {
         ClearingEventTransactionInfo info = new ClearingEventTransactionInfo();
         info.setClearingId(CLEARING_ID);
         info.setInvoiceId("inv_" + number);

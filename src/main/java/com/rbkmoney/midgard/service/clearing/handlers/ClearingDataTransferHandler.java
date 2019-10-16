@@ -3,12 +3,14 @@ package com.rbkmoney.midgard.service.clearing.handlers;
 import com.rbkmoney.midgard.*;
 import com.rbkmoney.midgard.service.clearing.dao.clearing_info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
+import com.rbkmoney.midgard.service.clearing.data.ClearingDataPackage;
 import com.rbkmoney.midgard.service.clearing.data.ClearingProcessingEvent;
 import com.rbkmoney.midgard.service.clearing.handlers.failure.FailureTransactionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.jooq.generated.midgard.enums.ClearingEventStatus;
+import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -31,8 +33,6 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
     @Value("${clearing-service.package-size}")
     private int packageSize;
 
-    private static final int INIT_PACKAGE_NUMBER = 0;
-
     @Override
     public void handle(ClearingProcessingEvent event) throws Exception {
         Long clearingId = event.getClearingId();
@@ -41,25 +41,39 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
         try {
             ClearingAdapterSrv.Iface adapter = event.getClearingAdapter().getAdapter();
             String uploadId = adapter.startClearingEvent(clearingId);
-            int packagesCount = getClearingTransactionPackagesCount(clearingId);
-            log.info("Total number of packages for the clearing event {}: {}", clearingId, packagesCount);
-
             List<ClearingDataPackageTag> tagList = new ArrayList<>();
-            if (packagesCount == 0) {
+            long lastRowId = 0L;
+            List<ClearingTransaction> transactions = transactionsDao.getClearingTransactions(
+                    lastRowId,
+                    event.getClearingAdapter().getAdapterId(),
+                    packageSize
+            );
+
+
+            if (transactions == null || transactions.isEmpty()) {
                 log.info("No transactions found for clearing");
                 ClearingDataRequest request = getEmptyClearingDataPackage(clearingId);
                 ClearingDataResponse response = adapter.sendClearingDataPackage(uploadId, request);
                 tagList.add(response.getClearingDataPackageTag());
             } else {
-                for (int packageNumber = INIT_PACKAGE_NUMBER; packageNumber < packagesCount; packageNumber++) {
+                int packageNumber = 1;
+                do {
                     log.info("Start sending package {} for clearing event {}", packageNumber, clearingId);
-                    ClearingDataRequest request =
-                            clearingTransactionPackageHandler.getClearingPackage(clearingId, packageNumber);
-                    ClearingDataResponse response = adapter.sendClearingDataPackage(uploadId, request);
+                    ClearingDataPackage clearingDataPackage = clearingTransactionPackageHandler.getClearingPackage(
+                            clearingId,
+                            packageNumber,
+                            lastRowId,
+                            packageNumber
+                    );
+                    ClearingDataResponse response =
+                            adapter.sendClearingDataPackage(uploadId, clearingDataPackage.getClearingDataRequest());
                     processAdapterFailureTransactions(response.getFailureTransactions(), clearingId, packageNumber);
                     tagList.add(response.getClearingDataPackageTag());
+
+                    lastRowId = clearingDataPackage.getLastRowId();
+                    packageNumber++;
                     log.info("Finish sending package {} for clearing event {}", packageNumber, clearingId);
-                }
+                } while (transactions != null && transactions.size() == packageSize);
             }
 
             adapter.completeClearingEvent(uploadId, clearingId, tagList);
@@ -92,11 +106,6 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
         } else {
             log.info("List of failure transactions for package id {} and clearing id {} is empty", packageNumber, clearingId);
         }
-    }
-
-    private int getClearingTransactionPackagesCount(long clearingId) {
-        int packagesCount = transactionsDao.getProcessedClearingTransactionCount(clearingId);
-        return (int) Math.ceil((double) packagesCount / packageSize);
     }
 
     private ClearingDataRequest getEmptyClearingDataPackage(Long clearingId) {
