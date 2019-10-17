@@ -44,28 +44,20 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
             String uploadId = adapter.startClearingEvent(clearingId);
             List<ClearingDataPackageTag> tagList = new ArrayList<>();
             long lastRowId = 0L;
-            List<ClearingTransaction> transactions = transactionsDao.getClearingTransactions(
-                    lastRowId,
-                    event.getClearingAdapter().getAdapterId(),
-                    packageSize
-            );
+            Integer clearingTrxCount = transactionsDao.getProcessedClearingTransactionCount(clearingId);
 
-
-            if (transactions == null || transactions.isEmpty()) {
+            if (clearingTrxCount == null || clearingTrxCount == 0) {
                 log.info("No transactions found for clearing");
                 ClearingDataRequest request = getEmptyClearingDataPackage(clearingId);
                 ClearingDataResponse response = adapter.sendClearingDataPackage(uploadId, request);
                 tagList.add(response.getClearingDataPackageTag());
             } else {
                 int packageNumber = 1;
+                ClearingDataPackage clearingDataPackage;
                 do {
                     log.info("Start sending package {} for clearing event {}", packageNumber, clearingId);
-                    ClearingDataPackage clearingDataPackage = clearingTransactionPackageHandler.getClearingPackage(
-                            clearingId,
-                            providerId,
-                            lastRowId,
-                            packageNumber
-                    );
+                    clearingDataPackage =
+                            clearingTransactionPackageHandler.getClearingPackage(clearingId, providerId, lastRowId, packageNumber);
                     ClearingDataResponse response =
                             adapter.sendClearingDataPackage(uploadId, clearingDataPackage.getClearingDataRequest());
                     processAdapterFailureTransactions(response.getFailureTransactions(), clearingId, packageNumber);
@@ -74,7 +66,10 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
                     lastRowId = clearingDataPackage.getLastRowId();
                     packageNumber++;
                     log.info("Finish sending package {} for clearing event {}", packageNumber, clearingId);
-                } while (transactions != null && transactions.size() == packageSize);
+                } while (clearingDataPackage != null
+                        && clearingDataPackage.getClearingDataRequest() != null
+                        && clearingDataPackage.getClearingDataRequest().getTransactions() != null
+                        && clearingDataPackage.getClearingDataRequest().getTransactions().size() == packageSize);
             }
 
             adapter.completeClearingEvent(uploadId, clearingId, tagList);
