@@ -186,7 +186,7 @@ public class PrepareClearingDataHandler implements Handler<ClearingProcessingEve
                                                                  ClearingRefund refund) {
         ClearingEventTransactionInfo eventTrxInfo = new ClearingEventTransactionInfo();
         eventTrxInfo.setClearingId(clearingId);
-        eventTrxInfo.setTransactionType(ClearingTrxType.PAYMENT);
+        eventTrxInfo.setTransactionType(ClearingTrxType.REFUND);
         eventTrxInfo.setInvoiceId(refund.getInvoiceId());
         eventTrxInfo.setPaymentId(refund.getPaymentId());
         eventTrxInfo.setRefundId(refund.getRefundId());
