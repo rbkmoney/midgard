@@ -63,8 +63,9 @@ public class InvoicePaymentCaptureStartedHandler extends AbstractInvoicingHandle
                 sequenceId, invoiceId, paymentId);
         Payment paymentSource = paymentDao.get(invoiceId, paymentId);
         if (paymentSource == null) {
-            throw new NotFoundException(String.format("Payment not found, invoiceId='%s', paymentId='%s'",
-                    invoiceId, paymentId));
+            log.error("Payment not found (sequenceId='{}', invoiceId='{}', paymentId='{}'",
+                    sequenceId, invoiceId, paymentId);
+            return;
         }
         Long paymentSourceId = paymentSource.getId();
         paymentSource.setId(null);
