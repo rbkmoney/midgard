@@ -122,7 +122,7 @@ public class ClearingTransactionPackageHandler implements ClearingPackageHandler
                 packageNumber, clearingId);
         ClearingTransaction clearingTransaction =
                 transactionsDao.getTransaction(refund.getInvoiceId(), refund.getPaymentId(), MappingUtils.DEFAULT_TRX_VERSION);
-        List<ClearingTransactionCashFlow> cashFlowList = cashFlowDao.get(refund.getSequenceId());
+        List<ClearingTransactionCashFlow> cashFlowList = cashFlowDao.get(refund.getSourceRowId());
         return MappingUtils.transformRefundTransaction(clearingTransaction, cashFlowList, refund);
     }
 
