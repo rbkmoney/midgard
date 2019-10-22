@@ -25,7 +25,7 @@ clearing-service:
   adapters:
     mts:
       name: MTS
-      url: http://clearing:8023/v1/clearing/mts
+      url: http://localhost:8023/v1/clearing/mts
       networkTimeout: 120000
       providerId: 115
   schedule:

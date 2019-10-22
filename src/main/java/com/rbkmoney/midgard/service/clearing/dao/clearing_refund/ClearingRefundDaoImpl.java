@@ -2,6 +2,7 @@ package com.rbkmoney.midgard.service.clearing.dao.clearing_refund;
 
 import com.rbkmoney.midgard.service.clearing.dao.common.AbstractGenericDao;
 import com.rbkmoney.midgard.service.clearing.dao.common.RecordRowMapper;
+import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.Query;
 import org.jooq.generated.midgard.enums.TransactionClearingState;
@@ -10,9 +11,9 @@ import org.jooq.generated.midgard.tables.records.ClearingRefundRecord;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.util.List;
 
+import static org.jooq.generated.midgard.Tables.CLEARING_TRANSACTION;
 import static org.jooq.generated.midgard.enums.TransactionClearingState.FAILED;
 import static org.jooq.generated.midgard.enums.TransactionClearingState.READY;
 import static org.jooq.generated.midgard.tables.ClearingRefund.CLEARING_REFUND;
@@ -23,7 +24,7 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
 
     private final RowMapper<ClearingRefund> clearingRefundRowMapper;
 
-    public ClearingRefundDaoImpl(DataSource dataSource) {
+    public ClearingRefundDaoImpl(HikariDataSource dataSource) {
         super(dataSource);
         clearingRefundRowMapper = new RecordRowMapper<>(CLEARING_REFUND, ClearingRefund.class);
     }
@@ -75,24 +76,33 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
     public ClearingRefund getLastActiveRefund() {
         Query query = getDslContext().selectFrom(CLEARING_REFUND)
                 .where(CLEARING_REFUND.SOURCE_ROW_ID.isNotNull())
-                .and(CLEARING_REFUND.CLEARING_STATE.notIn(READY, FAILED))
-                .orderBy(CLEARING_REFUND.SOURCE_ROW_ID.desc())
+                .and(CLEARING_REFUND.CLEARING_STATE.in(READY, FAILED))
+                .orderBy(CLEARING_REFUND.SOURCE_ROW_ID.asc())
                 .limit(1);
         return fetchOne(query, clearingRefundRowMapper);
     }
 
     @Override
-    public List<ClearingRefund> getClearingTransactions(long lastSourceRowId, int packageSize) {
-        Query query = getDslContext().selectFrom(CLEARING_REFUND)
-                .where(CLEARING_REFUND.SOURCE_ROW_ID.greaterThan(lastSourceRowId)
-                        .and(CLEARING_REFUND.CLEARING_STATE.in(READY, FAILED)))
-                .orderBy(CLEARING_REFUND.SOURCE_ROW_ID.asc())
+    public List<ClearingRefund> getReadyClearingRefunds(int providerId, int packageSize) {
+        Query query = getDslContext().select(CLEARING_REFUND.fields())
+                .from(CLEARING_REFUND)
+                .join(CLEARING_TRANSACTION).on(CLEARING_TRANSACTION.INVOICE_ID.eq(CLEARING_REFUND.INVOICE_ID))
+                    .and(CLEARING_TRANSACTION.PAYMENT_ID.eq(CLEARING_REFUND.PAYMENT_ID))
+                    .and(CLEARING_TRANSACTION.TRX_VERSION.eq(1))
+                    .and(CLEARING_TRANSACTION.PROVIDER_ID.eq(providerId))
+                .where(CLEARING_REFUND.CLEARING_STATE.in(READY, FAILED))
                 .limit(packageSize);
         return fetch(query, clearingRefundRowMapper);
     }
 
     @Override
-    public void updateClearingRefundState(String invoiceId, String paymentId, String refundId, int version, long clearingId, Integer providerId, TransactionClearingState state) {
+    public void updateClearingRefundState(String invoiceId,
+                                          String paymentId,
+                                          String refundId,
+                                          int version,
+                                          long clearingId,
+                                          Integer providerId,
+                                          TransactionClearingState state) {
         Query query = getDslContext().update(CLEARING_REFUND)
                 .set(CLEARING_REFUND.CLEARING_STATE, state)
                 .set(CLEARING_REFUND.PROVIDER_ID, providerId)

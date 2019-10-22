@@ -14,7 +14,7 @@ public interface ClearingRefundDao extends ClearingDao<ClearingRefund, String> {
 
     ClearingRefund getLastActiveRefund();
 
-    List<ClearingRefund> getClearingTransactions(long lastSourceRowId, int packageSize);
+    List<ClearingRefund> getReadyClearingRefunds(int providerId, int packageSize);
 
     void updateClearingRefundState(String invoiceId, String paymentId, String refundId,
                                    int version, long clearingId, Integer providerId, TransactionClearingState state);

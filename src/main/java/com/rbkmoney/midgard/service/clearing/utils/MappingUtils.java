@@ -220,4 +220,35 @@ public final class MappingUtils {
         return failureTransaction;
     }
 
+    public static ClearingEventTransactionInfo transformClearingTrx(long clearingId,
+                                                                    int providerId,
+                                                                    ClearingTransaction trx) {
+        ClearingEventTransactionInfo eventTrxInfo = new ClearingEventTransactionInfo();
+        eventTrxInfo.setClearingId(clearingId);
+        eventTrxInfo.setTransactionType(ClearingTrxType.PAYMENT);
+        eventTrxInfo.setInvoiceId(trx.getInvoiceId());
+        eventTrxInfo.setPaymentId(trx.getPaymentId());
+        eventTrxInfo.setTransactionId(trx.getTransactionId());
+        eventTrxInfo.setTrxVersion(trx.getTrxVersion());
+        eventTrxInfo.setRowNumber(trx.getSourceRowId());
+        eventTrxInfo.setProviderId(providerId);
+        return eventTrxInfo;
+    }
+
+    public static ClearingEventTransactionInfo transformClearingRefund(long clearingId,
+                                                                       int providerId,
+                                                                       ClearingRefund refund) {
+        ClearingEventTransactionInfo eventTrxInfo = new ClearingEventTransactionInfo();
+        eventTrxInfo.setClearingId(clearingId);
+        eventTrxInfo.setTransactionType(ClearingTrxType.REFUND);
+        eventTrxInfo.setInvoiceId(refund.getInvoiceId());
+        eventTrxInfo.setPaymentId(refund.getPaymentId());
+        eventTrxInfo.setRefundId(refund.getRefundId());
+        eventTrxInfo.setTransactionId(refund.getTransactionId());
+        eventTrxInfo.setTrxVersion(refund.getTrxVersion());
+        eventTrxInfo.setRowNumber(refund.getSourceRowId());
+        eventTrxInfo.setProviderId(providerId);
+        return eventTrxInfo;
+    }
+
 }

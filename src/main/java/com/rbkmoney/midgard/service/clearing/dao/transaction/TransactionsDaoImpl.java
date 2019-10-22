@@ -2,6 +2,7 @@ package com.rbkmoney.midgard.service.clearing.dao.transaction;
 
 import com.rbkmoney.midgard.service.clearing.dao.common.AbstractGenericDao;
 import com.rbkmoney.midgard.service.clearing.dao.common.RecordRowMapper;
+import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.Field;
 import org.jooq.Query;
@@ -13,11 +14,9 @@ import org.jooq.generated.midgard.tables.pojos.FailureTransaction;
 import org.jooq.generated.midgard.tables.records.ClearingEventTransactionInfoRecord;
 import org.jooq.generated.midgard.tables.records.ClearingTransactionRecord;
 import org.jooq.generated.midgard.tables.records.FailureTransactionRecord;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 import static org.jooq.generated.midgard.Tables.CLEARING_EVENT_TRANSACTION_INFO;
@@ -42,7 +41,7 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
 
     private final RowMapper<ClearingEventTransactionInfo> transactionEventInfoRowMapper;
 
-    public TransactionsDaoImpl(@Qualifier("dataSource") DataSource dataSource) {
+    public TransactionsDaoImpl(HikariDataSource dataSource) {
         super(dataSource);
         transactionRowMapper =
                 new RecordRowMapper<>(CLEARING_TRANSACTION, ClearingTransaction.class);
@@ -140,14 +139,11 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
     }
 
     @Override
-    public List<ClearingTransaction> getClearingTransactions(long lastSourceRowId,
-                                                             int providerId,
-                                                             int packageSize) {
+    public List<ClearingTransaction> getReadyClearingTransactions(int providerId,
+                                                                  int packageSize) {
         Query query = getDslContext().selectFrom(CLEARING_TRANSACTION)
-                .where(CLEARING_TRANSACTION.SOURCE_ROW_ID.greaterThan(lastSourceRowId)
-                        .and(CLEARING_TRANSACTION.PROVIDER_ID.eq(providerId))
-                        .and(CLEARING_TRANSACTION.TRANSACTION_CLEARING_STATE.in(READY, FAILED)))
-                .orderBy(CLEARING_TRANSACTION.SOURCE_ROW_ID.asc())
+                .where(CLEARING_TRANSACTION.TRANSACTION_CLEARING_STATE.in(READY, FAILED)
+                        .and(CLEARING_TRANSACTION.PROVIDER_ID.eq(providerId)))
                 .limit(packageSize);
         return fetch(query, transactionRowMapper);
     }
