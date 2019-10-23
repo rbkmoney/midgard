@@ -10,6 +10,7 @@ import com.rbkmoney.midgard.service.clearing.data.ClearingAdapter;
 import com.rbkmoney.midgard.service.clearing.importers.Importer;
 import com.rbkmoney.midgard.service.clearing.services.ClearingEventService;
 import com.rbkmoney.midgard.service.clearing.services.MigrationDataService;
+import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.midgard.enums.ClearingEventStatus;
 import org.jooq.generated.midgard.enums.TransactionClearingState;
@@ -20,7 +21,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 public class ClearingEventIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
-    private DataSource dataSource;
+    private HikariDataSource dataSource;
 
     @Autowired
     private ClearingEventService clearingEventService;
