@@ -58,7 +58,7 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
                 Invoice invoice = invoicingService.get(userInfo, invoiceId, eventRange);
                 com.rbkmoney.damsel.domain.InvoicePayment payment = invoice.getPayments().stream()
                         .map(invoicePayment -> invoicePayment.getPayment())
-                        .filter(invoicePayment -> invoicePayment.getId() == paymentId)
+                        .filter(invoicePayment -> paymentId.equals(invoicePayment.getId()))
                         .findFirst()
                         .orElse(null);
                 if (payment == null) {

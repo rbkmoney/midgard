@@ -60,7 +60,7 @@ public class RefundStatusChangedHandler extends AbstractInvoicingHandler {
             eventRange.setLimit(Integer.MAX_VALUE);
             Invoice invoice = invoicingService.get(userInfo, invoiceId, eventRange);
             InvoicePayment invoicePayment = invoice.getPayments().stream()
-                    .filter(invPayment -> invPayment.getPayment().getId() == paymentId)
+                    .filter(invPayment -> paymentId.equals(invPayment.getPayment().getId()))
                     .findFirst()
                     .orElse(null);
             if (invoicePayment == null || invoicePayment.getPayment() == null) {
