@@ -5,7 +5,7 @@ import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
 import com.rbkmoney.damsel.payment_processing.InvoiceCreated;
 import com.rbkmoney.midgard.service.load.model.SimpleEvent;
-import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
+import com.rbkmoney.midgard.service.load.handler.invoicing.AbstractInvoicingHandler;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

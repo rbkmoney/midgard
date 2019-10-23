@@ -28,6 +28,9 @@ clearing-service:
       url: http://localhost:8023/v1/clearing/mts
       networkTimeout: 120000
       providerId: 115
+  invoicing:
+    url: http://invoicing:8023/v1/invoicing
+    networkTimeout: 120000
   schedule:
     mts: "00 01 00 * * *"
 

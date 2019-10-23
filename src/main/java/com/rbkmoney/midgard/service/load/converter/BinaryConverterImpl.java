@@ -26,4 +26,3 @@ public class BinaryConverterImpl implements BinaryConverter<EventPayload> {
     }
 
 }
-

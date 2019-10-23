@@ -5,12 +5,11 @@ import com.rbkmoney.damsel.payment_processing.InvoiceChange;
 import com.rbkmoney.midgard.service.clearing.exception.DaoException;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.InvoiceDao;
 import com.rbkmoney.midgard.service.load.model.SimpleEvent;
-import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
+import com.rbkmoney.midgard.service.load.handler.invoicing.AbstractInvoicingHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;

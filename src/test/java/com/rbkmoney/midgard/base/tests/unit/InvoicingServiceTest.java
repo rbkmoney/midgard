@@ -5,7 +5,7 @@ import com.rbkmoney.damsel.payment_processing.InvoiceChange;
 import com.rbkmoney.midgard.service.load.dao.invoicing.iface.InvoiceDao;
 import com.rbkmoney.midgard.service.load.dao.invoicing.impl.InvoiceDaoImpl;
 import com.rbkmoney.midgard.service.load.model.SimpleEvent;
-import com.rbkmoney.midgard.service.load.pollers.event_sink.invoicing.AbstractInvoicingHandler;
+import com.rbkmoney.midgard.service.load.handler.invoicing.AbstractInvoicingHandler;
 import com.rbkmoney.midgard.service.load.services.InvoicingService;
 import org.junit.BeforeClass;
 import org.junit.Test;

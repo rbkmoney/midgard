@@ -3,7 +3,10 @@ package com.rbkmoney.midgard.service.load.utils;
 import com.rbkmoney.damsel.payment_processing.Event;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.load.model.SimpleEvent;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MapperUtil {
 
     private static final String KAFKA_SOURCE_NAME = "kafka";
@@ -27,7 +30,5 @@ public final class MapperUtil {
                 .eventSourceName(BUSTERMASE_SOURCE_NAME)
                 .build();
     }
-
-    private MapperUtil() { }
 
 }
