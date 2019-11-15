@@ -12,7 +12,7 @@
 
     <groupId>com.rbkmoney</groupId>
     <artifactId>midgard</artifactId>
-    <version>1.7.1-SNAPSHOT</version>
+    <version>1.7.2-SNAPSHOT</version>
 
     <name>midgard</name>
     <description>Application for work with clearing data</description>
@@ -174,11 +174,6 @@
         </dependency>
 
         <!-- RBK.Money -->
-        <dependency>
-            <groupId>com.rbkmoney.logback</groupId>
-            <artifactId>nop-rolling</artifactId>
-            <version>1.0.2</version>
-        </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>kafka-common-lib</artifactId>
