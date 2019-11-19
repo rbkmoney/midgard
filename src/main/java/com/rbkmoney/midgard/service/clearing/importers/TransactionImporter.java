@@ -28,10 +28,13 @@ public class TransactionImporter implements Importer {
 
     private final PaymentDao paymentDao;
 
-    private final ClearingCashFlowDao cashFlowDao   ;
+    private final ClearingCashFlowDao cashFlowDao;
 
     @Value("${import.trx-pool-size}")
     private int poolSize;
+
+    @Value("${import.prevIdDelta}")
+    private int prevIdDelta;
 
     private static final String TRAN_ID_NULL_ERROR = "NULL value in column 'transaction_id'";
 
@@ -60,8 +63,6 @@ public class TransactionImporter implements Importer {
 
     private void saveTransaction(Payment payment) {
         ClearingTransaction transaction = MappingUtils.transformTransaction(payment);
-        log.info("Saving a clearing refund with invoice id '{}', payment id '{}' and sequence id '{}'",
-                payment.getInvoiceId(), payment.getPaymentId(), payment.getSequenceId());
         log.debug("Saving a transaction {}", transaction);
 
         if (transaction.getTransactionId() == null) {
@@ -71,10 +72,12 @@ public class TransactionImporter implements Importer {
             log.error("The following error was detected during save: '{}'. \nThe following object will be saved " +
                     "to the database: {}", TRAN_ID_NULL_ERROR, transaction);
         }
-        transactionsDao.save(transaction);
+        Long trxSourceRowId = transactionsDao.save(transaction);
 
-        List<CashFlow> cashFlow = paymentDao.getCashFlow(payment.getId());
-        saveCashFlow(payment, cashFlow);
+        if (trxSourceRowId != null) {
+            List<CashFlow> cashFlow = paymentDao.getCashFlow(payment.getId());
+            saveCashFlow(payment, cashFlow);
+        }
     }
 
     private void saveCashFlow(Payment payment, List<CashFlow> cashFlow) {
@@ -91,7 +94,7 @@ public class TransactionImporter implements Importer {
             return 0L;
         } else {
             log.info("Last payment source row id {}", clearingTransaction.getSourceRowId());
-            return clearingTransaction.getSourceRowId();
+            return clearingTransaction.getSourceRowId() - prevIdDelta;
         }
     }
 

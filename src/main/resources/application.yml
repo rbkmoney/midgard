@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: @project.name@
+    name: midgard
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: org.postgresql.Driver
@@ -36,6 +36,7 @@ import:
   migration:
     delay: 30000
   init-last-event-id: 205612089
+  prevIdDelta: 200000
 
 retry-policy:
   maxAttempts: 10

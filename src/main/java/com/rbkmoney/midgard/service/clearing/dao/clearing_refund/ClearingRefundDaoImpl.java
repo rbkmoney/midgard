@@ -9,6 +9,7 @@ import org.jooq.generated.midgard.enums.TransactionClearingState;
 import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
 import org.jooq.generated.midgard.tables.records.ClearingRefundRecord;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -30,14 +31,21 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
     }
 
     @Override
-    public Long save(ClearingRefund clearingRefund) {
-        log.debug("Adding new clearing refund: {}", clearingRefund);
-        ClearingRefundRecord record = getDslContext().newRecord(CLEARING_REFUND, clearingRefund);
-        Query query = getDslContext().insertInto(CLEARING_REFUND).set(record);
+    public Long save(ClearingRefund refund) {
+        log.debug("Adding new clearing refund: {}", refund);
+        ClearingRefundRecord record = getDslContext().newRecord(CLEARING_REFUND, refund);
+        Query query = getDslContext()
+                .insertInto(CLEARING_REFUND)
+                .set(record)
+                .onConflict(CLEARING_REFUND.INVOICE_ID, CLEARING_REFUND.PAYMENT_ID, CLEARING_REFUND.REFUND_ID, CLEARING_REFUND.TRX_VERSION)
+                .doNothing()
+                .returning(CLEARING_REFUND.SOURCE_ROW_ID);
 
-        int addedRows = execute(query);
-        log.debug("New clearing refund with sequence id {} was added", clearingRefund.getSequenceId());
-        return Long.valueOf(addedRows);
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        executeWithReturn(query, keyHolder);
+        log.debug("Clearing refund with invoice id '{}', sequence id '{}' and change id '{}' was added " +
+                "by migration process", refund.getInvoiceId(), refund.getSequenceId(), refund.getChangeId());
+        return keyHolder.getKey() == null ? null : keyHolder.getKey().longValue();
     }
 
     @Override

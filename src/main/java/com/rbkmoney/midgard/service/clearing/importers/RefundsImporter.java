@@ -37,6 +37,9 @@ public class RefundsImporter implements Importer {
     @Value("${import.trx-pool-size}")
     private int poolSize;
 
+    @Value("${import.prevIdDelta}")
+    private int prevIdDelta;
+
     private static final String TRAN_ID_NULL_ERROR = "NULL value in column 'transaction_id'";
 
     /**
@@ -64,9 +67,7 @@ public class RefundsImporter implements Importer {
 
     private void saveClearingRefundData(Refund refund) throws DaoException {
         ClearingRefund clearingRefund = MappingUtils.transformRefund(refund);
-        log.info("Saving a clearing refund with sequence id '{}' and invoice id '{}'",
-                refund.getSequenceId(), refund.getInvoiceId());
-        log.debug("Saving a clearing refund {}", clearingRefund);
+        log.debug("Saving a refund {}", clearingRefund);
 
         if (clearingRefund.getTransactionId() == null) {
             clearingRefund.setClearingState(TransactionClearingState.FATAL);
@@ -75,12 +76,14 @@ public class RefundsImporter implements Importer {
             log.error("The following error was detected during save: {}. \nThe following object will be saved " +
                     "to the database: {}", TRAN_ID_NULL_ERROR, clearingRefund);
         }
-        clearingRefundDao.save(clearingRefund);
+        Long refundSourceRowId = clearingRefundDao.save(clearingRefund);
 
-        List<CashFlow> cashFlow = paymentDao.getCashFlow(refund.getId());
-        List<ClearingTransactionCashFlow> transactionCashFlowList =
-                transformCashFlow(cashFlow, clearingRefund.getSequenceId());
-        clearingCashFlowDao.save(transactionCashFlowList);
+        if (refundSourceRowId != null) {
+            List<CashFlow> cashFlow = paymentDao.getCashFlow(refund.getId());
+            List<ClearingTransactionCashFlow> transactionCashFlowList =
+                    transformCashFlow(cashFlow, clearingRefund.getSequenceId());
+            clearingCashFlowDao.save(transactionCashFlowList);
+        }
     }
 
     private long getLastTransactionRowId() {
@@ -90,7 +93,7 @@ public class RefundsImporter implements Importer {
             return 0L;
         } else {
             log.info("Last refund sequence id {}", clearingRefund.getSourceRowId());
-            return clearingRefund.getSourceRowId();
+            return clearingRefund.getSourceRowId() - prevIdDelta;
         }
     }
 
