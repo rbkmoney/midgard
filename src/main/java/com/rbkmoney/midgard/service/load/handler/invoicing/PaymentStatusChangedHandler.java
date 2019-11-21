@@ -48,11 +48,10 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
         log.info("Processing payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +
                 "changeId = '{}')", invoiceId, event.getSequenceId(), changeId);
         if (invoicePaymentStatus.isSetCaptured()) {
-
             String paymentId = invoiceChange.getInvoicePaymentChange().getId();
-
             Invoice invoice = invoicingService.get(USER_INFO, invoiceId, getEventRange((int) event.getSequenceId()));
-            com.rbkmoney.damsel.domain.InvoicePayment payment = getPaymentById(invoice, paymentId);
+
+            var payment = getPaymentById(invoice, paymentId);
             if (payment == null) {
                 throw new NotFoundException("Payment " + paymentId + " for invoice " + invoiceId + " not found");
             }
@@ -66,6 +65,8 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
             }
             ClearingTransaction clearingTransaction = transformTransaction(payment, event, invoiceId, changeId);
             transactionsDao.save(clearingTransaction);
+            log.info("Payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +
+                    "changeId = '{}') was processed", invoiceId, event.getSequenceId(), changeId);
         }
     }
 

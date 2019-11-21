@@ -84,6 +84,8 @@ public class RefundStatusChangedHandler extends AbstractInvoicingHandler {
             }
             ClearingRefund clearingRefund = transformRefund(refund, event, payment, changeId);
             clearingRefundDao.save(clearingRefund);
+            log.info("Refund with status 'succeeded' (invoiceId = '{}', sequenceId = '{}', " +
+                    "changeId = '{}') was processed", invoiceId, event.getSequenceId(), changeId);
         }
     }
 
