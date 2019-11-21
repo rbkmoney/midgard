@@ -14,7 +14,6 @@ import com.rbkmoney.midgard.service.clearing.data.ClearingAdapter;
 import com.rbkmoney.midgard.service.load.model.SimpleEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.thrift.TException;
 import org.jooq.generated.midgard.enums.TransactionClearingState;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
 import org.springframework.stereotype.Component;
@@ -35,7 +34,9 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
 
     private final InvoicingSrv.Iface invoicingService;
 
-    private final UserInfo userInfo;
+    private static final String USER_INFO_ID = "admin";
+
+    private final UserInfo userInfo = userInfo();
 
     private final List<ClearingAdapter> adapters;
 
@@ -51,36 +52,29 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
         if (invoicePaymentStatus.isSetCaptured()) {
             String invoiceId = event.getSourceId();
             String paymentId = invoiceChange.getInvoicePaymentChange().getId();
-            try {
-                EventRange eventRange = new EventRange();
-                eventRange.setAfter(0L);
-                eventRange.setLimit(Integer.MAX_VALUE);
-                Invoice invoice = invoicingService.get(userInfo, invoiceId, eventRange);
-                com.rbkmoney.damsel.domain.InvoicePayment payment = invoice.getPayments().stream()
-                        .map(invoicePayment -> invoicePayment.getPayment())
-                        .filter(invoicePayment -> paymentId.equals(invoicePayment.getId()))
-                        .findFirst()
-                        .orElse(null);
-                if (payment == null) {
-                    throw new Exception("Payment " + paymentId + " for invoice " + invoiceId + " not found");
-                }
-                if (payment.getRoute() == null || payment.getRoute().getProvider() == null) {
-                    throw new RuntimeException("Provider ID for invoice " + invoiceId + " with payment id " +
-                            paymentId + " not found!");
-                }
-                int providerId = payment.getRoute().getProvider().getId();
-                List<Integer> proveidersIds = adapters.stream()
-                        .map(ClearingAdapter::getAdapterId)
-                        .collect(Collectors.toList());
-                if (!proveidersIds.contains(providerId)) {
-                    return;
-                }
-                ClearingTransaction clearingTransaction = transformTransaction(payment, event, invoiceId, changeId);
-                transactionsDao.save(clearingTransaction);
-            } catch (TException e) {
-                log.error("Thrift error: ", e); //TODO: do it
-                throw e;
+
+            Invoice invoice = invoicingService.get(userInfo, invoiceId, getEventRange());
+            com.rbkmoney.damsel.domain.InvoicePayment payment = invoice.getPayments().stream()
+                    .map(invoicePayment -> invoicePayment.getPayment())
+                    .filter(invoicePayment -> paymentId.equals(invoicePayment.getId()))
+                    .findFirst()
+                    .orElse(null);
+            if (payment == null) {
+                throw new Exception("Payment " + paymentId + " for invoice " + invoiceId + " not found");
             }
+            if (payment.getRoute() == null || payment.getRoute().getProvider() == null) {
+                throw new RuntimeException("Provider ID for invoice " + invoiceId + " with payment id " +
+                        paymentId + " not found!");
+            }
+            int providerId = payment.getRoute().getProvider().getId();
+            List<Integer> proveidersIds = adapters.stream()
+                    .map(ClearingAdapter::getAdapterId)
+                    .collect(Collectors.toList());
+            if (!proveidersIds.contains(providerId)) {
+                return;
+            }
+            ClearingTransaction clearingTransaction = transformTransaction(payment, event, invoiceId, changeId);
+            transactionsDao.save(clearingTransaction);
         }
     }
 
@@ -150,6 +144,19 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
                         .getInvoicePaymentStatusChanged()
                         .getStatus()
                         .isSetRefunded();
+    }
+
+    private UserInfo userInfo() {
+        UserInfo userInfo = new UserInfo();
+        userInfo.setId(USER_INFO_ID);
+        userInfo.setType(UserType.service_user(new ServiceUser()));
+        return userInfo;
+    }
+
+    private EventRange getEventRange() {
+        EventRange eventRange = new EventRange();
+        eventRange.setLimit(Integer.MAX_VALUE);
+        return eventRange;
     }
 
 }
