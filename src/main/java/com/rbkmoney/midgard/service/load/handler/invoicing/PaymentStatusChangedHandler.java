@@ -34,10 +34,6 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
 
     private final InvoicingSrv.Iface invoicingService;
 
-    private static final String USER_INFO_ID = "admin";
-
-    private final UserInfo userInfo = userInfo();
-
     private final List<ClearingAdapter> adapters;
 
     private final Filter filter = new PathConditionFilter(
@@ -53,7 +49,7 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
             String invoiceId = event.getSourceId();
             String paymentId = invoiceChange.getInvoicePaymentChange().getId();
 
-            Invoice invoice = invoicingService.get(userInfo, invoiceId, getEventRange());
+            Invoice invoice = invoicingService.get(getUserInfo(), invoiceId, getEventRange());
             com.rbkmoney.damsel.domain.InvoicePayment payment = invoice.getPayments().stream()
                     .map(invoicePayment -> invoicePayment.getPayment())
                     .filter(invoicePayment -> paymentId.equals(invoicePayment.getId()))
@@ -144,19 +140,6 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
                         .getInvoicePaymentStatusChanged()
                         .getStatus()
                         .isSetRefunded();
-    }
-
-    private UserInfo userInfo() {
-        UserInfo userInfo = new UserInfo();
-        userInfo.setId(USER_INFO_ID);
-        userInfo.setType(UserType.service_user(new ServiceUser()));
-        return userInfo;
-    }
-
-    private EventRange getEventRange() {
-        EventRange eventRange = new EventRange();
-        eventRange.setLimit(Integer.MAX_VALUE);
-        return eventRange;
     }
 
 }

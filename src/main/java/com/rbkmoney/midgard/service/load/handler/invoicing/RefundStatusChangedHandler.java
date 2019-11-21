@@ -33,8 +33,6 @@ public class RefundStatusChangedHandler extends AbstractInvoicingHandler {
 
     private final InvoicingSrv.Iface invoicingService;
 
-    private final UserInfo userInfo;
-
     private final List<ClearingAdapter> adapters;
 
     private final Filter filter = new PathConditionFilter(new PathConditionRule(
@@ -55,10 +53,7 @@ public class RefundStatusChangedHandler extends AbstractInvoicingHandler {
             String paymentId = invoiceChange.getInvoicePaymentChange().getId();
             String refundId = invoicePaymentRefundChange.getId();
 
-            EventRange eventRange = new EventRange();
-            eventRange.setAfter(0L);
-            eventRange.setLimit(Integer.MAX_VALUE);
-            Invoice invoice = invoicingService.get(userInfo, invoiceId, eventRange);
+            Invoice invoice = invoicingService.get(getUserInfo(), invoiceId, getEventRange());
             InvoicePayment invoicePayment = invoice.getPayments().stream()
                     .filter(invPayment -> paymentId.equals(invPayment.getPayment().getId()))
                     .findFirst()
@@ -123,4 +118,5 @@ public class RefundStatusChangedHandler extends AbstractInvoicingHandler {
     public Filter<InvoiceChange> getFilter() {
         return filter;
     }
+
 }
