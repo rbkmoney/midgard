@@ -1,29 +1,28 @@
 package com.rbkmoney.midgard.service.load.handler.invoicing;
 
-import com.rbkmoney.damsel.domain.BankCard;
-import com.rbkmoney.damsel.domain.Cash;
 import com.rbkmoney.damsel.domain.InvoicePaymentStatus;
-import com.rbkmoney.damsel.domain.Payer;
-import com.rbkmoney.damsel.payment_processing.*;
+import com.rbkmoney.damsel.payment_processing.Invoice;
+import com.rbkmoney.damsel.payment_processing.InvoiceChange;
+import com.rbkmoney.damsel.payment_processing.InvoicingSrv;
 import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
 import com.rbkmoney.geck.filter.rule.PathConditionRule;
 import com.rbkmoney.midgard.service.clearing.dao.transaction.TransactionsDao;
 import com.rbkmoney.midgard.service.clearing.data.ClearingAdapter;
+import com.rbkmoney.midgard.service.clearing.exception.NotFoundException;
 import com.rbkmoney.midgard.service.load.model.SimpleEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.generated.midgard.enums.TransactionClearingState;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.rbkmoney.midgard.service.clearing.utils.MappingUtils.DEFAULT_TRX_VERSION;
+import static com.rbkmoney.midgard.service.load.utils.MapperUtil.checkRouteInfo;
+import static com.rbkmoney.midgard.service.load.utils.MapperUtil.transformTransaction;
 
 @Slf4j
 @Component
@@ -45,23 +44,19 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) throws Exception {
         InvoicePaymentStatus invoicePaymentStatus =
                 invoiceChange.getInvoicePaymentChange().getPayload().getInvoicePaymentStatusChanged().getStatus();
+        String invoiceId = event.getSourceId();
+        log.info("Processing payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +
+                "changeId = '{}')", invoiceId, event.getSequenceId(), changeId);
         if (invoicePaymentStatus.isSetCaptured()) {
-            String invoiceId = event.getSourceId();
+
             String paymentId = invoiceChange.getInvoicePaymentChange().getId();
 
-            Invoice invoice = invoicingService.get(getUserInfo(), invoiceId, getEventRange());
-            com.rbkmoney.damsel.domain.InvoicePayment payment = invoice.getPayments().stream()
-                    .map(invoicePayment -> invoicePayment.getPayment())
-                    .filter(invoicePayment -> paymentId.equals(invoicePayment.getId()))
-                    .findFirst()
-                    .orElse(null);
+            Invoice invoice = invoicingService.get(USER_INFO, invoiceId, getEventRange((int) event.getSequenceId()));
+            com.rbkmoney.damsel.domain.InvoicePayment payment = getPaymentById(invoice, paymentId);
             if (payment == null) {
-                throw new Exception("Payment " + paymentId + " for invoice " + invoiceId + " not found");
+                throw new NotFoundException("Payment " + paymentId + " for invoice " + invoiceId + " not found");
             }
-            if (payment.getRoute() == null || payment.getRoute().getProvider() == null) {
-                throw new RuntimeException("Provider ID for invoice " + invoiceId + " with payment id " +
-                        paymentId + " not found!");
-            }
+            checkRouteInfo(payment, invoiceId, paymentId);
             int providerId = payment.getRoute().getProvider().getId();
             List<Integer> proveidersIds = adapters.stream()
                     .map(ClearingAdapter::getAdapterId)
@@ -74,57 +69,12 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
         }
     }
 
-    private static ClearingTransaction transformTransaction(com.rbkmoney.damsel.domain.InvoicePayment payment,
-                                                            SimpleEvent event,
-                                                            String invoiceId,
-                                                            Integer changeId) {
-        ClearingTransaction trx = new ClearingTransaction();
-
-        trx.setProviderId(payment.getRoute().getProvider().getId());
-        trx.setRouteTerminalId(payment.getRoute().getTerminal().getId());
-
-        trx.setInvoiceId(invoiceId);
-        trx.setPaymentId(payment.getId());
-        trx.setTransactionId(payment.getExternalId()); //todo: это ли transactionID
-        trx.setTransactionDate(LocalDateTime.parse(payment.getCreatedAt()));
-        Cash cost = payment.getCost();
-        trx.setTransactionAmount(cost.getAmount());
-        trx.setTransactionCurrency(cost.getCurrency().getSymbolicCode());
-        trx.setTransactionClearingState(TransactionClearingState.READY);
-
-        trx.setPartyId(payment.getOwnerId());
-        trx.setShopId(payment.getShopId());
-
-        BankCard bankCard;
-        Payer payer = payment.getPayer();
-        trx.setPayerType(payer.getSetField().getFieldName());
-
-        if (payer.isSetCustomer()) {
-            bankCard = payer.getCustomer().getPaymentTool().getBankCard();
-        } else if (payer.isSetRecurrent()) {
-            bankCard = payer.getRecurrent().getPaymentTool().getBankCard();
-            trx.setIsRecurrent(payer.isSetRecurrent());
-        } else if (payer.isSetPaymentResource()) {
-            bankCard = payer.getPaymentResource().getResource().getPaymentTool().getBankCard();
-        } else {
-            throw new RuntimeException("Payer type not found!");
-        }
-
-        trx.setPayerBankCardToken(bankCard.getToken());
-        trx.setPayerBankCardPaymentSystem(bankCard.getPaymentSystem().name());
-        trx.setPayerBankCardBin(bankCard.getBin());
-        trx.setPayerBankCardMaskedPan(bankCard.getMaskedPan());
-        trx.setPayerBankCardTokenProvider(bankCard.getTokenProvider().name());
-
-        trx.setExtra(new String(payment.getContext().getData())); //TODO: тут ли extra?
-
-        trx.setPayerRecurrentParentInvoiceId(payer.getRecurrent().getRecurrentParent().getInvoiceId());
-        trx.setPayerRecurrentParentPaymentId(payer.getRecurrent().getRecurrentParent().getPaymentId());
-        trx.setSequenceId(event.getSequenceId());
-        trx.setChangeId(changeId);
-        trx.setSourceRowId(0L);
-        trx.setTrxVersion(DEFAULT_TRX_VERSION);
-        return trx;
+    private com.rbkmoney.damsel.domain.InvoicePayment getPaymentById(Invoice invoice, String paymentId) {
+        return invoice.getPayments().stream()
+                .map(invoicePayment -> invoicePayment.getPayment())
+                .filter(invoicePayment -> paymentId.equals(invoicePayment.getId()))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override

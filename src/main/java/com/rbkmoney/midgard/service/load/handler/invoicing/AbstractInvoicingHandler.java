@@ -8,16 +8,13 @@ public abstract class AbstractInvoicingHandler implements Handler<InvoiceChange,
 
     private static final String USER_INFO_ID = "admin";
 
-    public UserInfo getUserInfo() {
-        UserInfo userInfo = new UserInfo();
-        userInfo.setId(USER_INFO_ID);
-        userInfo.setType(UserType.service_user(new ServiceUser()));
-        return userInfo;
-    }
+    public static final UserInfo USER_INFO = new UserInfo()
+            .setId(USER_INFO_ID)
+            .setType(UserType.service_user(new ServiceUser()));
 
-    public EventRange getEventRange() {
+    public EventRange getEventRange(int sequenceId) {
         EventRange eventRange = new EventRange();
-        eventRange.setLimit(Integer.MAX_VALUE);
+        eventRange.setLimit(sequenceId);
         return eventRange;
     }
 
