@@ -53,7 +53,7 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
 
             var payment = getPaymentById(invoice, paymentId);
             if (payment == null) {
-                throw new NotFoundException("Payment " + paymentId + " for invoice " + invoiceId + " not found");
+                throw new NotFoundException(String.format("Payment %s for invoice %s not found", paymentId, invoiceId));
             }
             checkRouteInfo(payment, invoiceId, paymentId);
             int providerId = payment.getRoute().getProvider().getId();

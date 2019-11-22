@@ -5,4 +5,4 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationProperties(prefix="clearing-service.adapters.mts")
-public class MtsAdapterProps extends AdapterProps { }
+public class MtsAdapterProperties extends AdapterProperties { }

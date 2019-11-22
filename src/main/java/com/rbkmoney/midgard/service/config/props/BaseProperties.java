@@ -4,9 +4,9 @@ import lombok.Data;
 import org.springframework.core.io.Resource;
 
 @Data
-public abstract class AdapterProps extends BaseProps {
+public abstract class BaseProperties {
 
-    private String name;
-    private int providerId;
+    private Resource url;
+    private int networkTimeout;
 
 }

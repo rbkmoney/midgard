@@ -1,9 +1,6 @@
 package com.rbkmoney.midgard.service.load.utils;
 
-import com.rbkmoney.damsel.domain.BankCard;
-import com.rbkmoney.damsel.domain.Cash;
-import com.rbkmoney.damsel.domain.InvoicePaymentRefund;
-import com.rbkmoney.damsel.domain.Payer;
+import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.payment_processing.Event;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.service.clearing.exception.NotFoundException;
@@ -49,10 +46,13 @@ public final class MapperUtil {
                                                            Integer changeId) {
         ClearingTransaction trx = new ClearingTransaction();
 
-        trx.setProviderId(payment.getRoute().getProvider().getId());
-        trx.setRouteTerminalId(payment.getRoute().getTerminal().getId());
+        PaymentRoute paymentRoute = payment.getRoute();
+        trx.setProviderId(paymentRoute.getProvider().getId());
+        trx.setRouteTerminalId(paymentRoute.getTerminal().getId());
 
         trx.setInvoiceId(invoiceId);
+        trx.setSequenceId(event.getSequenceId());
+        trx.setChangeId(changeId);
         trx.setPaymentId(payment.getId());
         trx.setTransactionId(payment.getExternalId()); //todo: это ли transactionID
         trx.setTransactionDate(LocalDateTime.parse(payment.getCreatedAt()));
@@ -63,12 +63,20 @@ public final class MapperUtil {
 
         trx.setPartyId(payment.getOwnerId());
         trx.setShopId(payment.getShopId());
+        fillPayerInfoToTrx(trx, payment);
 
+        trx.setSourceRowId(0L);
+        trx.setTrxVersion(DEFAULT_TRX_VERSION);
+        return trx;
+    }
+
+    private static void fillPayerInfoToTrx(ClearingTransaction trx,
+                                           com.rbkmoney.damsel.domain.InvoicePayment payment) {
         Payer payer = payment.getPayer();
         trx.setPayerType(payer.getSetField().getFieldName());
         trx.setIsRecurrent(payer.isSetRecurrent());
 
-        BankCard bankCard = getBankCard(payer);
+        BankCard bankCard = extractBankCard(payer);
         trx.setPayerBankCardToken(bankCard.getToken());
         trx.setPayerBankCardPaymentSystem(bankCard.getPaymentSystem().name());
         trx.setPayerBankCardBin(bankCard.getBin());
@@ -77,16 +85,12 @@ public final class MapperUtil {
 
         trx.setExtra(new String(payment.getContext().getData())); //TODO: тут ли extra?
 
-        trx.setPayerRecurrentParentInvoiceId(payer.getRecurrent().getRecurrentParent().getInvoiceId());
-        trx.setPayerRecurrentParentPaymentId(payer.getRecurrent().getRecurrentParent().getPaymentId());
-        trx.setSequenceId(event.getSequenceId());
-        trx.setChangeId(changeId);
-        trx.setSourceRowId(0L);
-        trx.setTrxVersion(DEFAULT_TRX_VERSION);
-        return trx;
+        RecurrentParentPayment recurrentParent = payer.getRecurrent().getRecurrentParent();
+        trx.setPayerRecurrentParentInvoiceId(recurrentParent.getInvoiceId());
+        trx.setPayerRecurrentParentPaymentId(recurrentParent.getPaymentId());
     }
 
-    private static BankCard getBankCard(Payer payer) {
+    private static BankCard extractBankCard(Payer payer) {
         if (payer.isSetCustomer()) {
             return payer.getCustomer().getPaymentTool().getBankCard();
         } else if (payer.isSetRecurrent()) {
@@ -127,9 +131,10 @@ public final class MapperUtil {
     public static void checkRouteInfo(com.rbkmoney.damsel.domain.InvoicePayment payment,
                                          String paymentId,
                                          String invoiceId) {
-        if (payment.getRoute() == null || payment.getRoute().getProvider() == null) {
-            throw new NotFoundException("Provider ID for invoice " + invoiceId + " with payment id " +
-                    paymentId + " not found!");
+        if (payment.getRoute() == null
+                || payment.getRoute().getProvider() == null) {
+            throw new NotFoundException(String.format("Provider ID for invoice %s with payment id %s not found!",
+                    invoiceId, paymentId));
         }
     }
 

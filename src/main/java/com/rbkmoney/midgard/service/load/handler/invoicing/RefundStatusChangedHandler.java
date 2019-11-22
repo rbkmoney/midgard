@@ -61,7 +61,7 @@ public class RefundStatusChangedHandler extends AbstractInvoicingHandler {
                     .findFirst()
                     .orElse(null);
             if (invoicePayment == null || invoicePayment.getPayment() == null) {
-                throw new NotFoundException("Payment " + paymentId + " for invoice " + invoiceId + " not found");
+                throw new NotFoundException(String.format("Payment %s for invoice %s not found", paymentId, invoiceId));
             }
             com.rbkmoney.damsel.domain.InvoicePayment payment = invoicePayment.getPayment();
             checkRouteInfo(payment, invoiceId, paymentId);

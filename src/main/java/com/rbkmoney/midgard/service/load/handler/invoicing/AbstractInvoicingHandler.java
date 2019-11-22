@@ -13,9 +13,7 @@ public abstract class AbstractInvoicingHandler implements Handler<InvoiceChange,
             .setType(UserType.service_user(new ServiceUser()));
 
     public EventRange getEventRange(int sequenceId) {
-        EventRange eventRange = new EventRange();
-        eventRange.setLimit(sequenceId);
-        return eventRange;
+        return new EventRange().setLimit(sequenceId);
     }
 
 }
