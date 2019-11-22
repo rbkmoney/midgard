@@ -1,6 +1,5 @@
 package com.rbkmoney.midgard.service.load.handler.invoicing;
 
-import com.rbkmoney.damsel.domain.InvoicePaymentRefund;
 import com.rbkmoney.damsel.domain.InvoicePaymentRefundStatus;
 import com.rbkmoney.damsel.payment_processing.*;
 import com.rbkmoney.geck.filter.Filter;
@@ -63,10 +62,9 @@ public class RefundStatusChangedHandler extends AbstractInvoicingHandler {
             if (invoicePayment == null || invoicePayment.getPayment() == null) {
                 throw new NotFoundException(String.format("Payment %s for invoice %s not found", paymentId, invoiceId));
             }
-            com.rbkmoney.damsel.domain.InvoicePayment payment = invoicePayment.getPayment();
-            checkRouteInfo(payment, invoiceId, paymentId);
+            checkRouteInfo(invoicePayment, invoiceId, paymentId);
 
-            int providerId = payment.getRoute().getProvider().getId();
+            int providerId = invoicePayment.getRoute().getProvider().getId();
             List<Integer> proveidersIds = adapters.stream()
                     .map(ClearingAdapter::getAdapterId)
                     .collect(Collectors.toList());
@@ -74,13 +72,17 @@ public class RefundStatusChangedHandler extends AbstractInvoicingHandler {
                 return;
             }
 
+            com.rbkmoney.damsel.domain.InvoicePayment payment = invoicePayment.getPayment();
+
+            invoicePayment.getRefunds().get(0).getSessions();//todo: wtf
             InvoicePaymentRefund refund = invoicePayment.getRefunds().stream()
-                    .filter(hgRefund -> refundId.equals(hgRefund.getId()))
+                    .filter(hgRefund -> refundId.equals(hgRefund.getRefund().getId()))
                     .findFirst()
                     .orElse(null);
+
             if (refund == null) {
-                throw new Exception("Refund " + refundId +" with payment id " + paymentId + " and invoice id " +
-                        invoiceId + " not found");
+                throw new NotFoundException(String.format("Refund '%s' with payment id '%s' and invoice id " +
+                         "'%s' not found", refundId, paymentId, invoiceId));
             }
             ClearingRefund clearingRefund = transformRefund(refund, event, payment, changeId);
             clearingRefundDao.save(clearingRefund);

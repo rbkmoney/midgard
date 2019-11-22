@@ -3,6 +3,7 @@ package com.rbkmoney.midgard.service.load.handler.invoicing;
 import com.rbkmoney.damsel.domain.InvoicePaymentStatus;
 import com.rbkmoney.damsel.payment_processing.Invoice;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
+import com.rbkmoney.damsel.payment_processing.InvoicePayment;
 import com.rbkmoney.damsel.payment_processing.InvoicingSrv;
 import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
@@ -51,11 +52,13 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
             String paymentId = invoiceChange.getInvoicePaymentChange().getId();
             Invoice invoice = invoicingService.get(USER_INFO, invoiceId, getEventRange((int) event.getSequenceId()));
 
+
             var payment = getPaymentById(invoice, paymentId);
             if (payment == null) {
                 throw new NotFoundException(String.format("Payment %s for invoice %s not found", paymentId, invoiceId));
             }
             checkRouteInfo(payment, invoiceId, paymentId);
+
             int providerId = payment.getRoute().getProvider().getId();
             List<Integer> proveidersIds = adapters.stream()
                     .map(ClearingAdapter::getAdapterId)
@@ -70,10 +73,9 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
         }
     }
 
-    private com.rbkmoney.damsel.domain.InvoicePayment getPaymentById(Invoice invoice, String paymentId) {
+    private InvoicePayment getPaymentById(Invoice invoice, String paymentId) {
         return invoice.getPayments().stream()
-                .map(invoicePayment -> invoicePayment.getPayment())
-                .filter(invoicePayment -> paymentId.equals(invoicePayment.getId()))
+                .filter(pmnt -> paymentId.equals(pmnt.getPayment().getId()))
                 .findFirst()
                 .orElse(null);
     }
