@@ -30,7 +30,7 @@ clearing-service:
       providerId: 115
   invoicing:
     url: http://invoicing:8023/v1/invoicing
-    networkTimeout: 120000
+    networkTimeout: 30000
   schedule:
     mts: "00 01 00 * * *"
 

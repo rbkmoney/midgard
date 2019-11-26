@@ -1,6 +1,5 @@
 package com.rbkmoney.midgard.service.load.handler.invoicing;
 
-import com.rbkmoney.damsel.domain.InvoicePaymentRefundStatus;
 import com.rbkmoney.damsel.payment_processing.*;
 import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
@@ -14,13 +13,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static com.rbkmoney.midgard.service.load.utils.MapperUtil.checkRouteInfo;
-import static com.rbkmoney.midgard.service.load.utils.MapperUtil.transformRefund;
+import static com.rbkmoney.midgard.service.load.utils.MapperUtil.*;
 
 @Slf4j
 @Component
@@ -35,60 +31,63 @@ public class RefundStatusChangedHandler extends AbstractInvoicingHandler {
 
     private final Filter filter = new PathConditionFilter(new PathConditionRule(
             "invoice_payment_change.payload.invoice_payment_refund_change" +
-                    ".payload.invoice_payment_refund_status_changed",
+                    ".payload.invoice_payment_refund_status_changed.status.succeeded",
             new IsNullCondition().not()));
 
     @Override
-    @Transactional
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) throws Exception {
         InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
         InvoicePaymentRefundChange invoicePaymentRefundChange = invoicePaymentChange.getPayload()
                 .getInvoicePaymentRefundChange();
-        InvoicePaymentRefundStatus invoicePaymentRefundStatus =
-                invoicePaymentRefundChange.getPayload().getInvoicePaymentRefundStatusChanged().getStatus();
         String invoiceId = event.getSourceId();
 
         log.info("Processing refund with status 'succeeded' (invoiceId = '{}', sequenceId = '{}', " +
                 "changeId = '{}')", invoiceId, event.getSequenceId(), changeId);
-        if (invoicePaymentRefundStatus.isSetSucceeded()) {
-            String paymentId = invoiceChange.getInvoicePaymentChange().getId();
-            String refundId = invoicePaymentRefundChange.getId();
+        String paymentId = invoiceChange.getInvoicePaymentChange().getId();
+        String refundId = invoicePaymentRefundChange.getId();
+        long sequenceId = event.getSequenceId();
 
-            Invoice invoice = invoicingService.get(USER_INFO, invoiceId, getEventRange((int) event.getSequenceId()));
-            InvoicePayment invoicePayment = invoice.getPayments().stream()
-                    .filter(invPayment -> paymentId.equals(invPayment.getPayment().getId()))
-                    .findFirst()
-                    .orElse(null);
-            if (invoicePayment == null || invoicePayment.getPayment() == null) {
-                throw new NotFoundException(String.format("Payment %s for invoice %s not found", paymentId, invoiceId));
-            }
-            checkRouteInfo(invoicePayment, invoiceId, paymentId);
-
-            int providerId = invoicePayment.getRoute().getProvider().getId();
-            List<Integer> proveidersIds = adapters.stream()
-                    .map(ClearingAdapter::getAdapterId)
-                    .collect(Collectors.toList());
-            if (!proveidersIds.contains(providerId)) {
-                return;
-            }
-
-            com.rbkmoney.damsel.domain.InvoicePayment payment = invoicePayment.getPayment();
-
-            invoicePayment.getRefunds().get(0).getSessions();//todo: wtf
-            InvoicePaymentRefund refund = invoicePayment.getRefunds().stream()
-                    .filter(hgRefund -> refundId.equals(hgRefund.getRefund().getId()))
-                    .findFirst()
-                    .orElse(null);
-
-            if (refund == null) {
-                throw new NotFoundException(String.format("Refund '%s' with payment id '%s' and invoice id " +
-                         "'%s' not found", refundId, paymentId, invoiceId));
-            }
-            ClearingRefund clearingRefund = transformRefund(refund, event, payment, changeId);
-            clearingRefundDao.save(clearingRefund);
-            log.info("Refund with status 'succeeded' (invoiceId = '{}', sequenceId = '{}', " +
-                    "changeId = '{}') was processed", invoiceId, event.getSequenceId(), changeId);
+        Invoice invoice = invoicingService.get(USER_INFO, invoiceId, getEventRange((int) sequenceId));
+        if (invoice == null || !invoice.isSetPayments()) {
+            throw new NotFoundException(String.format("Invoice or payments not found! (invoice id '%s', " +
+                    "sequenceId = '%d' and changeId = '%d')", invoiceId, sequenceId, changeId));
         }
+
+        InvoicePayment invoicePayment = invoice.getPayments().stream()
+                .filter(invPayment -> paymentId.equals(invPayment.getPayment().getId()))
+                .findFirst()
+                .orElse(null);
+        if (invoicePayment == null || !invoicePayment.isSetPayment()) {
+            throw new NotFoundException(String.format("Payment for invoice (invoice id '%s', " +
+                    "sequenceId = '%d' and changeId = '%d') not found!", invoiceId, sequenceId, changeId));
+        }
+        if (!invoicePayment.isSetRoute()
+                || !invoicePayment.getRoute().isSetProvider()
+                || !invoicePayment.isSetSessions()) {
+            throw new NotFoundException(String.format("Route or session info for payment with invoice id '%s', " +
+                    "sequenceId = '%d' and changeId = '%d' not found!", invoiceId, sequenceId, changeId));
+        }
+        if (!isExistProviderId(adapters, invoicePayment.getRoute().getProvider().getId())) {
+            return;
+        }
+        if (!invoicePayment.isSetRefunds()) {
+            throw new NotFoundException(String.format("Refunds for invoice not found! (invoice id '%s', " +
+                    "sequenceId = '%d' and changeId = '%d')", invoiceId, sequenceId, changeId));
+        }
+        InvoicePaymentRefund refund = invoicePayment.getRefunds().stream()
+                .filter(hgRefund -> refundId.equals(hgRefund.getRefund().getId()))
+                .findFirst()
+                .orElse(null);
+
+        if (refund == null || !refund.isSetSessions()) {
+            throw new NotFoundException(String.format("InvoicePaymentRefund or sessions for refund " +
+                    "(invoice id '%s', sequence id '%d', change id '%d') not found!", invoiceId, sequenceId, changeId));
+        }
+
+        ClearingRefund clearingRefund = transformRefund(refund, event, invoicePayment.getPayment(), changeId);
+        clearingRefundDao.save(clearingRefund);
+        log.info("Refund with status 'succeeded' (invoiceId = '{}', sequenceId = '{}', " +
+                "changeId = '{}') was processed", invoiceId, sequenceId, changeId);
     }
 
     @Override

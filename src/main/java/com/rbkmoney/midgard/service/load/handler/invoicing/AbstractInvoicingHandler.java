@@ -16,4 +16,9 @@ public abstract class AbstractInvoicingHandler implements Handler<InvoiceChange,
         return new EventRange().setLimit(sequenceId);
     }
 
+    @Override
+    public boolean accept(InvoiceChange change) {
+        return getFilter().match(change);
+    }
+
 }

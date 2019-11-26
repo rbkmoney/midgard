@@ -6,17 +6,9 @@ import org.apache.thrift.TException;
 
 public interface Handler<T, E> {
 
-    default boolean accept(T change) {
-        return getFilter().match(change);
-    }
+    boolean accept(T change);
 
-    default void handle(T change, E event) {
-        throw new NotImplementedException("Override it!");
-    }
-
-    default void handle(T change, E event, Integer changeId) throws Exception {
-        throw new NotImplementedException("Override it!");
-    }
+    void handle(T change, E event, Integer changeId) throws Exception;
 
     Filter<T> getFilter();
 

@@ -1,6 +1,5 @@
 package com.rbkmoney.midgard.service.load.handler.invoicing;
 
-import com.rbkmoney.damsel.domain.InvoicePaymentStatus;
 import com.rbkmoney.damsel.payment_processing.Invoice;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
 import com.rbkmoney.damsel.payment_processing.InvoicePayment;
@@ -17,12 +16,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static com.rbkmoney.midgard.service.load.utils.MapperUtil.checkRouteInfo;
+import static com.rbkmoney.midgard.service.load.utils.MapperUtil.isExistProviderId;
 import static com.rbkmoney.midgard.service.load.utils.MapperUtil.transformTransaction;
 
 @Slf4j
@@ -37,40 +34,42 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
     private final List<ClearingAdapter> adapters;
 
     private final Filter filter = new PathConditionFilter(
-            new PathConditionRule("invoice_payment_change.payload.invoice_payment_status_changed",
+            new PathConditionRule("invoice_payment_change.payload.invoice_payment_status_changed.status.captured",
                     new IsNullCondition().not()));
 
     @Override
-    @Transactional
     public void handle(InvoiceChange invoiceChange, SimpleEvent event, Integer changeId) throws Exception {
-        InvoicePaymentStatus invoicePaymentStatus =
-                invoiceChange.getInvoicePaymentChange().getPayload().getInvoicePaymentStatusChanged().getStatus();
         String invoiceId = event.getSourceId();
         log.info("Processing payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +
                 "changeId = '{}')", invoiceId, event.getSequenceId(), changeId);
-        if (invoicePaymentStatus.isSetCaptured()) {
-            String paymentId = invoiceChange.getInvoicePaymentChange().getId();
-            Invoice invoice = invoicingService.get(USER_INFO, invoiceId, getEventRange((int) event.getSequenceId()));
-
-
-            var payment = getPaymentById(invoice, paymentId);
-            if (payment == null) {
-                throw new NotFoundException(String.format("Payment %s for invoice %s not found", paymentId, invoiceId));
-            }
-            checkRouteInfo(payment, invoiceId, paymentId);
-
-            int providerId = payment.getRoute().getProvider().getId();
-            List<Integer> proveidersIds = adapters.stream()
-                    .map(ClearingAdapter::getAdapterId)
-                    .collect(Collectors.toList());
-            if (!proveidersIds.contains(providerId)) {
-                return;
-            }
-            ClearingTransaction clearingTransaction = transformTransaction(payment, event, invoiceId, changeId);
-            transactionsDao.save(clearingTransaction);
-            log.info("Payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +
-                    "changeId = '{}') was processed", invoiceId, event.getSequenceId(), changeId);
+        String paymentId = invoiceChange.getInvoicePaymentChange().getId();
+        Invoice invoice = invoicingService.get(USER_INFO, invoiceId, getEventRange((int) event.getSequenceId()));
+        if (invoice == null || !invoice.isSetPayments()) {
+            throw new NotFoundException(String.format("Invoice or payments not found! (invoice id '%s', " +
+                    "sequenceId = '%d' and changeId = '%d')", invoiceId, event.getSequenceId(), changeId));
         }
+
+        var payment = getPaymentById(invoice, paymentId);
+        if (payment == null) {
+            throw new NotFoundException(String.format("Payment with invoice id '%s' sequenceId = '%d' " +
+                    "and changeId = '%d' not found!", invoiceId, event.getSequenceId(), changeId));
+        }
+        if (!payment.isSetRoute() || !payment.getRoute().isSetProvider()) {
+            throw new NotFoundException(String.format("Route info for payment with invoice id '%s' sequenceId = '%d' " +
+                    "and changeId = '%d' not found!", invoiceId, event.getSequenceId(), changeId));
+        }
+        if (!payment.isSetSessions()) {
+            throw new NotFoundException(String.format("Sessions for payment with invoice id '%s' sequenceId = '%d' " +
+                    "and changeId = '%d' not found!", invoiceId, event.getSequenceId(), changeId));
+        }
+
+        if (!isExistProviderId(adapters, payment.getRoute().getProvider().getId())) {
+            return;
+        }
+        ClearingTransaction clearingTransaction = transformTransaction(payment, event, invoiceId, changeId);
+        transactionsDao.save(clearingTransaction);
+        log.info("Payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +
+                "changeId = '{}') was processed", invoiceId, event.getSequenceId(), changeId);
     }
 
     private InvoicePayment getPaymentById(Invoice invoice, String paymentId) {
@@ -83,16 +82,6 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
     @Override
     public Filter<InvoiceChange> getFilter() {
         return filter;
-    }
-
-    @Override
-    public boolean accept(InvoiceChange change) {
-        return getFilter().match(change) &&
-                !change.getInvoicePaymentChange()
-                        .getPayload()
-                        .getInvoicePaymentStatusChanged()
-                        .getStatus()
-                        .isSetRefunded();
     }
 
 }

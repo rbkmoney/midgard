@@ -13,7 +13,7 @@ public final class ClearingAdaptersUtils {
                 .filter(clrAdapter -> clrAdapter.getAdapterId() == providerId)
                 .findFirst()
                 .orElseThrow(() ->
-                        new AdapterNotFoundException(String.format("Adapter with provider id %s not found", providerId)));
+                        new AdapterNotFoundException(String.format("Adapter with provider id %d not found", providerId)));
     }
 
     private ClearingAdaptersUtils() {}

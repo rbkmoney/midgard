@@ -1,10 +1,9 @@
 package com.rbkmoney.midgard.service.load.utils;
 
-import com.rbkmoney.damsel.domain.*;
-import com.rbkmoney.damsel.payment_processing.Event;
-import com.rbkmoney.damsel.payment_processing.InvoicePaymentSession;
-import com.rbkmoney.damsel.payment_processing.InvoiceRefundSession;
+import com.rbkmoney.damsel.payment_processing.*;
+import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
+import com.rbkmoney.midgard.service.clearing.data.ClearingAdapter;
 import com.rbkmoney.midgard.service.clearing.exception.NotFoundException;
 import com.rbkmoney.midgard.service.load.model.SimpleEvent;
 import lombok.AccessLevel;
@@ -13,7 +12,8 @@ import org.jooq.generated.midgard.enums.TransactionClearingState;
 import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
 import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
 
-import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.rbkmoney.midgard.service.clearing.utils.MappingUtils.DEFAULT_TRX_VERSION;
 
@@ -42,13 +42,13 @@ public final class MapperUtil {
                 .build();
     }
 
-    public static ClearingTransaction transformTransaction(com.rbkmoney.damsel.payment_processing.InvoicePayment invoicePayment,
+    public static ClearingTransaction transformTransaction(InvoicePayment invoicePayment,
                                                            SimpleEvent event,
                                                            String invoiceId,
                                                            Integer changeId) {
         ClearingTransaction trx = new ClearingTransaction();
 
-        PaymentRoute paymentRoute = invoicePayment.getRoute();
+        var paymentRoute = invoicePayment.getRoute();
         trx.setProviderId(paymentRoute.getProvider().getId());
         trx.setRouteTerminalId(paymentRoute.getTerminal().getId());
 
@@ -60,11 +60,11 @@ public final class MapperUtil {
         trx.setTransactionClearingState(TransactionClearingState.READY);
         trx.setTrxVersion(DEFAULT_TRX_VERSION);
 
-        InvoicePayment payment = invoicePayment.getPayment();
+        var payment = invoicePayment.getPayment();
         trx.setPaymentId(payment.getId());
         trx.setPartyId(payment.getOwnerId());
         trx.setShopId(payment.getShopId());
-        trx.setTransactionDate(LocalDateTime.parse(payment.getCreatedAt()));
+        trx.setTransactionDate(TypeUtil.stringToLocalDateTime(payment.getCreatedAt()));
 
         InvoicePaymentSession paymentSession = invoicePayment.getSessions().stream()
                 .filter(session -> session.getTargetStatus().isSetCaptured())
@@ -72,7 +72,7 @@ public final class MapperUtil {
                 .orElse(null);
         if (paymentSession == null) {
             throw new NotFoundException(String.format("Session for transaction with invoice id '%s', " +
-                    "sequence id '%s' and change id '%s' not found!", invoiceId, sequenceId, changeId));
+                    "sequence id '%d' and change id '%d' not found!", invoiceId, sequenceId, changeId));
         }
 
         fillPaymentTrxInfo(trx, paymentSession);
@@ -82,36 +82,37 @@ public final class MapperUtil {
     }
 
     private static void fillPaymentTrxInfo(ClearingTransaction trx, InvoicePaymentSession paymentSession) {
-        TransactionInfo transactionInfo = paymentSession.getTransactionInfo();
+        var transactionInfo = paymentSession.getTransactionInfo();
         trx.setTransactionId(transactionInfo.getId());
         trx.setExtra(JsonUtil.objectToJsonString(transactionInfo.getExtra()));
     }
 
-    private static void fillPaymentCashInfo(ClearingTransaction trx, InvoicePayment payment) {
-        Cash cost = payment.getCost();
+    private static void fillPaymentCashInfo(ClearingTransaction trx,
+                                            com.rbkmoney.damsel.domain.InvoicePayment payment) {
+        var cost = payment.getCost();
         trx.setTransactionAmount(cost.getAmount());
         trx.setTransactionCurrency(cost.getCurrency().getSymbolicCode());
     }
 
     private static void fillPayerInfoToTrx(ClearingTransaction trx,
                                            com.rbkmoney.damsel.domain.InvoicePayment payment) {
-        Payer payer = payment.getPayer();
+        var payer = payment.getPayer();
         trx.setPayerType(payer.getSetField().getFieldName());
         trx.setIsRecurrent(payer.isSetRecurrent());
 
-        BankCard bankCard = extractBankCard(payer);
+        var bankCard = extractBankCard(payer);
         trx.setPayerBankCardToken(bankCard.getToken());
         trx.setPayerBankCardPaymentSystem(bankCard.getPaymentSystem().name());
         trx.setPayerBankCardBin(bankCard.getBin());
         trx.setPayerBankCardMaskedPan(bankCard.getMaskedPan());
         trx.setPayerBankCardTokenProvider(bankCard.getTokenProvider().name());
 
-        RecurrentParentPayment recurrentParent = payer.getRecurrent().getRecurrentParent();
+        var recurrentParent = payer.getRecurrent().getRecurrentParent();
         trx.setPayerRecurrentParentInvoiceId(recurrentParent.getInvoiceId());
         trx.setPayerRecurrentParentPaymentId(recurrentParent.getPaymentId());
     }
 
-    private static BankCard extractBankCard(Payer payer) {
+    private static com.rbkmoney.damsel.domain.BankCard extractBankCard(com.rbkmoney.damsel.domain.Payer payer) {
         if (payer.isSetCustomer()) {
             return payer.getCustomer().getPaymentTool().getBankCard();
         } else if (payer.isSetRecurrent()) {
@@ -123,11 +124,11 @@ public final class MapperUtil {
         }
     }
 
-    public static ClearingRefund transformRefund(com.rbkmoney.damsel.payment_processing.InvoicePaymentRefund invoicePaymentRefund,
+    public static ClearingRefund transformRefund(InvoicePaymentRefund invoicePaymentRefund,
                                                  SimpleEvent event,
                                                  com.rbkmoney.damsel.domain.InvoicePayment payment,
                                                  Integer changeId) {
-        InvoicePaymentRefund refund = invoicePaymentRefund.getRefund();
+        var refund = invoicePaymentRefund.getRefund();
 
         ClearingRefund clearingRefund = new ClearingRefund();
         clearingRefund.setInvoiceId(event.getSourceId());
@@ -137,40 +138,46 @@ public final class MapperUtil {
         clearingRefund.setRefundId(refund.getId());
         clearingRefund.setPartyId(payment.getOwnerId());
         clearingRefund.setShopId(payment.getShopId());
-        clearingRefund.setCreatedAt(LocalDateTime.parse(refund.getCreatedAt()));
+        clearingRefund.setCreatedAt(TypeUtil.stringToLocalDateTime(refund.getCreatedAt()));
         clearingRefund.setReason(refund.getReason());
         clearingRefund.setDomainRevision(refund.getDomainRevision());
         clearingRefund.setClearingState(TransactionClearingState.READY);
         clearingRefund.setTrxVersion(DEFAULT_TRX_VERSION);
         fillRefundCashInfo(refund, clearingRefund);
-        fillTransactionAdditionalInfo(invoicePaymentRefund, clearingRefund);
+        fillTransactionAdditionalInfo(invoicePaymentRefund, clearingRefund, event);
 
         return clearingRefund;
     }
 
-    private static void fillRefundCashInfo(InvoicePaymentRefund refund,
+    private static void fillRefundCashInfo(com.rbkmoney.damsel.domain.InvoicePaymentRefund refund,
                                            ClearingRefund clearingRefund) {
-        Cash cash = refund.getCash();
+        var cash = refund.getCash();
         clearingRefund.setAmount(cash.getAmount());
         clearingRefund.setCurrencyCode(cash.getCurrency().getSymbolicCode());
     }
 
-    private static void fillTransactionAdditionalInfo(com.rbkmoney.damsel.payment_processing.InvoicePaymentRefund invoicePaymentRefund,
-                                                      ClearingRefund clearingRefund) {
-        InvoiceRefundSession refundSession = invoicePaymentRefund.getSessions().get(0);
-        TransactionInfo transactionInfo = refundSession.getTransactionInfo();
+    private static void fillTransactionAdditionalInfo(InvoicePaymentRefund invoicePaymentRefund,
+                                                      ClearingRefund clearingRefund,
+                                                      SimpleEvent event) {
+        InvoiceRefundSession refundSession = invoicePaymentRefund.getSessions().stream()
+                .findFirst()
+                .orElse(null);
+
+        if (refundSession == null) {
+            throw new NotFoundException(String.format("Refund session for refund (invoice id '%s'," +
+                    "sequenceId id '%d') not found!", event.getSourceId(), event.getSequenceId()));
+        }
+
+        var transactionInfo = refundSession.getTransactionInfo();
         clearingRefund.setTransactionId(transactionInfo.getId());
         clearingRefund.setExtra(JsonUtil.objectToJsonString(transactionInfo.getExtra()));
     }
 
-    public static void checkRouteInfo(com.rbkmoney.damsel.payment_processing.InvoicePayment payment,
-                                      String paymentId,
-                                      String invoiceId) {
-        if (payment.getRoute() == null
-                || payment.getRoute().getProvider() == null) {
-            throw new NotFoundException(String.format("Provider ID for invoice %s with payment id %s not found!",
-                    invoiceId, paymentId));
-        }
+    public static boolean isExistProviderId(List<ClearingAdapter> adapters, int providerId) {
+        List<Integer> proveidersIds = adapters.stream()
+                .map(ClearingAdapter::getAdapterId)
+                .collect(Collectors.toList());
+        return proveidersIds.contains(providerId);
     }
 
 }
