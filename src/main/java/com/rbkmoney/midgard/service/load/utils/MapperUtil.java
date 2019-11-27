@@ -45,7 +45,8 @@ public final class MapperUtil {
     public static ClearingTransaction transformTransaction(InvoicePayment invoicePayment,
                                                            SimpleEvent event,
                                                            String invoiceId,
-                                                           Integer changeId) {
+                                                           Integer changeId,
+                                                           Long lastSourceRowId) {
         ClearingTransaction trx = new ClearingTransaction();
 
         var paymentRoute = invoicePayment.getRoute();
@@ -56,7 +57,7 @@ public final class MapperUtil {
         long sequenceId = event.getSequenceId();
         trx.setSequenceId(sequenceId);
         trx.setChangeId(changeId);
-        trx.setSourceRowId(0L);
+        trx.setSourceRowId(lastSourceRowId + 1);
         trx.setTransactionClearingState(TransactionClearingState.READY);
         trx.setTrxVersion(DEFAULT_TRX_VERSION);
 
@@ -130,7 +131,8 @@ public final class MapperUtil {
     public static ClearingRefund transformRefund(InvoicePaymentRefund invoicePaymentRefund,
                                                  SimpleEvent event,
                                                  com.rbkmoney.damsel.domain.InvoicePayment payment,
-                                                 Integer changeId) {
+                                                 Integer changeId,
+                                                 Long lastSourceRowId) {
         var refund = invoicePaymentRefund.getRefund();
 
         ClearingRefund clearingRefund = new ClearingRefund();
@@ -146,6 +148,7 @@ public final class MapperUtil {
         clearingRefund.setDomainRevision(refund.getDomainRevision());
         clearingRefund.setClearingState(TransactionClearingState.READY);
         clearingRefund.setTrxVersion(DEFAULT_TRX_VERSION);
+        clearingRefund.setSourceRowId(lastSourceRowId + 1);
         fillRefundCashInfo(refund, clearingRefund);
         fillTransactionAdditionalInfo(invoicePaymentRefund, clearingRefund, event);
 
