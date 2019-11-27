@@ -22,6 +22,7 @@ clearing-service:
   revision: 60000
   retries-hour-count: 23
   scheduler-pool-size: 5
+  error-timeout: 1000
   adapters:
     mts:
       name: MTS
