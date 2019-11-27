@@ -66,9 +66,7 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
         if (!isExistProviderId(adapters, payment.getRoute().getProvider().getId())) {
             return;
         }
-        Long lastSourceRowId = transactionsDao.getLastTransaction().getSourceRowId();
-        ClearingTransaction clearingTransaction =
-                transformTransaction(payment, event, invoiceId, changeId, lastSourceRowId);
+        ClearingTransaction clearingTransaction = transformTransaction(payment, event, invoiceId, changeId);
         Long trxSeqId = transactionsDao.save(clearingTransaction);
         if (trxSeqId == null) {
             log.info("Payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +

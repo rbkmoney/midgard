@@ -89,8 +89,8 @@ public class RefundsImporter implements Importer {
             log.warn("Event ID for clearing refund was not found!");
             return 0L;
         } else {
-            log.info("Last refund sequence id {}", clearingRefund.getSourceRowId());
-            return clearingRefund.getSourceRowId();
+            log.info("Last refund sequence id {}", clearingRefund.getId());
+            return clearingRefund.getId();
         }
     }
 

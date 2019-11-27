@@ -27,7 +27,6 @@ public final class MappingUtils {
         ClearingTransaction trx = new ClearingTransaction();
         trx.setSequenceId(payment.getSequenceId());
         trx.setChangeId(payment.getChangeId());
-        trx.setSourceRowId(payment.getId());
         trx.setInvoiceId(payment.getInvoiceId());
         trx.setPaymentId(payment.getPaymentId());
         trx.setProviderId(payment.getRouteProviderId());
@@ -175,7 +174,6 @@ public final class MappingUtils {
         ClearingRefund clearingRefund = new ClearingRefund();
         clearingRefund.setSequenceId(refund.getSequenceId());
         clearingRefund.setChangeId(refund.getChangeId());
-        clearingRefund.setSourceRowId(refund.getId());
         clearingRefund.setInvoiceId(refund.getInvoiceId());
         clearingRefund.setPaymentId(refund.getPaymentId());
         clearingRefund.setRefundId(refund.getRefundId());
@@ -230,7 +228,7 @@ public final class MappingUtils {
         eventTrxInfo.setPaymentId(trx.getPaymentId());
         eventTrxInfo.setTransactionId(trx.getTransactionId());
         eventTrxInfo.setTrxVersion(trx.getTrxVersion());
-        eventTrxInfo.setRowNumber(trx.getSourceRowId());
+        eventTrxInfo.setRowNumber(trx.getId());
         eventTrxInfo.setProviderId(providerId);
         return eventTrxInfo;
     }
@@ -246,7 +244,7 @@ public final class MappingUtils {
         eventTrxInfo.setRefundId(refund.getRefundId());
         eventTrxInfo.setTransactionId(refund.getTransactionId());
         eventTrxInfo.setTrxVersion(refund.getTrxVersion());
-        eventTrxInfo.setRowNumber(refund.getSourceRowId());
+        eventTrxInfo.setRowNumber(refund.getId());
         eventTrxInfo.setProviderId(providerId);
         return eventTrxInfo;
     }

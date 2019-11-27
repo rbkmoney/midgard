@@ -73,8 +73,7 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
     @Override
     public ClearingRefund getLastTransactionEvent() {
         Query query = getDslContext().selectFrom(CLEARING_REFUND)
-                .where(CLEARING_REFUND.SOURCE_ROW_ID.isNotNull())
-                .orderBy(CLEARING_REFUND.SOURCE_ROW_ID.desc())
+                .orderBy(CLEARING_REFUND.ID.desc())
                 .limit(1);
         return fetchOne(query, clearingRefundRowMapper);
     }
@@ -82,9 +81,9 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
     @Override
     public ClearingRefund getLastActiveRefund() {
         Query query = getDslContext().selectFrom(CLEARING_REFUND)
-                .where(CLEARING_REFUND.SOURCE_ROW_ID.isNotNull())
+                .where(CLEARING_REFUND.ID.isNotNull())
                 .and(CLEARING_REFUND.CLEARING_STATE.in(READY, FAILED))
-                .orderBy(CLEARING_REFUND.SOURCE_ROW_ID.asc())
+                .orderBy(CLEARING_REFUND.ID.asc())
                 .limit(1);
         return fetchOne(query, clearingRefundRowMapper);
     }

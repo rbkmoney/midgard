@@ -106,8 +106,7 @@ public class ClearingTransactionPackageHandler implements ClearingPackageHandler
         log.info("Transaction with invoice id {} and payment id {} will added to package {} " +
                         "for clearing event {}", clearingTransaction.getInvoiceId(), clearingTransaction.getPaymentId(),
                 packageNumber, clearingId);
-        List<ClearingTransactionCashFlow> cashFlowList =
-                cashFlowDao.get(clearingTransaction.getSourceRowId());
+        List<ClearingTransactionCashFlow> cashFlowList = new ArrayList<>();
         log.info("For transaction with invoice id {} and payment id {} in clearing event {} received " +
                 "cashFlowList with size {}", clearingTransaction.getInvoiceId(), clearingTransaction.getPaymentId(),
                 clearingId, cashFlowList == null ? "NULL" : cashFlowList.size());
@@ -122,7 +121,7 @@ public class ClearingTransactionPackageHandler implements ClearingPackageHandler
                 packageNumber, clearingId);
         ClearingTransaction clearingTransaction =
                 transactionsDao.getTransaction(refund.getInvoiceId(), refund.getPaymentId(), MappingUtils.DEFAULT_TRX_VERSION);
-        List<ClearingTransactionCashFlow> cashFlowList = cashFlowDao.get(refund.getSourceRowId());
+        List<ClearingTransactionCashFlow> cashFlowList = new ArrayList<>();
         return MappingUtils.transformRefundTransaction(clearingTransaction, cashFlowList, refund);
     }
 

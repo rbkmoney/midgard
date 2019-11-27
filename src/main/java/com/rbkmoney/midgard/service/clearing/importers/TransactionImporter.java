@@ -90,8 +90,8 @@ public class TransactionImporter implements Importer {
             log.warn("Event ID for clearing transactions was not found!");
             return 0L;
         } else {
-            log.info("Last payment source row id {}", clearingTransaction.getSourceRowId());
-            return clearingTransaction.getSourceRowId();
+            log.info("Last payment source row id {}", clearingTransaction.getId());
+            return clearingTransaction.getId();
         }
     }
 
