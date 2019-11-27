@@ -18,6 +18,7 @@ import java.util.List;
 
 import static com.rbkmoney.midgard.base.tests.integration.data.ClearingEventTestData.getRefund;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @Slf4j
@@ -71,7 +72,7 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
         refundList.add(getRefund(6L,"invoice_6", 1L, 1, "tran_id_6", shopId));
         refundList.add(getRefund(7L,"invoice_7", 1L, 1, "tran_id_7", shopId));
 
-        when(refundDao.getRefunds(0L, providerIds, POOL_SIZE)).thenReturn(refundList);
+        when(refundDao.getRefunds(any(Long.class), any(ArrayList.class), any(Integer.class))).thenReturn(refundList);
 
         try {
             refundsImporter.importData(providerIds);
