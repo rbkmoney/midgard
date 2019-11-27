@@ -105,11 +105,14 @@ public final class MapperUtil {
         trx.setPayerBankCardPaymentSystem(bankCard.getPaymentSystem().name());
         trx.setPayerBankCardBin(bankCard.getBin());
         trx.setPayerBankCardMaskedPan(bankCard.getMaskedPan());
-        trx.setPayerBankCardTokenProvider(bankCard.getTokenProvider().name());
+        trx.setPayerBankCardTokenProvider(bankCard.getTokenProvider() == null ? null : bankCard.getTokenProvider().name());
 
-        var recurrentParent = payer.getRecurrent().getRecurrentParent();
-        trx.setPayerRecurrentParentInvoiceId(recurrentParent.getInvoiceId());
-        trx.setPayerRecurrentParentPaymentId(recurrentParent.getPaymentId());
+        if (payer.isSetRecurrent() && payer.getRecurrent().isSetRecurrentParent()) {
+            var recurrentParent = payer.getRecurrent().getRecurrentParent();
+            trx.setPayerRecurrentParentInvoiceId(recurrentParent.getInvoiceId());
+            trx.setPayerRecurrentParentPaymentId(recurrentParent.getPaymentId());
+        }
+
     }
 
     private static com.rbkmoney.damsel.domain.BankCard extractBankCard(com.rbkmoney.damsel.domain.Payer payer) {
