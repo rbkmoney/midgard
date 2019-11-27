@@ -1,7 +1,7 @@
 package com.rbkmoney.midgard.service.clearing.services;
 
 import com.rbkmoney.midgard.service.clearing.importers.Importer;
-import com.rbkmoney.midgard.service.config.props.AdapterProps;
+import com.rbkmoney.midgard.service.config.props.AdapterProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -28,14 +28,14 @@ public class MigrationDataService implements GenericService {
 
     private final List<Importer> importers;
 
-    private final List<AdapterProps> adaptersProps;
+    private final List<AdapterProperties> adaptersProps;
 
     @Override
     @Scheduled(fixedDelayString = "${import.migration.delay}")
     public void process() {
         log.info("Migration data get started");
         List<Integer> providerIds = adaptersProps.stream()
-                .map(AdapterProps::getProviderId)
+                .map(AdapterProperties::getProviderId)
                 .collect(Collectors.toList());
 
         try {
