@@ -18,6 +18,7 @@ import java.util.List;
 
 import static com.rbkmoney.midgard.base.tests.integration.data.ClearingEventTestData.getRefund;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @Slf4j
@@ -62,7 +63,7 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
         }
 
         Integer clearingRefundCount = testTransactionsDao.getClearingRefundCount(shopId);
-        assertEquals("Count of refunds is not equal to the target", new Integer(0), clearingRefundCount);
+        assertEquals("Count of refunds is not equal to the target", new Integer(3), clearingRefundCount);
 
         // Success
         refundList = new ArrayList<>();
@@ -71,7 +72,7 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
         refundList.add(getRefund(6L,"invoice_6", 1L, 1, "tran_id_6", shopId));
         refundList.add(getRefund(7L,"invoice_7", 1L, 1, "tran_id_7", shopId));
 
-        when(refundDao.getRefunds(0L, providerIds, POOL_SIZE)).thenReturn(refundList);
+        when(refundDao.getRefunds(any(Long.class), any(ArrayList.class), any(Integer.class))).thenReturn(refundList);
 
         try {
             refundsImporter.importData(providerIds);
@@ -80,7 +81,7 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
         }
 
         clearingRefundCount = testTransactionsDao.getClearingRefundCount(shopId);
-        assertEquals("Count of refunds is not equal to the target", new Integer(4), clearingRefundCount);
+        assertEquals("Count of refunds is not equal to the target", new Integer(7), clearingRefundCount);
 
     }
 

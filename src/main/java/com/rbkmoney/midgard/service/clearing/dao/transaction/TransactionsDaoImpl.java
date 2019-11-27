@@ -15,6 +15,7 @@ import org.jooq.generated.midgard.tables.records.ClearingEventTransactionInfoRec
 import org.jooq.generated.midgard.tables.records.ClearingTransactionRecord;
 import org.jooq.generated.midgard.tables.records.FailureTransactionRecord;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -50,12 +51,20 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
     }
 
     @Override
-    public Long save(ClearingTransaction transaction) {
-        ClearingTransactionRecord record = getDslContext().newRecord(CLEARING_TRANSACTION, transaction);
-        Query query = getDslContext().insertInto(CLEARING_TRANSACTION).set(record);
-        int addedRows = execute(query);
-        log.info("New transaction with id {} was added", transaction.getTransactionId());
-        return Long.valueOf(addedRows);
+    public Long save(ClearingTransaction trx) {
+        ClearingTransactionRecord record = getDslContext().newRecord(CLEARING_TRANSACTION, trx);
+        Query query = getDslContext()
+                .insertInto(CLEARING_TRANSACTION)
+                .set(record)
+                .onConflict(CLEARING_TRANSACTION.INVOICE_ID, CLEARING_TRANSACTION.PAYMENT_ID, CLEARING_TRANSACTION.TRX_VERSION)
+                .doNothing()
+                .returning(CLEARING_TRANSACTION.SEQUENCE_ID);
+
+                GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        executeWithReturn(query, keyHolder);
+        log.info("Clearing transaction with invoice id '{}', sequence id '{}' and change id '{}' was added",
+                trx.getInvoiceId(), trx.getSequenceId(), trx.getChangeId());
+        return keyHolder.getKey() == null ? null : keyHolder.getKey().longValue();
     }
 
     @Override

@@ -85,9 +85,15 @@ public class RefundStatusChangedHandler extends AbstractInvoicingHandler {
         }
 
         ClearingRefund clearingRefund = transformRefund(refund, event, invoicePayment.getPayment(), changeId);
-        clearingRefundDao.save(clearingRefund);
-        log.info("Refund with status 'succeeded' (invoiceId = '{}', sequenceId = '{}', " +
-                "changeId = '{}') was processed", invoiceId, sequenceId, changeId);
+        Long refundSeqId = clearingRefundDao.save(clearingRefund);
+        if (refundSeqId == null) {
+            log.info("Refund with status 'succeeded' (invoiceId = '{}', sequenceId = '{}', " +
+                    "changeId = '{}') was skipped (it already exist)", invoiceId, sequenceId, changeId);
+        } else {
+            log.info("Refund with status 'succeeded' (invoiceId = '{}', sequenceId = '{}', " +
+                    "changeId = '{}') was processed", invoiceId, sequenceId, changeId);
+        }
+
     }
 
     @Override
