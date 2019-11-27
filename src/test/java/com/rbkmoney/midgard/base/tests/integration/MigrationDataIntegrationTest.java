@@ -62,7 +62,7 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
         }
 
         Integer clearingRefundCount = testTransactionsDao.getClearingRefundCount(shopId);
-        assertEquals("Count of refunds is not equal to the target", new Integer(0), clearingRefundCount);
+        assertEquals("Count of refunds is not equal to the target", new Integer(3), clearingRefundCount);
 
         // Success
         refundList = new ArrayList<>();
@@ -80,7 +80,7 @@ public class MigrationDataIntegrationTest extends AbstractIntegrationTest {
         }
 
         clearingRefundCount = testTransactionsDao.getClearingRefundCount(shopId);
-        assertEquals("Count of refunds is not equal to the target", new Integer(4), clearingRefundCount);
+        assertEquals("Count of refunds is not equal to the target", new Integer(7), clearingRefundCount);
 
     }
 
