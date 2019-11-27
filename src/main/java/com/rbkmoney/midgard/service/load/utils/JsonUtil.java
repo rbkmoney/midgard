@@ -9,7 +9,6 @@ import org.apache.thrift.TBase;
 
 import java.io.IOException;
 
-//TODO: копипаста с newway
 public final class JsonUtil {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();

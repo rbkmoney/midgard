@@ -9,7 +9,6 @@ import org.jooq.generated.feed.enums.PaymentChangeType;
 import org.jooq.generated.feed.tables.pojos.CashFlow;
 
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class CashFlowUtil {
@@ -39,22 +38,6 @@ public class CashFlowUtil {
         }
     }
 
-    public static String getCashFlowAccountTypeValue(com.rbkmoney.fistful.cashflow.FinalCashFlowAccount cfa) {
-        if (cfa.getAccountType().isSetMerchant()) {
-            return cfa.getAccountType().getMerchant().name();
-        } else if (cfa.getAccountType().isSetProvider()) {
-            return cfa.getAccountType().getProvider().name();
-        } else if (cfa.getAccountType().isSetSystem()) {
-            return cfa.getAccountType().getSystem().name();
-        } else if (cfa.getAccountType().isSetExternal()) {
-            return cfa.getAccountType().getExternal().name();
-        } else if (cfa.getAccountType().isSetWallet()) {
-            return cfa.getAccountType().getWallet().name();
-        } else {
-            throw new IllegalArgumentException("Illegal fistful cash flow account type: " + cfa.getAccountType());
-        }
-    }
-
     public static List<CashFlow> convertCashFlows(List<FinalCashFlowPosting> cashFlowPostings,
                                                   long objId,
                                                   PaymentChangeType paymentchangetype) {
@@ -81,32 +64,6 @@ public class CashFlowUtil {
             pcf.setDetails(cf.getDetails());
             return pcf;
         }).collect(Collectors.toList());
-    }
-
-    public static long getFistfulFee(List<com.rbkmoney.fistful.cashflow.FinalCashFlowPosting> postings) {
-        return getFistfulAmount(
-                postings,
-                posting -> posting.getSource().getAccountType().isSetWallet()
-                        && posting.getDestination().getAccountType().isSetSystem()
-        );
-    }
-
-    public static long getFistfulProviderFee(List<com.rbkmoney.fistful.cashflow.FinalCashFlowPosting> postings) {
-        return getFistfulAmount(
-                postings,
-                posting -> posting.getSource().getAccountType().isSetSystem()
-                        && posting.getDestination().getAccountType().isSetProvider()
-        );
-    }
-
-    public static long getFistfulAmount(
-            List<com.rbkmoney.fistful.cashflow.FinalCashFlowPosting> postings,
-            Predicate<com.rbkmoney.fistful.cashflow.FinalCashFlowPosting> filter
-    ) {
-        return postings.stream()
-                .filter(filter)
-                .map(posting -> posting.getVolume().getAmount())
-                .reduce(0L, Long::sum);
     }
 
 }

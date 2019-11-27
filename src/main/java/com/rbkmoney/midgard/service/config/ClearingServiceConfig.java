@@ -2,7 +2,7 @@ package com.rbkmoney.midgard.service.config;
 
 import com.rbkmoney.midgard.ClearingAdapterSrv;
 import com.rbkmoney.midgard.service.clearing.data.ClearingAdapter;
-import com.rbkmoney.midgard.service.config.props.MtsAdapterProps;
+import com.rbkmoney.midgard.service.config.props.MtsAdapterProperties;
 import com.rbkmoney.woody.thrift.impl.http.THSpawnClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +18,7 @@ public class ClearingServiceConfig {
     private int schedulerPoolSize;
 
     @Bean
-    public ClearingAdapterSrv.Iface mtsClearingAdapterThriftClient(MtsAdapterProps props) throws IOException {
+    public ClearingAdapterSrv.Iface mtsClearingAdapterThriftClient(MtsAdapterProperties props) throws IOException {
         return new THSpawnClientBuilder()
                 .withAddress(props.getUrl().getURI())
                 .withNetworkTimeout(props.getNetworkTimeout())
@@ -26,7 +26,7 @@ public class ClearingServiceConfig {
     }
 
     @Bean
-    public ClearingAdapter mtsClearingAdapter(MtsAdapterProps props) throws IOException {
+    public ClearingAdapter mtsClearingAdapter(MtsAdapterProperties props) throws IOException {
         return new ClearingAdapter(mtsClearingAdapterThriftClient(props),
                 props.getName(),
                 props.getProviderId());

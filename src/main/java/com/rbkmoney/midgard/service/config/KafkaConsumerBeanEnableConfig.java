@@ -1,7 +1,7 @@
 package com.rbkmoney.midgard.service.config;
 
 import com.rbkmoney.damsel.payment_processing.EventPayload;
-import com.rbkmoney.midgard.service.load.pollers.listeners.InvoicingKafkaListener;
+import com.rbkmoney.midgard.service.load.listener.InvoicingKafkaListener;
 import com.rbkmoney.midgard.service.load.services.InvoicingService;
 import com.rbkmoney.sink.common.parser.impl.MachineEventParser;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
