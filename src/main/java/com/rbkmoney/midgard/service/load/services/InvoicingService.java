@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.backoff.BackOffExecution;
+import org.springframework.util.backoff.ExponentialBackOff;
 
 import java.util.List;
 
@@ -20,6 +22,10 @@ public class InvoicingService implements EventService<SimpleEvent, EventPayload>
 
     @Value("${import.init-last-event-id}")
     private long initLastEventId;
+
+    private final ExponentialBackOff backOff = new ExponentialBackOff();
+
+    private BackOffExecution execution = backOff.start();
 
     @Override
     public void handleEvents(SimpleEvent simpleEvent, EventPayload payload) {
@@ -35,11 +41,26 @@ public class InvoicingService implements EventService<SimpleEvent, EventPayload>
                     }
                 }
             }
+            resetBackoff();
         } catch (Throwable e) {
             log.error("Unexpected error while handling event with machineId='{}' and eventId='{}' received from {}",
                     simpleEvent.getSourceId(), simpleEvent.getEventId(), simpleEvent.getEventSourceName(), e);
+            waitBackoff(execution);
             throw new RuntimeException("Unexpected error while handling event with machineId='" +
                     simpleEvent.getSourceId() + "' and eventId='" + simpleEvent.getEventId() + "'");
+        }
+    }
+
+    private BackOffExecution resetBackoff() {
+        return backOff.start();
+    }
+
+    private void waitBackoff(BackOffExecution execution) {
+        try {
+            Thread.sleep(execution.nextBackOff());
+        } catch (InterruptedException ex) {
+            log.error("PreloadListenerImpl InterruptedException when wait retry e: ", ex);
+            Thread.currentThread().interrupt();
         }
     }
 
