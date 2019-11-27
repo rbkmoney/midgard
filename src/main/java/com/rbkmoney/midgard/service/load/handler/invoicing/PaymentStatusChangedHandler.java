@@ -67,9 +67,15 @@ public class PaymentStatusChangedHandler extends AbstractInvoicingHandler {
             return;
         }
         ClearingTransaction clearingTransaction = transformTransaction(payment, event, invoiceId, changeId);
-        transactionsDao.save(clearingTransaction);
-        log.info("Payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +
-                "changeId = '{}') was processed", invoiceId, event.getSequenceId(), changeId);
+        Long trxSeqId = transactionsDao.save(clearingTransaction);
+        if (trxSeqId == null) {
+            log.info("Payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +
+                    "changeId = '{}') was was skipped (it already exist)", invoiceId, event.getSequenceId(), changeId);
+        } else {
+            log.info("Payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +
+                    "changeId = '{}') was processed", invoiceId, event.getSequenceId(), changeId);
+        }
+
     }
 
     private InvoicePayment getPaymentById(Invoice invoice, String paymentId) {
