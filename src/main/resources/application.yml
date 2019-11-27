@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: @project.name@
+    name: mid
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: org.postgresql.Driver
@@ -35,33 +35,6 @@ clearing-service:
   schedule:
     mts: "00 01 00 * * *"
 
-import:
-  trx-pool-size: 30
-  migration:
-    delay: 30000
-  init-last-event-id: 205612089
-
-retry-policy:
-  maxAttempts: 10
-
-bm:
-  pollingEnabled: false
-  invoicing:
-    url: http://bustermaze:8022/repo
-    workersCount: 5
-    polling:
-      delay: 10000
-      retryDelay: 1000
-      maxPoolSize: 1
-      maxQuerySize: 300
-  partyManagement:
-    url: http://bustermaze:8022/repo
-    polling:
-      delay: 10000
-      retryDelay: 1000
-      maxPoolSize: 1
-      maxQuerySize: 300
-
 kafka:
   bootstrap-servers: localhost:19092
   client-id: midgard
@@ -86,6 +59,8 @@ kafka:
     invoice:
       id: mg-invoice-100-2
       enabled: false
+  retry-policy:
+    maxAttempts: 10
 
 management:
   security:
