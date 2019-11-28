@@ -3,6 +3,7 @@ package com.rbkmoney.midgard.config;
 import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.kafka.common.retry.ConfigurableRetryPolicy;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
+import com.rbkmoney.midgard.config.props.KafkaConsumerProperties;
 import com.rbkmoney.midgard.config.props.KafkaSslProperties;
 import com.rbkmoney.midgard.serde.SinkEventDeserializer;
 import com.rbkmoney.sink.common.parser.impl.MachineEventParser;
@@ -38,53 +39,30 @@ import java.util.Map;
 
 @Slf4j
 @Configuration
-@EnableConfigurationProperties(KafkaSslProperties.class)
+@EnableConfigurationProperties({KafkaSslProperties.class, KafkaConsumerProperties.class})
 @RequiredArgsConstructor
 public class KafkaConfig {
-
-    @Value("${kafka.consumer.auto-offset-reset}")
-    private String autoOffsetReset;
-
-    @Value("${kafka.consumer.enable-auto-commit}")
-    private boolean enableAutoCommit;
-
-    @Value("${kafka.consumer.group-id}")
-    private String groupId;
-
-    @Value("${kafka.client-id}")
-    private String clientId;
-
-    @Value("${kafka.consumer.max-poll-records}")
-    private int maxPollRecords;
-
-    @Value("${kafka.consumer.conn-max-idle-ms}")
-    private int connectionsMaxIdleMsConfig;
-
-    @Value("${kafka.consumer.session-timeout-ms}")
-    private int sessionTimeoutMs;
 
     @Value("${kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    @Value("${kafka.consumer.concurrency}")
-    private int concurrency;
-
     @Value("${kafka.retry-policy.maxAttempts}")
-    int maxAttempts;
+    private int maxAttempts;
 
     @Bean
-    public Map<String, Object> consumerConfigs(KafkaSslProperties kafkaSslProperties) {
+    public Map<String, Object> consumerConfigs(KafkaSslProperties kafkaSslProperties,
+                                               KafkaConsumerProperties kafkaConsumerProperties) {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SinkEventDeserializer.class);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        props.put(ConsumerConfig.CLIENT_ID_CONFIG, clientId);
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enableAutoCommit);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
-        props.put(ConsumerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG, connectionsMaxIdleMsConfig);
-        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, sessionTimeoutMs);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaConsumerProperties.getGroupId());
+        props.put(ConsumerConfig.CLIENT_ID_CONFIG, kafkaConsumerProperties.getClientId());
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, kafkaConsumerProperties.isEnableAutoCommit());
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, kafkaConsumerProperties.getAutoOffsetReset());
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, kafkaConsumerProperties.getMaxPollRecords());
+        props.put(ConsumerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG, kafkaConsumerProperties.getConnectionsMaxIdleMs());
+        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, kafkaConsumerProperties.getSessionTimeoutMs());
 
         configureSsl(props, kafkaSslProperties);
 
@@ -105,20 +83,22 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, MachineEvent> consumerFactory(KafkaSslProperties kafkaSslProperties) {
-        return new DefaultKafkaConsumerFactory<>(consumerConfigs(kafkaSslProperties));
+    public ConsumerFactory<String, MachineEvent> consumerFactory(KafkaSslProperties kafkaSslProperties,
+                                                                 KafkaConsumerProperties kafkaConsumerProperties) {
+        return new DefaultKafkaConsumerFactory<>(consumerConfigs(kafkaSslProperties, kafkaConsumerProperties));
     }
 
     @Bean
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, MachineEvent>> kafkaListenerContainerFactory(
-            ConsumerFactory<String, MachineEvent> consumerFactory
+            ConsumerFactory<String, MachineEvent> consumerFactory,
+            KafkaConsumerProperties kafkaConsumerProperties
     ) {
         ConcurrentKafkaListenerContainerFactory<String, MachineEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
         factory.getContainerProperties().setAckOnError(false);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         factory.setErrorHandler(kafkaErrorHandler());
-        factory.setConcurrency(concurrency);
+        factory.setConcurrency(kafkaConsumerProperties.getConcurrency());
         return factory;
     }
 

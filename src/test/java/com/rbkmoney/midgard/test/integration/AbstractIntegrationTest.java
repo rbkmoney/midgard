@@ -144,8 +144,6 @@ public abstract class AbstractIntegrationTest {
                     "kafka.consumer.group-id=TestGroupId",
                     "kafka.consumer.enable-auto-commit=false",
                     "kafka.consumer.auto-offset-reset=earliest",
-                    "kafka.consumer.client-id=initConsumerTestClient",
-                    "kafka.client-id=initTestClient",
                     "kafka.topics.invoice.id=test-topic",
                     "kafka.topics.invoice.enabled=true")
                     .applyTo(configurableApplicationContext.getEnvironment(), MAP, "testcontainers");

@@ -33,29 +33,31 @@ public final class MappingUtils {
 
     public static final int DEFAULT_TRX_VERSION = 1;
 
+    public static final String DEFAULT_CONTENT_TYPE = "application/json";
+
     public static Transaction transformRefundTransaction(ClearingTransaction clrTran,
                                                          ClearingRefund refund) {
-        GeneralTransactionInfo generalTranInfo = new GeneralTransactionInfo();
-        generalTranInfo.setTransactionId(refund.getTransactionId());
-        generalTranInfo.setTransactionDate(refund.getCreatedAt().toInstant(ZoneOffset.UTC).toString());
-        generalTranInfo.setTransactionAmount(refund.getAmount());
-        generalTranInfo.setTransactionCurrency(refund.getCurrencyCode());
-        generalTranInfo.setInvoiceId(refund.getInvoiceId());
-        generalTranInfo.setPaymentId(refund.getPaymentId());
-        generalTranInfo.setTransactionType("REFUND");
+        GeneralTransactionInfo generalTranInfo = new GeneralTransactionInfo()
+                .setTransactionId(refund.getTransactionId())
+                .setTransactionDate(refund.getCreatedAt().toInstant(ZoneOffset.UTC).toString())
+                .setTransactionAmount(refund.getAmount())
+                .setTransactionCurrency(refund.getCurrencyCode())
+                .setInvoiceId(refund.getInvoiceId())
+                .setPaymentId(refund.getPaymentId())
+                .setTransactionType("REFUND");
 
         return fillAdditionalInfo(generalTranInfo, clrTran, refund.getExtra());
     }
 
     public static Transaction transformClearingTransaction(ClearingTransaction clrTran) {
-        GeneralTransactionInfo generalTranInfo = new GeneralTransactionInfo();
-        generalTranInfo.setTransactionId(clrTran.getTransactionId());
-        generalTranInfo.setTransactionDate(clrTran.getTransactionDate().toInstant(ZoneOffset.UTC).toString());
-        generalTranInfo.setTransactionAmount(clrTran.getTransactionAmount());
-        generalTranInfo.setTransactionCurrency(clrTran.getTransactionCurrency());
-        generalTranInfo.setInvoiceId(clrTran.getInvoiceId());
-        generalTranInfo.setPaymentId(clrTran.getPaymentId());
-        generalTranInfo.setTransactionType("PAYMENT");
+        GeneralTransactionInfo generalTranInfo = new GeneralTransactionInfo()
+                .setTransactionId(clrTran.getTransactionId())
+                .setTransactionDate(clrTran.getTransactionDate().toInstant(ZoneOffset.UTC).toString())
+                .setTransactionAmount(clrTran.getTransactionAmount())
+                .setTransactionCurrency(clrTran.getTransactionCurrency())
+                .setInvoiceId(clrTran.getInvoiceId())
+                .setPaymentId(clrTran.getPaymentId())
+                .setTransactionType("PAYMENT");
 
         return fillAdditionalInfo(generalTranInfo, clrTran, clrTran.getExtra());
     }
@@ -63,35 +65,32 @@ public final class MappingUtils {
     private static Transaction fillAdditionalInfo(GeneralTransactionInfo generalTranInfo,
                                                   ClearingTransaction clrTran,
                                                   String extra) {
-        Transaction transaction = new Transaction();
-        transaction.setGeneralTransactionInfo(generalTranInfo);
-        transaction.setTransactionCardInfo(getTransactionCardInfo(clrTran));
-        transaction.setAdditionalTransactionData(transformContent(extra));
-        transaction.setTransactionCashFlow(new ArrayList<>());
-
-        return transaction;
+        return new Transaction()
+                .setGeneralTransactionInfo(generalTranInfo)
+                .setTransactionCardInfo(getTransactionCardInfo(clrTran))
+                .setAdditionalTransactionData(transformContent(extra))
+                .setTransactionCashFlow(new ArrayList<>());
     }
 
     private static Content transformContent(String extra) {
-        Content additionalTranData = new Content();
-        additionalTranData.setType("application/json");
-        additionalTranData.setData(extra.getBytes());
-        return additionalTranData;
+        return new Content()
+                .setType(DEFAULT_CONTENT_TYPE)
+                .setData(extra.getBytes());
     }
 
     private static TransactionCardInfo getTransactionCardInfo(ClearingTransaction clrTran) {
-        TransactionCardInfo tranCardInfo = new TransactionCardInfo();
-        tranCardInfo.setPayerBankCardToken(clrTran.getPayerBankCardToken());
-        tranCardInfo.setPayerBankCardBin(clrTran.getPayerBankCardBin());
-        tranCardInfo.setPayerBankCardMaskedPan(clrTran.getPayerBankCardMaskedPan());
-        tranCardInfo.setPayerBankCardPaymentSystem(clrTran.getPayerBankCardPaymentSystem());
-        tranCardInfo.setPayerBankCardTokenProvider(clrTran.getPayerBankCardTokenProvider());
-        return tranCardInfo;
+        return new TransactionCardInfo()
+                .setPayerBankCardToken(clrTran.getPayerBankCardToken())
+                .setPayerBankCardBin(clrTran.getPayerBankCardBin())
+                .setPayerBankCardMaskedPan(clrTran.getPayerBankCardMaskedPan())
+                .setPayerBankCardPaymentSystem(clrTran.getPayerBankCardPaymentSystem())
+                .setPayerBankCardTokenProvider(clrTran.getPayerBankCardTokenProvider());
     }
 
     public static FailureTransaction getFailureTransaction(Transaction transaction, Long clearingId) {
-        FailureTransaction failureTransaction = new FailureTransaction();
         GeneralTransactionInfo transactionInfo = transaction.getGeneralTransactionInfo();
+
+        FailureTransaction failureTransaction = new FailureTransaction();
         failureTransaction.setClearingId(clearingId);
         failureTransaction.setTransactionId(transactionInfo.getTransactionId());
         failureTransaction.setInvoiceId(transactionInfo.getInvoiceId());
@@ -202,19 +201,22 @@ public final class MappingUtils {
         trx.setPayerType(payer.getSetField().getFieldName());
         trx.setIsRecurrent(payer.isSetRecurrent());
 
-        var bankCard = extractBankCard(payer);
-        trx.setPayerBankCardToken(bankCard.getToken());
-        trx.setPayerBankCardPaymentSystem(bankCard.getPaymentSystem().name());
-        trx.setPayerBankCardBin(bankCard.getBin());
-        trx.setPayerBankCardMaskedPan(bankCard.getMaskedPan());
-        trx.setPayerBankCardTokenProvider(bankCard.getTokenProvider() == null ? null : bankCard.getTokenProvider().name());
-
         if (payer.isSetRecurrent() && payer.getRecurrent().isSetRecurrentParent()) {
             var recurrentParent = payer.getRecurrent().getRecurrentParent();
             trx.setPayerRecurrentParentInvoiceId(recurrentParent.getInvoiceId());
             trx.setPayerRecurrentParentPaymentId(recurrentParent.getPaymentId());
         }
 
+        fillBankCardData(trx, extractBankCard(payer));
+    }
+
+    private static void fillBankCardData(ClearingTransaction trx, com.rbkmoney.damsel.domain.BankCard bankCard) {
+        trx.setPayerBankCardToken(bankCard.getToken());
+        trx.setPayerBankCardPaymentSystem(bankCard.getPaymentSystem().name());
+        trx.setPayerBankCardBin(bankCard.getBin());
+        trx.setPayerBankCardMaskedPan(bankCard.getMaskedPan());
+        trx.setPayerBankCardTokenProvider(bankCard.getTokenProvider() == null ?
+                null : bankCard.getTokenProvider().name());
     }
 
     private static com.rbkmoney.damsel.domain.BankCard extractBankCard(com.rbkmoney.damsel.domain.Payer payer) {
@@ -225,7 +227,7 @@ public final class MappingUtils {
         } else if (payer.isSetPaymentResource()) {
             return payer.getPaymentResource().getResource().getPaymentTool().getBankCard();
         } else {
-            throw new RuntimeException("Payer type not found!");
+            throw new NotFoundException(String.format("Payer type '%s' not found!", payer.getSetField().getFieldName()));
         }
     }
 

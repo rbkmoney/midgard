@@ -34,7 +34,7 @@ public class InvoicingKafkaListenerTest extends AbstractIntegrationTest {
     public String topic;
 
     @MockBean
-    InvoicingService invoicingService; // clearingServiceHandler 'clearingEventService' ClearingEventService.class ClearingEventInfoDao
+    InvoicingService invoicingService;
 
     @MockBean
     MachineEventParser eventParser;

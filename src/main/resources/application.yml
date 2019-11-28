@@ -37,7 +37,6 @@ clearing-service:
 
 kafka:
   bootstrap-servers: localhost:19092
-  client-id: midgard
   ssl:
     enabled: false
     trust-store-location: "test"
@@ -49,11 +48,12 @@ kafka:
     trust-store-type: PKCS12
   consumer:
     concurrency: 5
+    client-id: midgard
     group-id: "MidgardListener"
     enable-auto-commit: false
     auto-offset-reset: latest
     max-poll-records: 20
-    conn-max-idle-ms: 300000
+    connections-max-idle-ms: 300000
     session-timeout-ms: 300000
   topics:
     invoice:
