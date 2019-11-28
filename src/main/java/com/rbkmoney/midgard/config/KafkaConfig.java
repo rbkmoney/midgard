@@ -44,25 +44,30 @@ public class KafkaConfig {
 
     @Value("${kafka.consumer.auto-offset-reset}")
     private String autoOffsetReset;
+
     @Value("${kafka.consumer.enable-auto-commit}")
     private boolean enableAutoCommit;
+
     @Value("${kafka.consumer.group-id}")
     private String groupId;
+
     @Value("${kafka.client-id}")
     private String clientId;
+
     @Value("${kafka.consumer.max-poll-records}")
     private int maxPollRecords;
+
     @Value("${kafka.consumer.conn-max-idle-ms}")
     private int connectionsMaxIdleMsConfig;
+
     @Value("${kafka.consumer.session-timeout-ms}")
     private int sessionTimeoutMs;
 
     @Value("${kafka.bootstrap-servers}")
     private String bootstrapServers;
+
     @Value("${kafka.consumer.concurrency}")
     private int concurrency;
-
-    private final KafkaSslProperties kafkaSslProperties;
 
     @Value("${kafka.retry-policy.maxAttempts}")
     int maxAttempts;

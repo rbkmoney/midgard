@@ -95,28 +95,37 @@ public class ClearingTransactionPackageHandler implements ClearingPackageHandler
         }
     }
 
-    private Transaction getClearingPayment(ClearingEventTransactionInfo info, Long clearingId, int packageNumber) {
-        ClearingTransaction clearingTransaction =
-                transactionsDao.getTransaction(info.getInvoiceId(), info.getPaymentId(), info.getTrxVersion());
+    private Transaction getClearingPayment(ClearingEventTransactionInfo info,
+                                           Long clearingId,
+                                           int packageNumber) {
+        ClearingTransaction clearingTransaction = transactionsDao.getTransaction(
+                info.getInvoiceId(),
+                info.getPaymentId(),
+                info.getTrxVersion()
+        );
         log.info("Transaction with invoice id {} and payment id {} will added to package {} " +
                         "for clearing event {}", clearingTransaction.getInvoiceId(), clearingTransaction.getPaymentId(),
                 packageNumber, clearingId);
         return MappingUtils.transformClearingTransaction(clearingTransaction);
-        List<ClearingTransactionCashFlow> cashFlowList = new ArrayList<>();
-        log.info("For transaction with invoice id {} and payment id {} in clearing event {} received " +
-                "cashFlowList with size {}", clearingTransaction.getInvoiceId(), clearingTransaction.getPaymentId(),
-                clearingId, cashFlowList == null ? "NULL" : cashFlowList.size());
-        return MappingUtils.transformClearingTransaction(clearingTransaction, cashFlowList);
     }
 
-    private Transaction getClearingRefund(ClearingEventTransactionInfo info, Long clearingId, int packageNumber) {
-        ClearingRefund refund =
-                clearingRefundDao.getRefund(info.getInvoiceId(), info.getPaymentId(), info.getRefundId(), info.getTrxVersion());
+    private Transaction getClearingRefund(ClearingEventTransactionInfo info,
+                                          Long clearingId,
+                                          int packageNumber) {
+        ClearingRefund refund = clearingRefundDao.getRefund(
+                info.getInvoiceId(),
+                info.getPaymentId(),
+                info.getRefundId(),
+                info.getTrxVersion()
+        );
         log.info("Refund transaction with invoice id {}, payment id {} and refund id {} will added to package {} " +
                         "for clearing event {}", refund.getInvoiceId(), refund.getPaymentId(), refund.getRefundId(),
                 packageNumber, clearingId);
-        ClearingTransaction clearingTransaction =
-                transactionsDao.getTransaction(refund.getInvoiceId(), refund.getPaymentId(), MappingUtils.DEFAULT_TRX_VERSION);
+        ClearingTransaction clearingTransaction = transactionsDao.getTransaction(
+                refund.getInvoiceId(),
+                refund.getPaymentId(),
+                MappingUtils.DEFAULT_TRX_VERSION
+        );
         return MappingUtils.transformRefundTransaction(clearingTransaction, refund);
     }
 

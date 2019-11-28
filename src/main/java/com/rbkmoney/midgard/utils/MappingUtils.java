@@ -126,7 +126,6 @@ public final class MappingUtils {
         eventTrxInfo.setPaymentId(trx.getPaymentId());
         eventTrxInfo.setTransactionId(trx.getTransactionId());
         eventTrxInfo.setTrxVersion(trx.getTrxVersion());
-        eventTrxInfo.setRowNumber(trx.getSourceRowId());
         eventTrxInfo.setProviderId(providerId);
         return eventTrxInfo;
     }
@@ -142,7 +141,6 @@ public final class MappingUtils {
         eventTrxInfo.setRefundId(refund.getRefundId());
         eventTrxInfo.setTransactionId(refund.getTransactionId());
         eventTrxInfo.setTrxVersion(refund.getTrxVersion());
-        eventTrxInfo.setRowNumber(refund.getSourceRowId());
         eventTrxInfo.setProviderId(providerId);
         return eventTrxInfo;
     }
@@ -161,7 +159,6 @@ public final class MappingUtils {
         long sequenceId = event.getEventId();
         trx.setSequenceId(sequenceId);
         trx.setChangeId(changeId);
-        trx.setSourceRowId(0L);
         trx.setTransactionClearingState(TransactionClearingState.READY);
         trx.setTrxVersion(MappingUtils.DEFAULT_TRX_VERSION);
 
