@@ -130,8 +130,7 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
     @Override
     public ClearingTransaction getLastTransaction() {
         Query query = getDslContext().selectFrom(CLEARING_TRANSACTION)
-                .where(CLEARING_TRANSACTION.SOURCE_ROW_ID.isNotNull())
-                .orderBy(CLEARING_TRANSACTION.SOURCE_ROW_ID.desc())
+                .orderBy(CLEARING_TRANSACTION.ID.desc())
                 .limit(1);
         return fetchOne(query, transactionRowMapper);
     }
@@ -139,10 +138,9 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
     @Override
     public ClearingTransaction getLastActiveTransaction(int providerId) {
         Query query = getDslContext().selectFrom(CLEARING_TRANSACTION)
-                .where(CLEARING_TRANSACTION.SOURCE_ROW_ID.isNotNull())
-                .and(CLEARING_TRANSACTION.PROVIDER_ID.eq(providerId))
+                .where(CLEARING_TRANSACTION.PROVIDER_ID.eq(providerId))
                 .and(CLEARING_TRANSACTION.TRANSACTION_CLEARING_STATE.notIn(READY, FAILED))
-                .orderBy(CLEARING_TRANSACTION.SOURCE_ROW_ID.desc())
+                .orderBy(CLEARING_TRANSACTION.ID.desc())
                 .limit(1);
         return fetchOne(query, transactionRowMapper);
     }

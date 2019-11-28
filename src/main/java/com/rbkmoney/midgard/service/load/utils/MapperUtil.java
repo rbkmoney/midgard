@@ -56,7 +56,6 @@ public final class MapperUtil {
         long sequenceId = event.getSequenceId();
         trx.setSequenceId(sequenceId);
         trx.setChangeId(changeId);
-        trx.setSourceRowId(0L);
         trx.setTransactionClearingState(TransactionClearingState.READY);
         trx.setTrxVersion(DEFAULT_TRX_VERSION);
 

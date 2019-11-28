@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @RequiredArgsConstructor
-@Service
+//@Service
 public class MigrationDataService implements GenericService {
 
     private final List<Importer> importers;
@@ -31,7 +31,7 @@ public class MigrationDataService implements GenericService {
     private final List<AdapterProperties> adaptersProps;
 
     @Override
-    @Scheduled(fixedDelayString = "${import.migration.delay}")
+    //@Scheduled(fixedDelayString = "${import.migration.delay}")
     public void process() {
         log.info("Migration data get started");
         List<Integer> providerIds = adaptersProps.stream()

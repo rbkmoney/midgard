@@ -83,7 +83,6 @@ public class RefundStatusChangedHandler extends AbstractInvoicingHandler {
             throw new NotFoundException(String.format("InvoicePaymentRefund or sessions for refund " +
                     "(invoice id '%s', sequence id '%d', change id '%d') not found!", invoiceId, sequenceId, changeId));
         }
-
         ClearingRefund clearingRefund = transformRefund(refund, event, invoicePayment.getPayment(), changeId);
         Long refundSeqId = clearingRefundDao.save(clearingRefund);
         if (refundSeqId == null) {
