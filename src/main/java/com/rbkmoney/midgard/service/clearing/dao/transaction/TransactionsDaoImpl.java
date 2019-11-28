@@ -138,8 +138,7 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
     @Override
     public ClearingTransaction getLastActiveTransaction(int providerId) {
         Query query = getDslContext().selectFrom(CLEARING_TRANSACTION)
-                .where(CLEARING_TRANSACTION.ID.isNotNull())
-                .and(CLEARING_TRANSACTION.PROVIDER_ID.eq(providerId))
+                .where(CLEARING_TRANSACTION.PROVIDER_ID.eq(providerId))
                 .and(CLEARING_TRANSACTION.TRANSACTION_CLEARING_STATE.notIn(READY, FAILED))
                 .orderBy(CLEARING_TRANSACTION.ID.desc())
                 .limit(1);
