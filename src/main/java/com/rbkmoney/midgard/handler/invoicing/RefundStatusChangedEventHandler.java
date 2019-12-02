@@ -11,7 +11,7 @@ import com.rbkmoney.midgard.data.ClearingAdapter;
 import com.rbkmoney.midgard.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.generated.tables.pojos.ClearingRefund;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

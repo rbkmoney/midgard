@@ -5,9 +5,9 @@ import com.rbkmoney.midgard.utils.MappingUtils;
 import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.generated.enums.TransactionClearingState;
-import org.jooq.generated.tables.pojos.ClearingEventTransactionInfo;
-import org.jooq.generated.tables.pojos.ClearingRefund;
+import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventTransactionInfo;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 

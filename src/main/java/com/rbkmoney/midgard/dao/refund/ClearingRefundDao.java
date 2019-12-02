@@ -1,8 +1,8 @@
 package com.rbkmoney.midgard.dao.refund;
 
 import com.rbkmoney.midgard.dao.ClearingDao;
-import org.jooq.generated.enums.TransactionClearingState;
-import org.jooq.generated.tables.pojos.ClearingRefund;
+import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
 
 import java.util.List;
 

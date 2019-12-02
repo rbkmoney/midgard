@@ -375,6 +375,7 @@
                             </schemata>
                         </database>
                         <target>
+                            <packageName>com.rbkmoney.midgard.domain</packageName>
                             <directory>target/generated-sources/</directory>
                         </target>
                     </generator>

@@ -4,8 +4,8 @@ import com.rbkmoney.damsel.payment_processing.InvoicePayment;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentRefund;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.Transaction;
-import org.jooq.generated.tables.pojos.ClearingRefund;
-import org.jooq.generated.tables.pojos.ClearingTransaction;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
 import org.junit.Test;
 
 import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.*;

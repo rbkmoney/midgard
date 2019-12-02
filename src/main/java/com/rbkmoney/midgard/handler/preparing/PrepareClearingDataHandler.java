@@ -11,18 +11,18 @@ import com.rbkmoney.midgard.handler.Handler;
 import com.rbkmoney.midgard.handler.failure.FailureTransactionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.generated.enums.ClearingEventStatus;
-import org.jooq.generated.tables.pojos.ClearingEventInfo;
-import org.jooq.generated.tables.pojos.ClearingEventTransactionInfo;
-import org.jooq.generated.tables.pojos.ClearingRefund;
-import org.jooq.generated.tables.pojos.ClearingTransaction;
+import com.rbkmoney.midgard.domain.enums.ClearingEventStatus;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventInfo;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventTransactionInfo;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static org.jooq.generated.enums.ClearingEventStatus.STARTED;
+import static com.rbkmoney.midgard.domain.enums.ClearingEventStatus.STARTED;
 
 @Slf4j
 @Component

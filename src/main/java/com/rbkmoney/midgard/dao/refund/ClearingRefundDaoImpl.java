@@ -5,19 +5,19 @@ import com.rbkmoney.midgard.dao.RecordRowMapper;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.Query;
-import org.jooq.generated.enums.TransactionClearingState;
-import org.jooq.generated.tables.pojos.ClearingRefund;
-import org.jooq.generated.tables.records.ClearingRefundRecord;
+import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
+import com.rbkmoney.midgard.domain.tables.records.ClearingRefundRecord;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static org.jooq.generated.Tables.CLEARING_TRANSACTION;
-import static org.jooq.generated.enums.TransactionClearingState.FAILED;
-import static org.jooq.generated.enums.TransactionClearingState.READY;
-import static org.jooq.generated.tables.ClearingRefund.CLEARING_REFUND;
+import static com.rbkmoney.midgard.domain.Tables.CLEARING_TRANSACTION;
+import static com.rbkmoney.midgard.domain.enums.TransactionClearingState.FAILED;
+import static com.rbkmoney.midgard.domain.enums.TransactionClearingState.READY;
+import static com.rbkmoney.midgard.domain.tables.ClearingRefund.CLEARING_REFUND;
 
 @Slf4j
 @Component

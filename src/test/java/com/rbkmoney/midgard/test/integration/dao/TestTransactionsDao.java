@@ -6,15 +6,15 @@ import com.rbkmoney.midgard.exception.DaoException;
 import org.jooq.Field;
 import org.jooq.Query;
 import org.jooq.Record1;
-import org.jooq.generated.enums.TransactionClearingState;
-import org.jooq.generated.tables.pojos.ClearingTransaction;
+import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
 import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
 import java.util.List;
 
-import static org.jooq.generated.tables.ClearingRefund.CLEARING_REFUND;
-import static org.jooq.generated.tables.ClearingTransaction.CLEARING_TRANSACTION;
+import static com.rbkmoney.midgard.domain.tables.ClearingRefund.CLEARING_REFUND;
+import static com.rbkmoney.midgard.domain.tables.ClearingTransaction.CLEARING_TRANSACTION;
 import static org.jooq.impl.DSL.count;
 
 public class TestTransactionsDao extends AbstractGenericDao {

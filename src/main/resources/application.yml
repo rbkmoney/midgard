@@ -23,15 +23,15 @@ clearing-service:
   retries-hour-count: 23
   scheduler-pool-size: 5
   error-timeout: 1000
-  adapters:
-    - name: mock
-      url: http://localhost:8023/v1/adapter/mock
-      networkTimeout: 120000
-      providerId: 1
-    - name: test
-      url: http://localhost:8023/v1/adapter/test
-      networkTimeout: 120000
-      providerId: 2
+#  adapters:
+#    - name: mock
+#      url: http://localhost:8023/v1/adapter/mock
+#      networkTimeout: 120000
+#      providerId: 1
+#    - name: test
+#      url: http://localhost:8023/v1/adapter/test
+#      networkTimeout: 120000
+#      providerId: 2
 
   invoicing:
     url: http://localhost:8023/v1/invoicing

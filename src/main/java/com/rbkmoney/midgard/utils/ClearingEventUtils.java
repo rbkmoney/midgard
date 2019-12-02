@@ -3,7 +3,7 @@ package com.rbkmoney.midgard.utils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.generated.tables.pojos.ClearingEventTransactionInfo;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventTransactionInfo;
 
 import java.util.Comparator;
 import java.util.List;

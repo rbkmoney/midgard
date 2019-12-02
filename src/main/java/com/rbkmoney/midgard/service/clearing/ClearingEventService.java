@@ -8,13 +8,13 @@ import com.rbkmoney.midgard.utils.ClearingAdaptersUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import org.jooq.generated.enums.ClearingEventStatus;
-import org.jooq.generated.tables.pojos.ClearingEventInfo;
+import com.rbkmoney.midgard.domain.enums.ClearingEventStatus;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventInfo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static org.jooq.generated.enums.ClearingEventStatus.CREATED;
+import static com.rbkmoney.midgard.domain.enums.ClearingEventStatus.CREATED;
 
 /** Сервис запуска клирингового события
  *

@@ -12,9 +12,9 @@ import com.rbkmoney.midgard.TransactionCardInfo;
 import com.rbkmoney.midgard.utils.JsonUtil;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.jooq.generated.enums.TransactionClearingState;
-import org.jooq.generated.tables.pojos.ClearingRefund;
-import org.jooq.generated.tables.pojos.ClearingTransaction;
+import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;

@@ -15,12 +15,12 @@ import com.rbkmoney.midgard.exception.NotFoundException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.generated.enums.ClearingTrxType;
-import org.jooq.generated.enums.TransactionClearingState;
-import org.jooq.generated.tables.pojos.ClearingEventTransactionInfo;
-import org.jooq.generated.tables.pojos.ClearingRefund;
-import org.jooq.generated.tables.pojos.ClearingTransaction;
-import org.jooq.generated.tables.pojos.FailureTransaction;
+import com.rbkmoney.midgard.domain.enums.ClearingTrxType;
+import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventTransactionInfo;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
+import com.rbkmoney.midgard.domain.tables.pojos.FailureTransaction;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
