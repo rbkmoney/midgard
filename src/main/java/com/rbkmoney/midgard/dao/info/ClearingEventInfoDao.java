@@ -2,8 +2,8 @@ package com.rbkmoney.midgard.dao.info;
 
 import com.rbkmoney.midgard.dao.ClearingDao;
 import com.rbkmoney.midgard.exception.DaoException;
-import org.jooq.generated.midgard.enums.ClearingEventStatus;
-import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
+import org.jooq.generated.enums.ClearingEventStatus;
+import org.jooq.generated.tables.pojos.ClearingEventInfo;
 
 import java.util.List;
 

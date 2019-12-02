@@ -5,15 +5,16 @@ import com.rbkmoney.midgard.dao.info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.data.ClearingAdapter;
 import com.rbkmoney.midgard.exception.AdapterNotFoundException;
 import com.rbkmoney.midgard.utils.ClearingAdaptersUtils;
-import com.rbkmoney.midgard.handler.Handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import org.jooq.generated.midgard.enums.ClearingEventStatus;
-import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
+import org.jooq.generated.enums.ClearingEventStatus;
+import org.jooq.generated.tables.pojos.ClearingEventInfo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static org.jooq.generated.enums.ClearingEventStatus.CREATED;
 
 /** Сервис запуска клирингового события
  *
@@ -27,8 +28,6 @@ import java.util.List;
 public class ClearingEventService implements ClearingServiceSrv.Iface {
 
     private final ClearingEventInfoDao clearingEventInfoDao;
-
-    private final Handler createClearingEventHandler;
 
     private final List<ClearingAdapter> adapters;
 
@@ -44,12 +43,19 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
     }
 
     private void executeClearingEvent(ClearingEvent clearingEvent) throws ProviderNotFound {
+        int providerId = clearingEvent.getProviderId();
         try {
             Long eventId = clearingEvent.getEventId();
             if (clearingEventInfoDao.getClearingEvent(eventId) == null) {
-                ClearingAdaptersUtils.getClearingAdapter(adapters, clearingEvent.getProviderId());
-
-                createClearingEventHandler.handle(clearingEvent);
+                ClearingAdaptersUtils.getClearingAdapter(adapters, providerId);
+                log.info("Creating new clearing event for provider {} by event: {}", providerId, eventId);
+                ClearingEventInfo clearingEventInfo = new ClearingEventInfo();
+                clearingEventInfo.setProviderId(providerId);
+                clearingEventInfo.setEventId(eventId);
+                clearingEventInfo.setStatus(CREATED);
+                Long clearingId = clearingEventInfoDao.save(clearingEventInfo);
+                log.info("New clearing event for provider {} was created with number {} (event: {})",
+                        providerId, clearingId, eventId);
             } else {
                 log.warn("For a event with id " + eventId + " a clearing event already exists");
             }
@@ -57,7 +63,7 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
             log.error("Error in identification of a provider", ex);
             throw new ProviderNotFound();
         } catch (Exception ex) {
-            log.error("Error preparing clearing data for provider with id " + clearingEvent.getProviderId(), ex);
+            log.error("Error preparing clearing data for provider with id " + providerId, ex);
         }
     }
 
@@ -83,6 +89,5 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
         log.info("Resend clearing file for provider id {} and event id {}. Update event status finished",
                 providerId, eventId);
     }
-
 
 }

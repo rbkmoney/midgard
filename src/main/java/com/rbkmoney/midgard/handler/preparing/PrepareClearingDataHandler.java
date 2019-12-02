@@ -3,6 +3,7 @@ package com.rbkmoney.midgard.handler.preparing;
 import com.rbkmoney.midgard.dao.info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.dao.refund.ClearingRefundDao;
 import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
+import com.rbkmoney.midgard.data.ClearingAdapter;
 import com.rbkmoney.midgard.data.ClearingProcessingEvent;
 import com.rbkmoney.midgard.utils.ClearingEventUtils;
 import com.rbkmoney.midgard.utils.MappingUtils;
@@ -10,16 +11,18 @@ import com.rbkmoney.midgard.handler.Handler;
 import com.rbkmoney.midgard.handler.failure.FailureTransactionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.generated.midgard.enums.ClearingEventStatus;
-import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
-import org.jooq.generated.midgard.tables.pojos.ClearingEventTransactionInfo;
-import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
-import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
+import org.jooq.generated.enums.ClearingEventStatus;
+import org.jooq.generated.tables.pojos.ClearingEventInfo;
+import org.jooq.generated.tables.pojos.ClearingEventTransactionInfo;
+import org.jooq.generated.tables.pojos.ClearingRefund;
+import org.jooq.generated.tables.pojos.ClearingTransaction;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static org.jooq.generated.enums.ClearingEventStatus.STARTED;
 
 @Slf4j
 @Component
@@ -44,6 +47,21 @@ public class PrepareClearingDataHandler implements Handler<ClearingProcessingEve
     @Override
     @Transactional
     public void handle(ClearingProcessingEvent clearingEvent) {
+        Long clearingId = clearingEvent.getClearingId();
+
+        try {
+            ClearingAdapter clearingAdapter = clearingEvent.getClearingAdapter();
+            String adapterName = clearingAdapter.getAdapterName();
+            log.info("Start preparing data for clearing event {} (bank: {})", clearingId, adapterName);
+            prepapeData(new ClearingProcessingEvent(clearingAdapter, clearingId));
+            clearingEventInfoDao.updateClearingStatus(clearingId, STARTED);
+            log.info("Clearing data for clearing event {} was prepared (bank: {})", clearingId, adapterName);
+        } catch (Exception ex) {
+            log.error("Received error while preparing clearing event {}", clearingId, ex);
+        }
+    }
+
+    private void prepapeData(ClearingProcessingEvent clearingEvent) {
         int providerId = clearingEvent.getClearingAdapter().getAdapterId();
         Long clearingId = clearingEvent.getClearingId();
         try {

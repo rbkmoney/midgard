@@ -22,7 +22,6 @@ public interface Dao {
                 int expectedRowsAffected,
                 NamedParameterJdbcTemplate namedParameterJdbcTemplate) throws DaoException;
 
-
     int execute(String namedSql,
                 SqlParameterSource parameterSource,
                 int expectedRowsAffected,
@@ -58,7 +57,6 @@ public interface Dao {
                       RowMapper<T> rowMapper,
                       NamedParameterJdbcTemplate namedParameterJdbcTemplate) throws DaoException;
 
-
     int executeWithReturn(Query query, KeyHolder keyHolder) throws DaoException;
 
     int executeWithReturn(Query query, int expectedRowsAffected, KeyHolder keyHolder) throws DaoException;
@@ -84,6 +82,5 @@ public interface Dao {
                           int expectedRowsAffected,
                           NamedParameterJdbcTemplate namedParameterJdbcTemplate,
                           KeyHolder keyHolder) throws DaoException;
-
 
 }

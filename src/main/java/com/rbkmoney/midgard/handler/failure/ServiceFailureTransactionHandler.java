@@ -4,12 +4,11 @@ import com.rbkmoney.midgard.utils.MappingUtils;
 import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.generated.midgard.tables.pojos.ClearingEventTransactionInfo;
+import org.jooq.generated.tables.pojos.ClearingEventTransactionInfo;
 import org.springframework.stereotype.Component;
 
-import static com.rbkmoney.midgard.utils.MappingUtils.getFailureTransaction;
-import static org.jooq.generated.midgard.enums.ClearingTrxType.PAYMENT;
-import static org.jooq.generated.midgard.enums.ClearingTrxType.REFUND;
+import static org.jooq.generated.enums.ClearingTrxType.PAYMENT;
+import static org.jooq.generated.enums.ClearingTrxType.REFUND;
 
 @Slf4j
 @Component

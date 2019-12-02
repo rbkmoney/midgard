@@ -33,7 +33,7 @@ public class BaseClearingEventTest {
             when(clearingEventInfoDao.getClearingEvent(Mockito.any(Long.class))).thenReturn(null);
             Handler handler = mock(Handler.class);
             ClearingEventService clearingEventService =
-                    new ClearingEventService(clearingEventInfoDao, handler, getClearingAdapters());
+                    new ClearingEventService(clearingEventInfoDao, getClearingAdapters());
             clearingEventService.startClearingEvent(getClearingEvent(200, FAIL_PROVIDER_ID));
         } catch (ProviderNotFound providerNotFound) {
             isThrownProviderNotFoundException = true;

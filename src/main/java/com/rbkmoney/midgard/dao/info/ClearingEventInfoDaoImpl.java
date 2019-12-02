@@ -5,17 +5,16 @@ import com.rbkmoney.midgard.dao.RecordRowMapper;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.Query;
-import org.jooq.generated.midgard.enums.ClearingEventStatus;
-import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
-import org.jooq.generated.midgard.tables.records.ClearingEventInfoRecord;
+import org.jooq.generated.enums.ClearingEventStatus;
+import org.jooq.generated.tables.pojos.ClearingEventInfo;
+import org.jooq.generated.tables.records.ClearingEventInfoRecord;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 
-import javax.sql.DataSource;
 import java.util.List;
 
-import static org.jooq.generated.midgard.tables.ClearingEventInfo.CLEARING_EVENT_INFO;
+import static org.jooq.generated.tables.ClearingEventInfo.CLEARING_EVENT_INFO;
 
 /**
  * Класс для воаимодействия с таблицей clearing_event в базе данных.
@@ -27,7 +26,7 @@ public class ClearingEventInfoDaoImpl extends AbstractGenericDao implements Clea
 
     private final RowMapper<ClearingEventInfo> clearingEventsRowMapper;
 
-    public ClearingEventInfoDaoImpl(DataSource dataSource) {
+    public ClearingEventInfoDaoImpl(HikariDataSource dataSource) {
         super(dataSource);
         clearingEventsRowMapper = new RecordRowMapper<>(CLEARING_EVENT_INFO, ClearingEventInfo.class);
     }

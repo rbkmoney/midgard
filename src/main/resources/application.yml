@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: mid
+    name: @project.name@
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: org.postgresql.Driver
@@ -14,7 +14,7 @@ spring:
       idle-timeout: 30000
       maximum-pool-size: 10
   flyway:
-    schemas: midgard, feed
+    schemas: midgard
 
 clearing-service:
   package-size: 25
@@ -24,16 +24,18 @@ clearing-service:
   scheduler-pool-size: 5
   error-timeout: 1000
   adapters:
-    mts:
-      name: MTS
-      url: http://localhost:8023/v1/clearing/mts
+    - name: mock
+      url: http://localhost:8023/v1/adapter/mock
       networkTimeout: 120000
-      providerId: 115
+      providerId: 1
+    - name: test
+      url: http://localhost:8023/v1/adapter/test
+      networkTimeout: 120000
+      providerId: 2
+
   invoicing:
-    url: http://invoicing:8023/v1/invoicing
+    url: http://localhost:8023/v1/invoicing
     networkTimeout: 30000
-  schedule:
-    mts: "00 01 00 * * *"
 
 kafka:
   bootstrap-servers: localhost:19092

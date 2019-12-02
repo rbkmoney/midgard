@@ -6,7 +6,7 @@ import com.rbkmoney.midgard.dao.info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.data.ClearingAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
+import org.jooq.generated.tables.pojos.ClearingEventInfo;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +23,7 @@ public class ScheduleService {
 
     private final List<ClearingAdapter> adapters;
 
-    @Scheduled(cron = "${clearing-service.schedule.mts}")
+    @Scheduled(cron = "00 01 00 * * *")
     private void scheduleMts() {
         try {
             log.info("Schedule for MTS get started");

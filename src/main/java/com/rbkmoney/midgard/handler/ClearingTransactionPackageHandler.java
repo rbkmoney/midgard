@@ -10,10 +10,10 @@ import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
 import com.rbkmoney.midgard.handler.failure.FailureTransactionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.generated.midgard.enums.ClearingTrxType;
-import org.jooq.generated.midgard.tables.pojos.ClearingEventTransactionInfo;
-import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
-import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
+import org.jooq.generated.enums.ClearingTrxType;
+import org.jooq.generated.tables.pojos.ClearingEventTransactionInfo;
+import org.jooq.generated.tables.pojos.ClearingRefund;
+import org.jooq.generated.tables.pojos.ClearingTransaction;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

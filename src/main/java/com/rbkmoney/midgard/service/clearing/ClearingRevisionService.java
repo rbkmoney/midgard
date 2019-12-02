@@ -7,8 +7,8 @@ import com.rbkmoney.midgard.utils.ClearingAdaptersUtils;
 import com.rbkmoney.midgard.handler.Handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.generated.midgard.enums.ClearingEventStatus;
-import org.jooq.generated.midgard.tables.pojos.ClearingEventInfo;
+import org.jooq.generated.enums.ClearingEventStatus;
+import org.jooq.generated.tables.pojos.ClearingEventInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.jooq.generated.midgard.enums.ClearingEventStatus.*;
+import static org.jooq.generated.enums.ClearingEventStatus.*;
 
 /** Сервис проверки статуса клиринговых событий
  *
@@ -35,6 +35,8 @@ public class ClearingRevisionService implements GenericService {
 
     private final Handler eventStateRevisionHandler;
 
+    private final Handler prepareClearingDataHandler;
+
     private final Handler clearingDataTransferHandler;
 
     private final List<ClearingAdapter> adapters;
@@ -47,6 +49,7 @@ public class ClearingRevisionService implements GenericService {
     public void process() {
         log.info("Clearing revision process get started");
 
+        processClearingEventsByStatus(CREATED, prepareClearingDataHandler);
         processClearingEventsByStatus(STARTED, clearingDataTransferHandler);
         processAdapterFaultClearingEvents();
         processClearingEventsByStatus(EXECUTE, eventStateRevisionHandler);

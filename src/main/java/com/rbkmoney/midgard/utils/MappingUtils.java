@@ -15,12 +15,12 @@ import com.rbkmoney.midgard.exception.NotFoundException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.generated.midgard.enums.ClearingTrxType;
-import org.jooq.generated.midgard.enums.TransactionClearingState;
-import org.jooq.generated.midgard.tables.pojos.ClearingEventTransactionInfo;
-import org.jooq.generated.midgard.tables.pojos.ClearingRefund;
-import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
-import org.jooq.generated.midgard.tables.pojos.FailureTransaction;
+import org.jooq.generated.enums.ClearingTrxType;
+import org.jooq.generated.enums.TransactionClearingState;
+import org.jooq.generated.tables.pojos.ClearingEventTransactionInfo;
+import org.jooq.generated.tables.pojos.ClearingRefund;
+import org.jooq.generated.tables.pojos.ClearingTransaction;
+import org.jooq.generated.tables.pojos.FailureTransaction;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -170,11 +170,9 @@ public final class MappingUtils {
         InvoicePaymentSession paymentSession = invoicePayment.getSessions().stream()
                 .filter(session -> session.getTargetStatus().isSetCaptured())
                 .findFirst()
-                .orElse(null);
-        if (paymentSession == null) {
-            throw new NotFoundException(String.format("Session for transaction with invoice id '%s', " +
-                    "sequence id '%d' and change id '%d' not found!", invoiceId, sequenceId, changeId));
-        }
+                .orElseThrow(() -> new NotFoundException(String.format("Session for transaction with " +
+                        "invoice id '%s', sequence id '%d' and change id '%d' not found!",
+                        invoiceId, sequenceId, changeId)));
 
         fillPaymentTrxInfo(trx, paymentSession);
         fillPaymentCashInfo(trx, payment);
@@ -243,6 +241,7 @@ public final class MappingUtils {
         clearingRefund.setChangeId(changeId);
         clearingRefund.setPaymentId(payment.getId());
         clearingRefund.setRefundId(refund.getId());
+        clearingRefund.setDomainRevision(refund.getDomainRevision());
         clearingRefund.setPartyId(payment.getOwnerId());
         clearingRefund.setShopId(payment.getShopId());
         clearingRefund.setCreatedAt(TypeUtil.stringToLocalDateTime(refund.getCreatedAt()));
@@ -266,25 +265,21 @@ public final class MappingUtils {
     private static void fillTransactionAdditionalInfo(InvoicePaymentRefund invoicePaymentRefund,
                                                       ClearingRefund clearingRefund,
                                                       MachineEvent event) {
-        InvoiceRefundSession refundSession = invoicePaymentRefund.getSessions().stream()
+        var transactionInfo = invoicePaymentRefund.getSessions().stream()
                 .findFirst()
-                .orElse(null);
+                .map(InvoiceRefundSession::getTransactionInfo)
+                .orElseThrow(() -> new NotFoundException(String.format("Refund session for refund (invoice id '%s'," +
+                        "sequenceId id '%d') not found!", event.getSourceId(), event.getEventId())));
 
-        if (refundSession == null) {
-            throw new NotFoundException(String.format("Refund session for refund (invoice id '%s'," +
-                    "sequenceId id '%d') not found!", event.getSourceId(), event.getEventId()));
-        }
-
-        var transactionInfo = refundSession.getTransactionInfo();
         clearingRefund.setTransactionId(transactionInfo.getId());
         clearingRefund.setExtra(JsonUtil.objectToJsonString(transactionInfo.getExtra()));
     }
 
     public static boolean isExistProviderId(List<ClearingAdapter> adapters, int providerId) {
-        List<Integer> proveidersIds = adapters.stream()
+        List<Integer> providersIds = adapters.stream()
                 .map(ClearingAdapter::getAdapterId)
                 .collect(Collectors.toList());
-        return proveidersIds.contains(providerId);
+        return providersIds.contains(providerId);
     }
 
 }

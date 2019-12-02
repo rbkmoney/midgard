@@ -1,10 +1,10 @@
 package com.rbkmoney.midgard.dao.transaction;
 
 import com.rbkmoney.midgard.dao.ClearingDao;
-import org.jooq.generated.midgard.enums.TransactionClearingState;
-import org.jooq.generated.midgard.tables.pojos.ClearingEventTransactionInfo;
-import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
-import org.jooq.generated.midgard.tables.pojos.FailureTransaction;
+import org.jooq.generated.enums.TransactionClearingState;
+import org.jooq.generated.tables.pojos.ClearingEventTransactionInfo;
+import org.jooq.generated.tables.pojos.ClearingTransaction;
+import org.jooq.generated.tables.pojos.FailureTransaction;
 
 import java.util.List;
 

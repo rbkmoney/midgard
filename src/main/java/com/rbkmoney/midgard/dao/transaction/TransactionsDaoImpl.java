@@ -7,24 +7,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.jooq.Field;
 import org.jooq.Query;
 import org.jooq.Record1;
-import org.jooq.generated.midgard.enums.TransactionClearingState;
-import org.jooq.generated.midgard.tables.pojos.ClearingEventTransactionInfo;
-import org.jooq.generated.midgard.tables.pojos.ClearingTransaction;
-import org.jooq.generated.midgard.tables.pojos.FailureTransaction;
-import org.jooq.generated.midgard.tables.records.ClearingEventTransactionInfoRecord;
-import org.jooq.generated.midgard.tables.records.ClearingTransactionRecord;
-import org.jooq.generated.midgard.tables.records.FailureTransactionRecord;
+import org.jooq.generated.enums.TransactionClearingState;
+import org.jooq.generated.tables.pojos.ClearingEventTransactionInfo;
+import org.jooq.generated.tables.pojos.ClearingTransaction;
+import org.jooq.generated.tables.pojos.FailureTransaction;
+import org.jooq.generated.tables.records.ClearingEventTransactionInfoRecord;
+import org.jooq.generated.tables.records.ClearingTransactionRecord;
+import org.jooq.generated.tables.records.FailureTransactionRecord;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static org.jooq.generated.midgard.Tables.CLEARING_EVENT_TRANSACTION_INFO;
-import static org.jooq.generated.midgard.enums.TransactionClearingState.FAILED;
-import static org.jooq.generated.midgard.enums.TransactionClearingState.READY;
-import static org.jooq.generated.midgard.tables.ClearingTransaction.CLEARING_TRANSACTION;
-import static org.jooq.generated.midgard.tables.FailureTransaction.FAILURE_TRANSACTION;
+import static org.jooq.generated.Tables.CLEARING_EVENT_TRANSACTION_INFO;
+import static org.jooq.generated.enums.TransactionClearingState.FAILED;
+import static org.jooq.generated.enums.TransactionClearingState.READY;
+import static org.jooq.generated.tables.ClearingTransaction.CLEARING_TRANSACTION;
+import static org.jooq.generated.tables.FailureTransaction.FAILURE_TRANSACTION;
 import static org.jooq.impl.DSL.count;
 
 /**
