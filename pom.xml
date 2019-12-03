@@ -42,7 +42,6 @@
         <local.pg.db.name>midgard</local.pg.db.name>
         <local.db.url>jdbc:postgresql://localhost:${local.pg.port}/${local.pg.db.name}</local.db.url>
         <local.db.clearing.scheme>midgard</local.db.clearing.scheme>
-        <local.db.feed.scheme>feed</local.db.feed.scheme>
         <local.db.user>postgres</local.db.user>
         <local.db.password>postgres</local.db.password>
         <!-- Primary PG server -->
@@ -373,12 +372,10 @@
                                 <schema>
                                     <inputSchema>${local.db.clearing.scheme}</inputSchema>
                                 </schema>
-                                <schema>
-                                    <inputSchema>${local.db.feed.scheme}</inputSchema>
-                                </schema>
                             </schemata>
                         </database>
                         <target>
+                            <packageName>com.rbkmoney.midgard.domain</packageName>
                             <directory>target/generated-sources/</directory>
                         </target>
                     </generator>

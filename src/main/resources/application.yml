@@ -14,7 +14,7 @@ spring:
       idle-timeout: 30000
       maximum-pool-size: 10
   flyway:
-    schemas: midgard, feed
+    schemas: midgard
 
 clearing-service:
   package-size: 25
@@ -23,48 +23,22 @@ clearing-service:
   retries-hour-count: 23
   scheduler-pool-size: 5
   error-timeout: 1000
-  adapters:
-    mts:
-      name: MTS
-      url: http://localhost:8023/v1/clearing/mts
-      networkTimeout: 120000
-      providerId: 115
+#  adapters:
+#    - name: mock
+#      url: http://localhost:8023/v1/adapter/mock
+#      networkTimeout: 120000
+#      providerId: 1
+#    - name: test
+#      url: http://localhost:8023/v1/adapter/test
+#      networkTimeout: 120000
+#      providerId: 2
+
   invoicing:
-    url: http://invoicing:8023/v1/invoicing
+    url: http://localhost:8023/v1/invoicing
     networkTimeout: 30000
-  schedule:
-    mts: "00 01 00 * * *"
-
-import:
-  trx-pool-size: 30
-  migration:
-    delay: 30000
-  init-last-event-id: 205612089
-
-retry-policy:
-  maxAttempts: 10
-
-bm:
-  pollingEnabled: false
-  invoicing:
-    url: http://bustermaze:8022/repo
-    workersCount: 5
-    polling:
-      delay: 10000
-      retryDelay: 1000
-      maxPoolSize: 1
-      maxQuerySize: 300
-  partyManagement:
-    url: http://bustermaze:8022/repo
-    polling:
-      delay: 10000
-      retryDelay: 1000
-      maxPoolSize: 1
-      maxQuerySize: 300
 
 kafka:
   bootstrap-servers: localhost:19092
-  client-id: midgard
   ssl:
     enabled: false
     trust-store-location: "test"
@@ -76,16 +50,19 @@ kafka:
     trust-store-type: PKCS12
   consumer:
     concurrency: 5
+    client-id: midgard
     group-id: "MidgardListener"
     enable-auto-commit: false
     auto-offset-reset: latest
     max-poll-records: 20
-    conn-max-idle-ms: 300000
+    connections-max-idle-ms: 300000
     session-timeout-ms: 300000
   topics:
     invoice:
       id: mg-invoice-100-2
       enabled: false
+  retry-policy:
+    maxAttempts: 10
 
 management:
   security:
