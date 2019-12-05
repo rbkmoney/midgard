@@ -145,7 +145,15 @@ public abstract class AbstractIntegrationTest {
                     "kafka.consumer.enable-auto-commit=false",
                     "kafka.consumer.auto-offset-reset=earliest",
                     "kafka.topics.invoice.id=test-topic",
-                    "kafka.topics.invoice.enabled=true")
+                    "kafka.topics.invoice.enabled=true",
+                    "clearing-service.adapters.[0].name=mock_1",
+                    "clearing-service.adapters.[0].url=http://localhost:8023/v1/adapter/mock_1",
+                    "clearing-service.adapters.[0].networkTimeout=60000",
+                    "clearing-service.adapters.[0].providerId=1",
+                    "clearing-service.adapters.[1].name=mock_2",
+                    "clearing-service.adapters.[1].url=http://localhost:8023/v1/adapter/mock_2",
+                    "clearing-service.adapters.[1].networkTimeout=60000",
+                    "clearing-service.adapters.[1].providerId=2" )
                     .applyTo(configurableApplicationContext.getEnvironment(), MAP, "testcontainers");
 
             if (postgres == null) {

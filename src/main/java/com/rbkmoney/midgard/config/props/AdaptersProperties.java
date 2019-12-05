@@ -9,10 +9,10 @@ import java.util.List;
 
 @Data
 @Component
-@ConfigurationProperties(prefix = "clearing-service.adapters")
+@ConfigurationProperties(prefix = "clearing-service")
 public class AdaptersProperties  {
 
-    private final List<AdapterProperties> adapterPropertiesList = new ArrayList<>();
+    private final List<AdapterProperties> adapters = new ArrayList<>();
 
     @Data
     public static class AdapterProperties extends BaseProperties {
