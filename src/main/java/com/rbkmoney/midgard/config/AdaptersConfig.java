@@ -17,7 +17,7 @@ public class AdaptersConfig {
     @Bean
     public List<ClearingAdapter> clearingAdapters(AdaptersProperties properties) throws IOException {
         List<ClearingAdapter> clearingAdapterList = new CopyOnWriteArrayList<>();
-        for (AdaptersProperties.AdapterProperties props : properties.getAdapterPropertiesList()) {
+        for (AdaptersProperties.AdapterProperties props : properties.getAdapters()) {
             clearingAdapterList.add(
                     new ClearingAdapter(mockClearingAdapterThriftClient(props),
                             props.getName(),
