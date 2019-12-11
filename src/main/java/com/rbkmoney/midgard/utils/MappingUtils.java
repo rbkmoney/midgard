@@ -126,6 +126,7 @@ public final class MappingUtils {
         eventTrxInfo.setTransactionId(trx.getTransactionId());
         eventTrxInfo.setTrxVersion(trx.getTrxVersion());
         eventTrxInfo.setProviderId(providerId);
+        eventTrxInfo.setRowNumber(trx.getId());
         return eventTrxInfo;
     }
 
@@ -141,6 +142,7 @@ public final class MappingUtils {
         eventTrxInfo.setTransactionId(refund.getTransactionId());
         eventTrxInfo.setTrxVersion(refund.getTrxVersion());
         eventTrxInfo.setProviderId(providerId);
+        eventTrxInfo.setRowNumber(refund.getId());
         return eventTrxInfo;
     }
 
