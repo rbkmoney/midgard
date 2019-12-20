@@ -6,21 +6,18 @@ import com.rbkmoney.damsel.payment_processing.InvoicePaymentSession;
 import com.rbkmoney.damsel.payment_processing.InvoiceRefundSession;
 import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
-import com.rbkmoney.midgard.Content;
-import com.rbkmoney.midgard.GeneralTransactionInfo;
-import com.rbkmoney.midgard.Transaction;
-import com.rbkmoney.midgard.TransactionCardInfo;
+import com.rbkmoney.midgard.*;
 import com.rbkmoney.midgard.data.ClearingAdapter;
-import com.rbkmoney.midgard.exception.NotFoundException;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import com.rbkmoney.midgard.domain.enums.ClearingTrxType;
 import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventTransactionInfo;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
 import com.rbkmoney.midgard.domain.tables.pojos.FailureTransaction;
+import com.rbkmoney.midgard.exception.NotFoundException;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -79,12 +76,18 @@ public final class MappingUtils {
     }
 
     private static TransactionCardInfo getTransactionCardInfo(ClearingTransaction clrTran) {
+        ExpDate expDate = new ExpDate(
+                Byte.valueOf(clrTran.getPayerBankCardExpiredDateMonth()),
+                Short.valueOf(clrTran.getPayerBankCardExpiredDateYear())
+        );
         return new TransactionCardInfo()
                 .setPayerBankCardToken(clrTran.getPayerBankCardToken())
                 .setPayerBankCardBin(clrTran.getPayerBankCardBin())
                 .setPayerBankCardMaskedPan(clrTran.getPayerBankCardMaskedPan())
                 .setPayerBankCardPaymentSystem(clrTran.getPayerBankCardPaymentSystem())
-                .setPayerBankCardTokenProvider(clrTran.getPayerBankCardTokenProvider());
+                .setPayerBankCardTokenProvider(clrTran.getPayerBankCardTokenProvider())
+                .setPayerBankCardCardholderName(clrTran.getPayerBankCardCardholderName())
+                .setPayerBankCardExpDate(expDate);
     }
 
     public static FailureTransaction getFailureTransaction(Transaction transaction, Long clearingId) {
@@ -173,7 +176,7 @@ public final class MappingUtils {
                 .filter(session -> session.getTargetStatus().isSetCaptured())
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException(String.format("Session for transaction with " +
-                        "invoice id '%s', sequence id '%d' and change id '%d' not found!",
+                                "invoice id '%s', sequence id '%d' and change id '%d' not found!",
                         invoiceId, sequenceId, changeId)));
 
         fillPaymentTrxInfo(trx, paymentSession);
@@ -217,6 +220,9 @@ public final class MappingUtils {
         trx.setPayerBankCardMaskedPan(bankCard.getMaskedPan());
         trx.setPayerBankCardTokenProvider(bankCard.getTokenProvider() == null ?
                 null : bankCard.getTokenProvider().name());
+        trx.setPayerBankCardCardholderName(bankCard.getCardholderName());
+        trx.setPayerBankCardExpiredDateMonth(String.valueOf(bankCard.getExpDate().getMonth()));
+        trx.setPayerBankCardExpiredDateYear(String.valueOf(bankCard.getExpDate().getYear()));
     }
 
     private static com.rbkmoney.damsel.domain.BankCard extractBankCard(com.rbkmoney.damsel.domain.Payer payer) {
