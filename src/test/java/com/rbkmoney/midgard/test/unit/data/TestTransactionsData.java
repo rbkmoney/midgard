@@ -5,6 +5,7 @@ import com.rbkmoney.damsel.payment_processing.Invoice;
 import com.rbkmoney.damsel.payment_processing.InvoicePayment;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentSession;
 import com.rbkmoney.damsel.payment_processing.InvoiceRefundSession;
+import com.rbkmoney.midgard.BankCardExpDate;
 import com.rbkmoney.midgard.Content;
 import com.rbkmoney.midgard.GeneralTransactionInfo;
 import com.rbkmoney.midgard.Transaction;
@@ -83,7 +84,8 @@ public final class TestTransactionsData {
                 .setBankName(BANK_NAME)
                 .setCardholderName(CARDHOLDER_NAME)
                 .setPaymentSystem(CARD_PAYMENT_SYSTEM)
-                .setMaskedPan(CARD_MASKED_PAN);
+                .setMaskedPan(CARD_MASKED_PAN)
+                .setExpDate(new com.rbkmoney.damsel.domain.BankCardExpDate(Byte.valueOf("12"), Short.valueOf("2020")));
     }
 
     private static List<InvoicePaymentSession> getInvoicePaymentSessions() {
@@ -180,6 +182,9 @@ public final class TestTransactionsData {
         trx.setPayerBankCardPaymentSystem(CARD_PAYMENT_SYSTEM.name());
         trx.setPayerBankCardBin(CARD_BIN);
         trx.setPayerBankCardMaskedPan(CARD_MASKED_PAN);
+        trx.setPayerBankCardExpiredDateMonth("12");
+        trx.setPayerBankCardExpiredDateYear("2020");
+        trx.setPayerBankCardCardholderName(CARDHOLDER_NAME);
         //trx.setPayerBankCardTokenProvider(CARD_TOKEN_PROVIDER);
 
         trx.setExtra(JsonUtil.objectToJsonString(getTestExtraMap()));
@@ -206,6 +211,8 @@ public final class TestTransactionsData {
         tranCardInfo.setPayerBankCardBin(CARD_BIN);
         tranCardInfo.setPayerBankCardMaskedPan(CARD_MASKED_PAN);
         tranCardInfo.setPayerBankCardPaymentSystem(CARD_PAYMENT_SYSTEM.name());
+        tranCardInfo.setPayerBankCardExpDate(new BankCardExpDate().setMonth("12").setYear("2020"));
+        tranCardInfo.setPayerBankCardCardholderName(CARDHOLDER_NAME);
         trx.setTransactionCardInfo(tranCardInfo);
 
         Content additionalTranData = new Content();
@@ -236,6 +243,9 @@ public final class TestTransactionsData {
         tranCardInfo.setPayerBankCardBin(CARD_BIN);
         tranCardInfo.setPayerBankCardMaskedPan(CARD_MASKED_PAN);
         tranCardInfo.setPayerBankCardPaymentSystem(CARD_PAYMENT_SYSTEM.name());
+        tranCardInfo.setPayerBankCardCardholderName(CARDHOLDER_NAME);
+        tranCardInfo.setPayerBankCardExpDate(new BankCardExpDate().setMonth("12").setYear("2020"));
+
         trx.setTransactionCardInfo(tranCardInfo);
 
         Content additionalTranData = new Content();
