@@ -6,16 +6,13 @@ import com.rbkmoney.damsel.payment_processing.InvoicePayment;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentSession;
 import com.rbkmoney.damsel.payment_processing.InvoiceRefundSession;
 import com.rbkmoney.midgard.BankCardExpDate;
-import com.rbkmoney.midgard.Content;
-import com.rbkmoney.midgard.GeneralTransactionInfo;
-import com.rbkmoney.midgard.Transaction;
-import com.rbkmoney.midgard.TransactionCardInfo;
-import com.rbkmoney.midgard.utils.JsonUtil;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import com.rbkmoney.midgard.*;
 import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
+import com.rbkmoney.midgard.utils.JsonUtil;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -85,7 +82,10 @@ public final class TestTransactionsData {
                 .setCardholderName(CARDHOLDER_NAME)
                 .setPaymentSystem(CARD_PAYMENT_SYSTEM)
                 .setMaskedPan(CARD_MASKED_PAN)
-                .setExpDate(new com.rbkmoney.damsel.domain.BankCardExpDate(Byte.valueOf("12"), Short.valueOf("2020")));
+                .setExpDate(new com.rbkmoney.damsel.domain.BankCardExpDate(
+                        Byte.valueOf(CARD_EXP_DATE_MONTH),
+                        Short.valueOf(CARD_EXP_DATE_YEAR))
+                );
     }
 
     private static List<InvoicePaymentSession> getInvoicePaymentSessions() {
@@ -182,8 +182,8 @@ public final class TestTransactionsData {
         trx.setPayerBankCardPaymentSystem(CARD_PAYMENT_SYSTEM.name());
         trx.setPayerBankCardBin(CARD_BIN);
         trx.setPayerBankCardMaskedPan(CARD_MASKED_PAN);
-        trx.setPayerBankCardExpiredDateMonth("12");
-        trx.setPayerBankCardExpiredDateYear("2020");
+        trx.setPayerBankCardExpiredDateMonth(CARD_EXP_DATE_MONTH);
+        trx.setPayerBankCardExpiredDateYear(CARD_EXP_DATE_YEAR);
         trx.setPayerBankCardCardholderName(CARDHOLDER_NAME);
         //trx.setPayerBankCardTokenProvider(CARD_TOKEN_PROVIDER);
 
@@ -211,8 +211,8 @@ public final class TestTransactionsData {
         tranCardInfo.setPayerBankCardBin(CARD_BIN);
         tranCardInfo.setPayerBankCardMaskedPan(CARD_MASKED_PAN);
         tranCardInfo.setPayerBankCardPaymentSystem(CARD_PAYMENT_SYSTEM.name());
-        tranCardInfo.setPayerBankCardExpDate(new BankCardExpDate().setMonth("12").setYear("2020"));
         tranCardInfo.setPayerBankCardCardholderName(CARDHOLDER_NAME);
+        tranCardInfo.setPayerBankCardExpDate(createPayerBankCardExpDate());
         trx.setTransactionCardInfo(tranCardInfo);
 
         Content additionalTranData = new Content();
@@ -229,7 +229,7 @@ public final class TestTransactionsData {
         Transaction trx = new Transaction();
 
         GeneralTransactionInfo generalTranInfo = new GeneralTransactionInfo();
-        generalTranInfo.setTransactionId(REFUND_TRANSACTION_ID_1 );
+        generalTranInfo.setTransactionId(REFUND_TRANSACTION_ID_1);
         generalTranInfo.setTransactionDate(LOCAL_DATE_TIME.toInstant(ZoneOffset.UTC).toString());
         generalTranInfo.setTransactionAmount(INVOICE_REFUND_1_AMOUNT);
         generalTranInfo.setTransactionCurrency(INVOICE_REFUND_1_CURRENCY);
@@ -244,8 +244,7 @@ public final class TestTransactionsData {
         tranCardInfo.setPayerBankCardMaskedPan(CARD_MASKED_PAN);
         tranCardInfo.setPayerBankCardPaymentSystem(CARD_PAYMENT_SYSTEM.name());
         tranCardInfo.setPayerBankCardCardholderName(CARDHOLDER_NAME);
-        tranCardInfo.setPayerBankCardExpDate(new BankCardExpDate().setMonth("12").setYear("2020"));
-
+        tranCardInfo.setPayerBankCardExpDate(createPayerBankCardExpDate());
         trx.setTransactionCardInfo(tranCardInfo);
 
         Content additionalTranData = new Content();
@@ -279,6 +278,10 @@ public final class TestTransactionsData {
         clearingRefund.setTrxVersion(1);
 
         return clearingRefund;
+    }
+
+    private static BankCardExpDate createPayerBankCardExpDate() {
+        return new BankCardExpDate().setMonth(Byte.valueOf(CARD_EXP_DATE_MONTH)).setYear(Short.valueOf(CARD_EXP_DATE_YEAR));
     }
 
 }

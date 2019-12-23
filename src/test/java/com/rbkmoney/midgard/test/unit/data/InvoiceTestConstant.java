@@ -37,6 +37,8 @@ public final class InvoiceTestConstant {
     public static final String CARD_BIN = "443322";
     public static final String CARDHOLDER_NAME = "443322";
     public static final String CARD_MASKED_PAN = "0000 00** **** 1234";
+    public static final String CARD_EXP_DATE_MONTH = "12";
+    public static final String CARD_EXP_DATE_YEAR = "2020";
     public static final String CARD_TOKEN_PROVIDER = "Card-Token-Provider-001";
     public static final String BANK_NAME = "BankName007";
 
