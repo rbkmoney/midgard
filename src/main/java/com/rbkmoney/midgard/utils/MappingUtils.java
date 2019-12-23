@@ -76,9 +76,9 @@ public final class MappingUtils {
     }
 
     private static TransactionCardInfo getTransactionCardInfo(ClearingTransaction clrTran) {
-        ExpDate expDate = new ExpDate(
-                Byte.valueOf(clrTran.getPayerBankCardExpiredDateMonth()),
-                Short.valueOf(clrTran.getPayerBankCardExpiredDateYear())
+        BankCardExpDate expDate = new BankCardExpDate(
+                clrTran.getPayerBankCardExpiredDateMonth(),
+                clrTran.getPayerBankCardExpiredDateYear()
         );
         return new TransactionCardInfo()
                 .setPayerBankCardToken(clrTran.getPayerBankCardToken())

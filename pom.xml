@@ -191,7 +191,7 @@
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>midgard-proto</artifactId>
-            <version>1.18-fce336a</version>
+            <version>1.19-b71cb5d</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
