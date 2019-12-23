@@ -221,8 +221,10 @@ public final class MappingUtils {
         trx.setPayerBankCardTokenProvider(bankCard.getTokenProvider() == null ?
                 null : bankCard.getTokenProvider().name());
         trx.setPayerBankCardCardholderName(bankCard.getCardholderName());
-        trx.setPayerBankCardExpiredDateMonth(String.valueOf(bankCard.getExpDate().getMonth()));
-        trx.setPayerBankCardExpiredDateYear(String.valueOf(bankCard.getExpDate().getYear()));
+        if (bankCard.getExpDate() != null) {
+            trx.setPayerBankCardExpiredDateMonth(String.valueOf(bankCard.getExpDate().getMonth()));
+            trx.setPayerBankCardExpiredDateYear(String.valueOf(bankCard.getExpDate().getYear()));
+        }
     }
 
     private static com.rbkmoney.damsel.domain.BankCard extractBankCard(com.rbkmoney.damsel.domain.Payer payer) {
