@@ -24,7 +24,7 @@
         <dockerfile.registry>dr2.rbkmoney.com</dockerfile.registry>
         <!-- RBK.Money environment settings -->
         <damsel.version>1.362-cdb9559</damsel.version>
-        <fistful-proto.version>1.37-b3ce731</fistful-proto.version>
+        <fistful-proto.version>1.46-afd8b8b</fistful-proto.version>
         <shared.resources.version>0.3.6</shared.resources.version>
         <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
         <sonar.cobertura.reportPath>target/site/cobertura/coverage.xml</sonar.cobertura.reportPath>
