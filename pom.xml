@@ -213,6 +213,12 @@
             <artifactId>fistful-proto</artifactId>
             <version>${fistful-proto.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.rbkmoney</groupId>
+            <artifactId>schedulator-proto</artifactId>
+            <version>1.11-efc08c2</version>
+        </dependency>
+
 
         <!-- Test -->
         <dependency>
