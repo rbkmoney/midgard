@@ -31,7 +31,7 @@ public class ClearingMockJobExecutor implements ScheduledJobExecutorSrv.Iface {
     public ContextValidationResponse validateExecutionContext(ByteBuffer byteBuffer) throws TException {
         AdapterJobContext adapterJobContext = scheduleJobSerializer.read(byteBuffer.array());
         if (adapterJobContext.getProviderId() == null) {
-            throw new IllegalArgumentException("adapter url can't be null");
+            throw new IllegalArgumentException("adapter 'providerId' can't be null");
         }
         ContextValidationResponse contextValidationResponse = new ContextValidationResponse();
         ValidationResponseStatus validationResponseStatus = new ValidationResponseStatus();
@@ -42,16 +42,16 @@ public class ClearingMockJobExecutor implements ScheduledJobExecutorSrv.Iface {
 
     @Override
     public ByteBuffer executeJob(ExecuteJobRequest executeJobRequest) throws TException {
-        log.info("Execute 'clearing' job");
+        log.info("Execute 'clearing' job: {}", executeJobRequest);
         AdapterJobContext adapterJobContext = scheduleJobSerializer.read(executeJobRequest.getServiceExecutionContext());
-        log.info("Clearing adapter: {}", adapterJobContext);
+        log.info("Clearing adapter job context: {}", adapterJobContext);
         try {
             ClearingEventInfo lastClearingEvent = clearingEventInfoDao.getLastClearingEvent(adapterJobContext.getProviderId());
             ClearingEvent clearingEvent = new ClearingEvent();
             clearingEvent.setEventId(lastClearingEvent.getEventId() + 1);
             clearingEvent.setProviderId(adapterJobContext.getProviderId());
             clearingEventService.startClearingEvent(clearingEvent);
-            log.info("Schedule job for MTS finished");
+            log.info("Schedule job for provider with id {} finished", adapterJobContext.getProviderId());
 
             return ByteBuffer.wrap(scheduleJobSerializer.writeByte(adapterJobContext));
         } catch (Exception ex) {
@@ -59,6 +59,5 @@ public class ClearingMockJobExecutor implements ScheduledJobExecutorSrv.Iface {
             throw new IllegalStateException(String.format("Execute job '%s' failed", adapterJobContext.getName()));
         }
     }
-
 
 }

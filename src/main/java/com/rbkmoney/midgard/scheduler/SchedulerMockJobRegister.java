@@ -64,22 +64,14 @@ public class SchedulerMockJobRegister implements ApplicationListener<Application
             adapterJobContext.setProviderId(adapterProperties.getProviderId());
             registerJobRequest.setContext(scheduleJobSerializer.writeByte(adapterJobContext));
             registerJobRequest.setExecutorServicePath(adapterProperties.getScheduler().getServiceCallbackPath());
+            ClearingServiceProperties.SchedulerProperties schedulerProperties = adapterProperties.getScheduler();
             Schedule schedule = buildsSchedule(
-                    adapterProperties.getScheduler().getSchedulerId(),
-                    adapterProperties.getScheduler().getCalendarId(),
-                    adapterProperties.getScheduler().getRevisionId());
+                    schedulerProperties.getSchedulerId(),
+                    schedulerProperties.getCalendarId(),
+                    schedulerProperties.getRevisionId());
             registerJobRequest.setSchedule(schedule);
             retryTemplate.execute(context -> {
-                try {
-                    log.info("Register '{}' job", adapterProperties.getScheduler().getJobId());
-                    schedulatorClient.registerJob(adapterProperties.getScheduler().getJobId(), registerJobRequest);
-                } catch (ScheduleAlreadyExists e) {
-                    log.warn("Scheduler '{}' already exists", adapterProperties.getScheduler().getJobId());
-                } catch (BadContextProvided e) {
-                    log.error("Context validation failed. JobId={}", adapterProperties.getScheduler().getJobId(), e);
-                } catch (TException e) {
-                    throw new RuntimeException(e);
-                }
+                registerJob(schedulerProperties.getJobId(), registerJobRequest);
                 return null;
             });
         } catch (Exception e) {
@@ -87,9 +79,22 @@ public class SchedulerMockJobRegister implements ApplicationListener<Application
         }
     }
 
+    private void registerJob(String jobId, RegisterJobRequest registerJobRequest) {
+        try {
+            log.info("Register '{}' job", jobId);
+            schedulatorClient.registerJob(jobId, registerJobRequest);
+        } catch (ScheduleAlreadyExists e) {
+            log.warn("Scheduler '{}' already exists", jobId);
+        } catch (BadContextProvided e) {
+            log.error("Context validation failed. JobId={}", jobId, e);
+        } catch (TException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private Optional<ClearingServiceProperties.AdapterProperties> findMockAdapter() {
         return clearingServiceProperties.getAdapters().stream()
-                .filter(adapterProperties -> adapterProperties.getName().equalsIgnoreCase(MOCK_ADAPTER_NAME))
+                .filter(adapterProperties -> MOCK_ADAPTER_NAME.equalsIgnoreCase(adapterProperties.getName()))
                 .findFirst();
     }
 

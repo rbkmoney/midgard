@@ -20,7 +20,7 @@ import java.nio.ByteBuffer;
 
 import static org.mockito.Mockito.*;
 
-public class ClearingMockJobExecutor extends AbstractIntegrationTest {
+public class ClearingMockJobExecutorTest extends AbstractIntegrationTest {
 
     @Autowired
     private ScheduleJobSerializer scheduleJobSerializer;

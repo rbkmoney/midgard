@@ -28,21 +28,21 @@ clearing-service:
     url: http://localhost:8023/v1/invoicing
     networkTimeout: 30000
 
-  adapters:
-    - name: mock
-      url: http://localhost:8023/v1/adapter/mock
-      networkTimeout: 120000
-      providerId: 1
-      scheduler:
-        jobId: midgardClearingJobMock
-        revisionId: 16396
-        schedulerId: 64
-        calendarId: 1
-        serviceCallbackPath: http://midgard:8022/v1/clearing_scheduler_job
-    - name: test
-      url: http://localhost:8023/v1/adapter/test
-      networkTimeout: 120000
-      providerId: 2
+#  adapters:
+#    - name: mock
+#      url: http://localhost:8023/v1/adapter/mock
+#      networkTimeout: 120000
+#      providerId: 1
+#      scheduler:
+#        jobId: midgardClearingJobMock
+#        revisionId: 16396
+#        schedulerId: 64
+#        calendarId: 1
+#        serviceCallbackPath: http://midgard:8022/v1/clearing_scheduler_job
+#    - name: test
+#      url: http://localhost:8023/v1/adapter/test
+#      networkTimeout: 120000
+#      providerId: 2
 
 kafka:
   bootstrap-servers: localhost:19092

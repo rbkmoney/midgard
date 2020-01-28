@@ -29,5 +29,4 @@ public class SchedulatorServiceProperties {
     @NotNull
     private Integer retryMaxInterval;
 
-
 }

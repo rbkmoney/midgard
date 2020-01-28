@@ -45,5 +45,4 @@ public class ClearingServiceProperties {
         private String serviceCallbackPath;
     }
 
-
 }
