@@ -56,30 +56,30 @@ public class SchedulerMockJobRegister implements ApplicationListener<Application
     private void registerAdapterJob(ClearingServiceProperties.AdapterProperties adapterProperties) {
         try {
             log.info("Register 'clearing' job for '{}' adapter", adapterProperties.getName());
-            RegisterJobRequest registerJobRequest = new RegisterJobRequest();
             AdapterJobContext adapterJobContext = new AdapterJobContext();
             adapterJobContext.setName(adapterProperties.getName());
             adapterJobContext.setUrl(adapterProperties.getUrl().getURL().toString());
             adapterJobContext.setNetworkTimeout(adapterProperties.getNetworkTimeout());
             adapterJobContext.setProviderId(adapterProperties.getProviderId());
+
+            ClearingServiceProperties.SchedulerProperties schedulerProperties = adapterProperties.getScheduler();
+
+            RegisterJobRequest registerJobRequest = new RegisterJobRequest();
             registerJobRequest.setContext(scheduleJobSerializer.writeByte(adapterJobContext));
             registerJobRequest.setExecutorServicePath(adapterProperties.getScheduler().getServiceCallbackPath());
-            ClearingServiceProperties.SchedulerProperties schedulerProperties = adapterProperties.getScheduler();
+
             Schedule schedule = buildsSchedule(
                     schedulerProperties.getSchedulerId(),
                     schedulerProperties.getCalendarId(),
                     schedulerProperties.getRevisionId());
             registerJobRequest.setSchedule(schedule);
-            retryTemplate.execute(context -> {
-                registerJob(schedulerProperties.getJobId(), registerJobRequest);
-                return null;
-            });
+            retryTemplate.execute(context -> registerJob(schedulerProperties.getJobId(), registerJobRequest));
         } catch (Exception e) {
             throw new RegisterAdapterJobException("Adapter registration failed: " + adapterProperties.getName(), e);
         }
     }
 
-    private void registerJob(String jobId, RegisterJobRequest registerJobRequest) {
+    private Void registerJob(String jobId, RegisterJobRequest registerJobRequest) {
         try {
             log.info("Register '{}' job", jobId);
             schedulatorClient.registerJob(jobId, registerJobRequest);
@@ -90,6 +90,7 @@ public class SchedulerMockJobRegister implements ApplicationListener<Application
         } catch (TException e) {
             throw new RuntimeException(e);
         }
+        return null;
     }
 
     private Optional<ClearingServiceProperties.AdapterProperties> findMockAdapter() {

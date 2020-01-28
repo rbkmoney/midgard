@@ -31,7 +31,7 @@ public class ClearingMockJobExecutor implements ScheduledJobExecutorSrv.Iface {
     public ContextValidationResponse validateExecutionContext(ByteBuffer byteBuffer) throws TException {
         AdapterJobContext adapterJobContext = scheduleJobSerializer.read(byteBuffer.array());
         if (adapterJobContext.getProviderId() == null) {
-            throw new IllegalArgumentException("adapter 'providerId' can't be null");
+            throw new IllegalArgumentException("Adapter provider id cannot be null");
         }
         ContextValidationResponse contextValidationResponse = new ContextValidationResponse();
         ValidationResponseStatus validationResponseStatus = new ValidationResponseStatus();
