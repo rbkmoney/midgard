@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.rbkmoney.midgard.utils.ClearingAdaptersUtils.getClearingAdapter;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -24,22 +26,27 @@ public class ScheduleService {
     private final List<ClearingAdapter> adapters;
 
     @Scheduled(cron = "00 01 00 * * *")
-    private void scheduleMts() {
+    private void scheduleProvider115() {
+        scheduleClearingEventForProvider(115);
+    }
+
+    @Scheduled(cron = "0 0 */4 ? * *")
+    private void scheduleProvider1() {
+        scheduleClearingEventForProvider(1);
+    }
+
+    private void scheduleClearingEventForProvider(Integer providerId) {
         try {
-            log.info("Schedule for MTS get started");
-            ClearingAdapter mts = adapters.stream()
-                    .filter(adapters -> "mts".equalsIgnoreCase(adapters.getAdapterName()))
-                    .findFirst()
-                    .orElseThrow();
+            log.info("Schedule for provider with id {} get started", providerId);
+            getClearingAdapter(adapters, providerId);
 
-            int providerId = mts.getAdapterId();
             ClearingEventInfo lastClearingEvent = clearingEventInfoDao.getLastClearingEvent(providerId);
-
             ClearingEvent clearingEvent = new ClearingEvent();
-            clearingEvent.setEventId(lastClearingEvent.getEventId() + 1);
+            long eventId = lastClearingEvent.getEventId() == null ? 0 : lastClearingEvent.getEventId() + 1;
+            clearingEvent.setEventId(eventId);
             clearingEvent.setProviderId(providerId);
             clearingEventService.startClearingEvent(clearingEvent);
-            log.info("Schedule for MTS finished");
+            log.info("Schedule for provider with id {} finished", providerId);
         } catch (Exception ex) {
             log.error("Error was received when performing a scheduled clearing task", ex);
         }

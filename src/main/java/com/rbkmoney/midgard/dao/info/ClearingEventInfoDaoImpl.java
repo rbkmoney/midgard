@@ -75,10 +75,11 @@ public class ClearingEventInfoDaoImpl extends AbstractGenericDao implements Clea
     }
 
     @Override
-    public void updateClearingStatus(Long clearingId, ClearingEventStatus status) {
+    public void updateClearingStatus(Long clearingId, ClearingEventStatus status, int providerId) {
         Query query = getDslContext().update(CLEARING_EVENT_INFO)
                 .set(CLEARING_EVENT_INFO.STATUS, status)
-                .where(CLEARING_EVENT_INFO.ID.eq(clearingId));
+                .where(CLEARING_EVENT_INFO.EVENT_ID.eq(clearingId))
+                .and(CLEARING_EVENT_INFO.PROVIDER_ID.eq(providerId));
         execute(query);
     }
 

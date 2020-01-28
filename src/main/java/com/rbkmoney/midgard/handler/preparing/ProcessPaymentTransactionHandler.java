@@ -20,7 +20,8 @@ public class ProcessPaymentTransactionHandler implements ProcessTransactionHandl
     @Override
     @Transactional
     public void handle(ClearingTransaction trx, long clearingId, int providerId) {
-        ClearingEventTransactionInfo transactionInfo = MappingUtils.transformClearingTrx(clearingId, providerId, trx);
+        ClearingEventTransactionInfo transactionInfo =
+                MappingUtils.transformClearingTrx(clearingId, providerId, trx);
         transactionsDao.saveClearingEventTransactionInfo(transactionInfo);
         transactionsDao.updateClearingTransactionState(
                 trx.getInvoiceId(),

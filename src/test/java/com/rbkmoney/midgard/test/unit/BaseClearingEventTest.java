@@ -46,7 +46,7 @@ public class BaseClearingEventTest {
         AdapterWorkFlow adapterWorkFlow = new AdapterWorkFlow(1L, "upload");
         List<AdapterWorkFlow> adapterWorkFlowList = new ArrayList<>();
         adapterWorkFlowList.add(adapterWorkFlow);
-        clearingAdapters.add(getClearingAdapter("MTS", 1, adapterWorkFlowList));
+        clearingAdapters.add(getClearingAdapter("BANK_1", 1, adapterWorkFlowList));
         clearingAdapters.add(getClearingAdapter("TEST", 2, adapterWorkFlowList));
         return clearingAdapters;
     }

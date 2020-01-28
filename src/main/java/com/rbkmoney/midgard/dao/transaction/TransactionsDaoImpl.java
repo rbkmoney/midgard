@@ -118,11 +118,12 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
     }
 
     @Override
-    public Integer getProcessedClearingTransactionCount(long clearingId) {
+    public Integer getProcessedClearingTransactionCount(long clearingId, int providerId) {
         Field<Integer> rowCount = count(CLEARING_EVENT_TRANSACTION_INFO.CLEARING_ID).as("rowCount");
         Record1<Integer> record = getDslContext().select(rowCount)
                 .from(CLEARING_EVENT_TRANSACTION_INFO)
                 .where(CLEARING_EVENT_TRANSACTION_INFO.CLEARING_ID.eq(clearingId))
+                .and(CLEARING_EVENT_TRANSACTION_INFO.PROVIDER_ID.eq(providerId))
                 .fetchOne();
         return record.value1();
     }

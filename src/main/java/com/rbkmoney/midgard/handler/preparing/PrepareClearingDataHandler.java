@@ -54,7 +54,7 @@ public class PrepareClearingDataHandler implements Handler<ClearingProcessingEve
             String adapterName = clearingAdapter.getAdapterName();
             log.info("Start preparing data for clearing event {} (bank: {})", clearingId, adapterName);
             prepapeData(new ClearingProcessingEvent(clearingAdapter, clearingId));
-            clearingEventInfoDao.updateClearingStatus(clearingId, STARTED);
+            clearingEventInfoDao.updateClearingStatus(clearingId, STARTED, clearingAdapter.getAdapterId());
             log.info("Clearing data for clearing event {} was prepared (bank: {})", clearingId, adapterName);
         } catch (Exception ex) {
             log.error("Received error while preparing clearing event {}", clearingId, ex);
@@ -132,7 +132,7 @@ public class PrepareClearingDataHandler implements Handler<ClearingProcessingEve
                         ClearingEventStatus.ADAPTER_FAULT
                 );
         for (ClearingEventInfo clearingEvent : adapterFaultClearingEvents) {
-            int trxCount = transactionsDao.getProcessedClearingTransactionCount(clearingId);
+            int trxCount = transactionsDao.getProcessedClearingTransactionCount(clearingId, providerId);
             if (trxCount == 0) {
                 continue;
             }
