@@ -1,15 +1,15 @@
 server:
-  port: @server.port@
+  port: '@server.port@'
 
 spring:
   application:
-    name: @project.name@
+    name: '@project.name@'
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: org.postgresql.Driver
-    url: @db.url@
-    username: @db.user@
-    password: @db.password@
+    url: '@db.url@'
+    username: '@db.user@'
+    password: '@db.password@'
     hikari:
       idle-timeout: 30000
       maximum-pool-size: 10
@@ -23,19 +23,26 @@ clearing-service:
   retries-hour-count: 23
   scheduler-pool-size: 5
   error-timeout: 1000
-#  adapters:
-#    - name: mock
-#      url: http://localhost:8023/v1/adapter/mock
-#      networkTimeout: 120000
-#      providerId: 1
-#    - name: test
-#      url: http://localhost:8023/v1/adapter/test
-#      networkTimeout: 120000
-#      providerId: 2
 
   invoicing:
     url: http://localhost:8023/v1/invoicing
     networkTimeout: 30000
+
+  adapters:
+    - name: mock
+      url: http://localhost:8023/v1/adapter/mock
+      networkTimeout: 120000
+      providerId: 1
+      scheduler:
+        jobId: midgardClearingJobMock
+        revisionId: 16396
+        schedulerId: 64
+        calendarId: 1
+        serviceCallbackPath: http://midgard:8022/v1/clearing_scheduler_job
+    - name: test
+      url: http://localhost:8023/v1/adapter/test
+      networkTimeout: 120000
+      providerId: 2
 
 kafka:
   bootstrap-servers: localhost:19092
@@ -63,6 +70,15 @@ kafka:
       enabled: false
   retry-policy:
     maxAttempts: 10
+
+service:
+  schedulator:
+    url: http://schedulator:8022/v1/schedulator
+    networkTimeout: 5000
+    retryInitialInterval: 10000
+    retryMaxAttempts: 7
+    retryMaxInterval: 900000
+    registerEnable: true
 
 management:
   security:
