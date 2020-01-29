@@ -18,7 +18,7 @@ public interface TransactionsDao extends ClearingDao<ClearingTransaction, String
             Long clearingId, int providerId, long lastRowNumber, int limit
     );
 
-    Integer getProcessedClearingTransactionCount(long clearingId);
+    Integer getProcessedClearingTransactionCount(long clearingId, int providerId);
 
     ClearingTransaction getLastTransaction();
 

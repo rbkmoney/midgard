@@ -43,8 +43,8 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
             String uploadId = adapter.startClearingEvent(clearingId);
             List<ClearingDataPackageTag> tagList = new ArrayList<>();
             long lastRowId = 0L;
-            Integer clearingTrxCount = transactionsDao.getProcessedClearingTransactionCount(clearingId);
-
+            Integer clearingTrxCount =
+                    transactionsDao.getProcessedClearingTransactionCount(clearingId, providerId);
             if (clearingTrxCount == null || clearingTrxCount == 0) {
                 log.info("No transactions found for clearing");
                 ClearingDataRequest request = getEmptyClearingDataPackage(clearingId);
@@ -72,16 +72,16 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
             }
 
             adapter.completeClearingEvent(uploadId, clearingId, tagList);
-            eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.COMPLETE);
+            eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.COMPLETE, providerId);
             log.info("Transfer data to clearing adapter {} with clearing id {} was finished",
                     event.getClearingAdapter().getAdapterName(), clearingId);
         } catch (ClearingAdapterException ex) {
             log.error("Error occurred while processing clearing event {}", clearingId, ex);
-            eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.ADAPTER_FAULT);
+            eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.ADAPTER_FAULT, providerId);
             throw ex;
         } catch (TException ex) {
             log.error("Data transfer error while processing clearing event {}", clearingId, ex);
-            eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.ADAPTER_FAULT);
+            eventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.ADAPTER_FAULT, providerId);
             throw new Exception(ex);
         } catch (Exception ex) {
             log.error("Received exception while sending clearing data to adapter", ex);
