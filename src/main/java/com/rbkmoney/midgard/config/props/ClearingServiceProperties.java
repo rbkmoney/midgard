@@ -18,12 +18,19 @@ public class ClearingServiceProperties {
 
     private List<AdapterProperties> adapters = new ArrayList<>();
 
+    @NotEmpty
+    private String serviceCallbackPath;
+
+    private BaseProperties invoicingService;
+
     @Data
     @EqualsAndHashCode(callSuper = true)
     public static class AdapterProperties extends BaseProperties {
 
         private String name;
+
         private int providerId;
+
         @NestedConfigurationProperty
         private SchedulerProperties scheduler;
 
@@ -33,16 +40,21 @@ public class ClearingServiceProperties {
     @Component
     @ConfigurationProperties(prefix="scheduler")
     public static class SchedulerProperties {
+
+        @NotEmpty
+        private boolean enabled;
+
         @NotEmpty
         private String jobId;
+
         @NotNull
         private Integer revisionId;
+
         @NotNull
         private Integer schedulerId;
+
         @NotNull
         private Integer calendarId;
-        @NotEmpty
-        private String serviceCallbackPath;
     }
 
 }

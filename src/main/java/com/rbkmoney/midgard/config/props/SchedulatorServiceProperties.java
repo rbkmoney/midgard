@@ -2,10 +2,10 @@ package com.rbkmoney.midgard.config.props;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
@@ -14,11 +14,10 @@ import javax.validation.constraints.NotNull;
 @ConfigurationProperties(prefix = "service.schedulator")
 public class SchedulatorServiceProperties {
 
-    @NotEmpty
-    private String url;
+    private Resource url;
 
     @NotNull
-    private Integer networkTimeout;
+    private int networkTimeout;
 
     @NotNull
     private Integer retryInitialInterval;

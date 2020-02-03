@@ -23,8 +23,9 @@ clearing-service:
   retries-hour-count: 23
   scheduler-pool-size: 5
   error-timeout: 1000
+  service-callback-path: http://localhost:8022/v1/clearing_scheduler_job
 
-  invoicing:
+  invoicing-service:
     url: http://localhost:8023/v1/invoicing
     networkTimeout: 30000
 
@@ -38,7 +39,7 @@ clearing-service:
 #        revisionId: 16396
 #        schedulerId: 64
 #        calendarId: 1
-#        serviceCallbackPath: http://midgard:8022/v1/clearing_scheduler_job
+#        enabled: true
 #    - name: test
 #      url: http://localhost:8023/v1/adapter/test
 #      networkTimeout: 120000

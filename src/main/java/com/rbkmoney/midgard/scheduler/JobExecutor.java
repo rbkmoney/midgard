@@ -17,9 +17,7 @@ import java.nio.ByteBuffer;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ClearingMockJobExecutor implements ScheduledJobExecutorSrv.Iface {
-
-    private static final String MTS_ADAPTER_NAME = "mts";
+public class JobExecutor implements ScheduledJobExecutorSrv.Iface {
 
     private final ScheduleJobSerializer scheduleJobSerializer;
 
@@ -41,23 +39,29 @@ public class ClearingMockJobExecutor implements ScheduledJobExecutorSrv.Iface {
     }
 
     @Override
-    public ByteBuffer executeJob(ExecuteJobRequest executeJobRequest) throws TException {
-        log.info("Execute 'clearing' job: {}", executeJobRequest);
-        AdapterJobContext adapterJobContext = scheduleJobSerializer.read(executeJobRequest.getServiceExecutionContext());
-        log.info("Clearing adapter job context: {}", adapterJobContext);
+    public ByteBuffer executeJob(ExecuteJobRequest jobRequest) throws TException {
+        log.info("Execute job: {}", jobRequest);
+        AdapterJobContext adapterJobContext =
+                scheduleJobSerializer.read(jobRequest.getServiceExecutionContext());
+        log.info("Job context: {}", adapterJobContext);
         try {
-            ClearingEventInfo lastClearingEvent = clearingEventInfoDao.getLastClearingEvent(adapterJobContext.getProviderId());
-            ClearingEvent clearingEvent = new ClearingEvent();
-            clearingEvent.setEventId(lastClearingEvent.getEventId() + 1);
-            clearingEvent.setProviderId(adapterJobContext.getProviderId());
-            clearingEventService.startClearingEvent(clearingEvent);
-            log.info("Schedule job for provider with id {} finished", adapterJobContext.getProviderId());
-
+            createClearingEvent(adapterJobContext);
             return ByteBuffer.wrap(scheduleJobSerializer.writeByte(adapterJobContext));
         } catch (Exception ex) {
-            log.error("Error was received when performing a scheduled clearing task", ex);
+            log.error("Error was received when performing a scheduled task", ex);
             throw new IllegalStateException(String.format("Execute job '%s' failed", adapterJobContext.getName()));
         }
+    }
+
+    private void createClearingEvent(AdapterJobContext adapterJobContext) throws TException {
+        Integer providerId = adapterJobContext.getProviderId();
+        ClearingEventInfo lastClearingEvent =
+                clearingEventInfoDao.getLastClearingEvent(providerId);
+        ClearingEvent clearingEvent = new ClearingEvent();
+        clearingEvent.setEventId(lastClearingEvent.getEventId() + 1);
+        clearingEvent.setProviderId(providerId);
+        clearingEventService.startClearingEvent(clearingEvent);
+        log.info("Schedule job for provider with id {} finished", providerId);
     }
 
 }

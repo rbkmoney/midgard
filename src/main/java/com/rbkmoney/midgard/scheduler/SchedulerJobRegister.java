@@ -19,15 +19,17 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotEmpty;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "service.schedulator", name = "registerEnable", havingValue = "true", matchIfMissing = true)
-public class SchedulerMockJobRegister implements ApplicationListener<ApplicationReadyEvent> {
-
-    private static final String MOCK_ADAPTER_NAME = "mock";
+@ConditionalOnProperty(prefix = "service.schedulator", name = "registerEnable",
+        havingValue = "true", matchIfMissing = true)
+public class SchedulerJobRegister implements ApplicationListener<ApplicationReadyEvent> {
 
     private final SchedulatorSrv.Iface schedulatorClient;
 
@@ -44,39 +46,59 @@ public class SchedulerMockJobRegister implements ApplicationListener<Application
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        log.info("Trying to find mock adapter");
-        Optional<ClearingServiceProperties.AdapterProperties> mockAdapter = findMockAdapter();
-        if (mockAdapter.isPresent()) {
-            registerAdapterJob(mockAdapter.get());
-        } else {
-            log.warn("Mock adapter not found");
+        log.info("Start synchronization of jobs...");
+        String serviceCallbackPath = clearingServiceProperties.getServiceCallbackPath();
+        clearingServiceProperties.getAdapters().forEach(properties -> syncJobs(properties, serviceCallbackPath));
+        log.info("Synchronization of jobs finished");
+    }
+
+    private void syncJobs(ClearingServiceProperties.AdapterProperties properties, String serviceCallbackPath) {
+        ClearingServiceProperties.SchedulerProperties scheduler = properties.getScheduler();
+        try {
+            if (scheduler.isEnabled()) {
+                registerJob(properties, serviceCallbackPath);
+            } else {
+                deregisterJob(properties);
+            }
+        } catch (Exception ex) {
+            log.error("Failed to sync job for scheduler '{}'", scheduler, ex);
+            throw new RuntimeException(String.format("Failed to sync job for scheduler '%s'", scheduler));
         }
     }
 
-    private void registerAdapterJob(ClearingServiceProperties.AdapterProperties adapterProperties) {
+    private void registerJob(ClearingServiceProperties.AdapterProperties properties, String serviceCallbackPath) {
+        String adapterName = properties.getName();
         try {
-            log.info("Register 'clearing' job for '{}' adapter", adapterProperties.getName());
+            log.info("Register 'clearing' job for '{}' adapter", adapterName);
             AdapterJobContext adapterJobContext = new AdapterJobContext();
-            adapterJobContext.setName(adapterProperties.getName());
-            adapterJobContext.setUrl(adapterProperties.getUrl().getURL().toString());
-            adapterJobContext.setNetworkTimeout(adapterProperties.getNetworkTimeout());
-            adapterJobContext.setProviderId(adapterProperties.getProviderId());
+            adapterJobContext.setName(adapterName);
+            adapterJobContext.setUrl(properties.getUrl().getURL().toString());
+            adapterJobContext.setNetworkTimeout(properties.getNetworkTimeout());
+            adapterJobContext.setProviderId(properties.getProviderId());
 
-            ClearingServiceProperties.SchedulerProperties schedulerProperties = adapterProperties.getScheduler();
+            ClearingServiceProperties.SchedulerProperties schedulerProperties = properties.getScheduler();
 
             RegisterJobRequest registerJobRequest = new RegisterJobRequest();
             registerJobRequest.setContext(scheduleJobSerializer.writeByte(adapterJobContext));
-            registerJobRequest.setExecutorServicePath(adapterProperties.getScheduler().getServiceCallbackPath());
+            registerJobRequest.setExecutorServicePath(serviceCallbackPath);
 
             Schedule schedule = buildsSchedule(
                     schedulerProperties.getSchedulerId(),
                     schedulerProperties.getCalendarId(),
-                    schedulerProperties.getRevisionId());
+                    schedulerProperties.getRevisionId()
+            );
             registerJobRequest.setSchedule(schedule);
-            retryTemplate.execute(context -> registerJob(schedulerProperties.getJobId(), registerJobRequest));
-        } catch (Exception e) {
-            throw new RegisterAdapterJobException("Adapter registration failed: " + adapterProperties.getName(), e);
+            retryTemplate.execute(context ->
+                    registerJob(schedulerProperties.getJobId(), registerJobRequest));
+        } catch (Exception ex) {
+            throw new RegisterAdapterJobException("Adapter registration failed: " + adapterName, ex);
         }
+    }
+
+    private void deregisterJob(ClearingServiceProperties.AdapterProperties properties) throws TException {
+        log.info("Deregister a job for provider with id {}", properties.getProviderId());
+        ClearingServiceProperties.SchedulerProperties scheduler = properties.getScheduler();
+        schedulatorClient.deregisterJob(scheduler.getJobId());
     }
 
     private Void registerJob(String jobId, RegisterJobRequest registerJobRequest) {
@@ -93,12 +115,6 @@ public class SchedulerMockJobRegister implements ApplicationListener<Application
         return null;
     }
 
-    private Optional<ClearingServiceProperties.AdapterProperties> findMockAdapter() {
-        return clearingServiceProperties.getAdapters().stream()
-                .filter(adapterProperties -> MOCK_ADAPTER_NAME.equalsIgnoreCase(adapterProperties.getName()))
-                .findFirst();
-    }
-
     private Schedule buildsSchedule(int scheduleRefId, int calendarRefId, long revision) {
         Schedule schedule = new Schedule();
         DominantBasedSchedule dominantBasedSchedule = new DominantBasedSchedule()
@@ -111,9 +127,13 @@ public class SchedulerMockJobRegister implements ApplicationListener<Application
     }
 
     private static final class RegisterJobFailListener extends RetryListenerSupport {
+
         @Override
-        public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
-            log.error("Register job failed. Retry count: {}", context.getRetryCount(), context.getLastThrowable());
+        public <T, E extends Throwable> void onError(RetryContext context,
+                                                     RetryCallback<T, E> callback,
+                                                     Throwable throwable) {
+            log.error("Register job failed. Retry count: {}",
+                    context.getRetryCount(), context.getLastThrowable());
         }
     }
 

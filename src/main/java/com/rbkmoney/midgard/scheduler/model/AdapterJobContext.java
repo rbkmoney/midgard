@@ -6,11 +6,8 @@ import lombok.Data;
 public class AdapterJobContext {
 
     private String name;
-
     private Integer providerId;
-
     private String url;
-
     private Integer networkTimeout;
 
 }
