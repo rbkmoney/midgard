@@ -31,6 +31,8 @@ public class ClearingServiceProperties {
 
         private int providerId;
 
+        private int packageSize;
+
         @NestedConfigurationProperty
         private SchedulerProperties scheduler;
 

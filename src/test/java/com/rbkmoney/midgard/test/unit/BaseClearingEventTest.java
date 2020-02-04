@@ -62,7 +62,7 @@ public class BaseClearingEventTest {
             when(adapter.sendClearingDataPackage(uploadId, getDataPackage(clearingId)))
                     .thenReturn(getDataPackageTag(1, "tag_1"));
         }
-        return new ClearingAdapter(adapter, adapterName, adapterId);
+        return new ClearingAdapter(adapter, adapterName, adapterId, 1000);
     }
 
     private ClearingDataRequest getDataPackage(long clearingId) {

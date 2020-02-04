@@ -17,7 +17,6 @@ spring:
     schemas: midgard
 
 clearing-service:
-  package-size: 25
   inner-package-size: 500
   revision: 60000
   retries-hour-count: 23
@@ -34,6 +33,7 @@ clearing-service:
 #      url: http://localhost:8023/v1/adapter/mock
 #      networkTimeout: 120000
 #      providerId: 1
+#      package-size: 25
 #      scheduler:
 #        jobId: midgardClearingJobMock
 #        revisionId: 16396
@@ -44,6 +44,8 @@ clearing-service:
 #      url: http://localhost:8023/v1/adapter/test
 #      networkTimeout: 120000
 #      providerId: 2
+#      package-size: 25
+
 
 kafka:
   bootstrap-servers: localhost:19092

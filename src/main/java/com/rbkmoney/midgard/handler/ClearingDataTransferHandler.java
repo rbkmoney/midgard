@@ -29,13 +29,11 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
 
     private final FailureTransactionHandler<Transaction, Long> adapterFailureTransactionHandler;
 
-    @Value("${clearing-service.package-size}")
-    private int packageSize;
-
     @Override
     public void handle(ClearingProcessingEvent event) throws Exception {
         Long clearingId = event.getClearingId();
         int providerId = event.getClearingAdapter().getAdapterId();
+        int packageSize = event.getClearingAdapter().getPackageSize();
         log.info("Transfer data to clearing adapter {} with clearing id {} get started",
                 event.getClearingAdapter().getAdapterName(), clearingId);
         try {
@@ -55,8 +53,13 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
                 ClearingDataPackage clearingDataPackage;
                 do {
                     log.info("Start sending package {} for clearing event {}", packageNumber, clearingId);
-                    clearingDataPackage =
-                            clearingTransactionPackageHandler.getClearingPackage(clearingId, providerId, lastRowId, packageNumber);
+                    clearingDataPackage = clearingTransactionPackageHandler.getClearingPackage(
+                            clearingId,
+                            providerId,
+                            packageSize,
+                            lastRowId,
+                            packageNumber
+                    );
                     ClearingDataResponse response =
                             adapter.sendClearingDataPackage(uploadId, clearingDataPackage.getClearingDataRequest());
                     processAdapterFailureTransactions(response.getFailureTransactions(), clearingId, packageNumber);

@@ -21,7 +21,8 @@ public class AdaptersConfig {
             clearingAdapterList.add(
                     new ClearingAdapter(mockClearingAdapterThriftClient(props),
                             props.getName(),
-                            props.getProviderId())
+                            props.getProviderId(),
+                            props.getPackageSize())
             );
         }
         return clearingAdapterList;

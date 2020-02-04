@@ -150,6 +150,7 @@ public abstract class AbstractIntegrationTest {
                     "clearing-service.adapters.[0].url=http://localhost:8023/v1/adapter/mock_1",
                     "clearing-service.adapters.[0].networkTimeout=60000",
                     "clearing-service.adapters.[0].providerId=1",
+                    "clearing-service.adapters.[0].package-size=25",
                     "clearing-service.adapters.[1].name=test_bank",
                     "clearing-service.adapters.[1].scheduler.jobId=midgardClearingJobMock",
                     "clearing-service.adapters.[1].scheduler.revisionId=16396",
@@ -158,6 +159,7 @@ public abstract class AbstractIntegrationTest {
                     "clearing-service.adapters.[1].scheduler.serviceCallbackPath=http://midgard:8022/v1/clearing_scheduler_job",
                     "clearing-service.adapters.[1].url=http://localhost:8023/v1/adapter/mock_2",
                     "clearing-service.adapters.[1].networkTimeout=60000",
+                    "clearing-service.adapters.[1].package-size=25",
                     "clearing-service.adapters.[1].providerId=115" )
                     .applyTo(configurableApplicationContext.getEnvironment(), MAP, "testcontainers");
 

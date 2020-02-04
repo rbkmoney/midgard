@@ -31,11 +31,12 @@ public class ClearingTransactionPackageHandler implements ClearingPackageHandler
 
     private final FailureTransactionHandler<ClearingEventTransactionInfo, String> serviceFailureTransactionHandler;
 
-    @Value("${clearing-service.package-size}")
-    private int packageSize;
-
     @Override
-    public ClearingDataPackage getClearingPackage(Long clearingId, int providerId, long lastRowId, int packageNumber) {
+    public ClearingDataPackage getClearingPackage(Long clearingId,
+                                                  int providerId,
+                                                  int packageSize,
+                                                  long lastRowId,
+                                                  int packageNumber) {
         log.info("Start processing the package {} for clearing event {} for provider id {} with last row id '{}'",
                 packageNumber, clearingId, providerId, lastRowId);
         List<ClearingEventTransactionInfo> trxEventInfo =
