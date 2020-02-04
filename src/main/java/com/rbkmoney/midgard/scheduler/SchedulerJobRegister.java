@@ -54,6 +54,9 @@ public class SchedulerJobRegister implements ApplicationListener<ApplicationRead
 
     private void syncJobs(ClearingServiceProperties.AdapterProperties properties, String serviceCallbackPath) {
         ClearingServiceProperties.SchedulerProperties scheduler = properties.getScheduler();
+        if (scheduler == null) {
+            return;
+        }
         try {
             if (scheduler.isEnabled()) {
                 registerJob(properties, serviceCallbackPath);
