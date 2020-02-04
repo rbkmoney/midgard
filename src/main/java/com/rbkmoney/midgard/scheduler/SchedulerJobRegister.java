@@ -62,7 +62,7 @@ public class SchedulerJobRegister implements ApplicationListener<ApplicationRead
             }
         } catch (Exception ex) {
             log.error("Failed to sync job for scheduler '{}'", scheduler, ex);
-            throw new RuntimeException(String.format("Failed to sync job for scheduler '%s'", scheduler));
+            throw new RuntimeException(String.format("Failed to sync job for scheduler '%s'", scheduler), ex);
         }
     }
 

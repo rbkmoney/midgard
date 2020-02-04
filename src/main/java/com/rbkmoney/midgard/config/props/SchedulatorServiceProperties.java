@@ -6,6 +6,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Data
@@ -16,7 +17,7 @@ public class SchedulatorServiceProperties {
 
     private Resource url;
 
-    @NotNull
+    @Min(0L)
     private int networkTimeout;
 
     @NotNull
