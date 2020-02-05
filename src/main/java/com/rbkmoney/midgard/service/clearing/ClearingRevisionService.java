@@ -77,7 +77,7 @@ public class ClearingRevisionService implements GenericService {
     private void clearingRevision(ClearingEventInfo event, Handler<ClearingProcessingEvent> handler) {
         try {
             ClearingAdapter clearingAdapter = ClearingAdaptersUtils.getClearingAdapter(adapters, event.getProviderId());
-            ClearingProcessingEvent processingEvent = new ClearingProcessingEvent(clearingAdapter, event.getId());
+            ClearingProcessingEvent processingEvent = new ClearingProcessingEvent(clearingAdapter, event.getEventId());
             handler.handle(processingEvent);
         } catch (Exception ex) {
             log.error("Error during a revision", ex);

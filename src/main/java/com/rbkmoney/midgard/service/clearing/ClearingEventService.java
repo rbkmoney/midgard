@@ -46,7 +46,7 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
         int providerId = clearingEvent.getProviderId();
         try {
             Long eventId = clearingEvent.getEventId();
-            if (clearingEventInfoDao.getClearingEvent(eventId) == null) {
+            if (clearingEventInfoDao.getClearingEvent(eventId, providerId) == null) {
                 ClearingAdaptersUtils.getClearingAdapter(adapters, providerId);
                 log.info("Creating new clearing event for provider {} by event: {}", providerId, eventId);
                 ClearingEventInfo clearingEventInfo = new ClearingEventInfo();
@@ -68,9 +68,10 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
     }
 
     @Override
-    public ClearingEventStateResponse getClearingEventState(long eventId) throws NoClearingEvent, TException {
+    public ClearingEventStateResponse getClearingEventState(int providerId, long eventId)
+            throws NoClearingEvent, TException {
         log.info("Getting the state of event {}", eventId);
-        ClearingEventInfo clearingEvent = clearingEventInfoDao.getClearingEvent(eventId);
+        ClearingEventInfo clearingEvent = clearingEventInfoDao.getClearingEvent(eventId, providerId);
         ClearingEventStateResponse response = new ClearingEventStateResponse();
         if (clearingEvent != null) {
             response.setClearingId(clearingEvent.getId());

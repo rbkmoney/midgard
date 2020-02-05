@@ -39,7 +39,7 @@ public class EventStateRevisionHandler implements Handler<ClearingProcessingEven
             ClearingEventResponse response = adapter.getBankResponse(clearingId);
             ClearingEventState clearingState = response.getClearingState();
             if (clearingState == SUCCESS || clearingState == FAILED) {
-                setClearingEventState(response);
+                setClearingEventState(response, event.getClearingAdapter().getAdapterId());
                 List<FailureTransactionData> failureTransactions = response.getFailureTransactions();
                 saveFailureTransactions(clearingId, failureTransactions);
             } else {
@@ -51,17 +51,17 @@ public class EventStateRevisionHandler implements Handler<ClearingProcessingEven
         }
     }
 
-    private void setClearingEventState(ClearingEventResponse response) {
+    private void setClearingEventState(ClearingEventResponse response, int providerId) {
         long clearingId = response.getClearingId();
         ClearingEventState clearingState = response.getClearingState();
         if (clearingState == SUCCESS) {
             if (response.getFailureTransactions() == null || response.getFailureTransactions().isEmpty()) {
-                clearingEventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.COMPLETE);
+                clearingEventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.COMPLETE, providerId);
             } else {
-                clearingEventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.COMPLETE_WITH_ERRORS);
+                clearingEventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.COMPLETE_WITH_ERRORS, providerId);
             }
         } else if (clearingState == FAILED) {
-            clearingEventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.FAILED);
+            clearingEventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.FAILED, providerId);
         } else {
             log.info("For clearing event {} received state {}. No change of status will be made");
         }

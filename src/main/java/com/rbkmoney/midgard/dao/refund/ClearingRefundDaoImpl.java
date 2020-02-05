@@ -25,6 +25,8 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
 
     private final RowMapper<ClearingRefund> clearingRefundRowMapper;
 
+    private static final int DEFAULT_TRX_VERSION = 1;
+
     public ClearingRefundDaoImpl(HikariDataSource dataSource) {
         super(dataSource);
         clearingRefundRowMapper = new RecordRowMapper<>(CLEARING_REFUND, ClearingRefund.class);
@@ -76,7 +78,7 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
                 .from(CLEARING_REFUND)
                 .join(CLEARING_TRANSACTION).on(CLEARING_TRANSACTION.INVOICE_ID.eq(CLEARING_REFUND.INVOICE_ID))
                     .and(CLEARING_TRANSACTION.PAYMENT_ID.eq(CLEARING_REFUND.PAYMENT_ID))
-                    .and(CLEARING_TRANSACTION.TRX_VERSION.eq(1))
+                    .and(CLEARING_TRANSACTION.TRX_VERSION.eq(DEFAULT_TRX_VERSION))
                     .and(CLEARING_TRANSACTION.PROVIDER_ID.eq(providerId))
                 .where(CLEARING_REFUND.CLEARING_STATE.in(READY, FAILED))
                 .limit(packageSize);
