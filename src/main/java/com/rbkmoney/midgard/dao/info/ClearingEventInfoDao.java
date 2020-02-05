@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ClearingEventInfoDao extends ClearingDao<ClearingEventInfo, Long> {
 
-    ClearingEventInfo getClearingEvent(long eventId);
+    ClearingEventInfo getClearingEvent(long eventId, int providerId);
 
     void updateClearingStatus(Long clearingId, ClearingEventStatus status, int providerId);
 
