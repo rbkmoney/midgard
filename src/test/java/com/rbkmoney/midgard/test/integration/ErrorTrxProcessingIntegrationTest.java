@@ -46,6 +46,7 @@ public class ErrorTrxProcessingIntegrationTest extends AbstractIntegrationTest {
         ClearingDataPackage clearingPackage = clearingTransactionPackageHandler.getClearingPackage(
                 CLEARING_ID,
                 PROVIDER_ID,
+                1000,
                 0L,
                 1
         );

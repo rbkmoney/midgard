@@ -53,10 +53,11 @@ public class ClearingEventInfoDaoImpl extends AbstractGenericDao implements Clea
     }
 
     @Override
-    public ClearingEventInfo getClearingEvent(long eventId) {
+    public ClearingEventInfo getClearingEvent(long eventId, int providerId) {
         log.debug("Getting a clearing event info for event ID {}", eventId);
         Query query = getDslContext().selectFrom(CLEARING_EVENT_INFO)
-                .where(CLEARING_EVENT_INFO.EVENT_ID.eq(eventId));
+                .where(CLEARING_EVENT_INFO.EVENT_ID.eq(eventId))
+                .and(CLEARING_EVENT_INFO.PROVIDER_ID.eq(providerId));
         ClearingEventInfo clearingEvent = fetchOne(query, clearingEventsRowMapper);
         log.debug("Extracted clearing event info by event id: {}", clearingEvent);
         return clearingEvent;
@@ -75,10 +76,11 @@ public class ClearingEventInfoDaoImpl extends AbstractGenericDao implements Clea
     }
 
     @Override
-    public void updateClearingStatus(Long clearingId, ClearingEventStatus status) {
+    public void updateClearingStatus(Long clearingId, ClearingEventStatus status, int providerId) {
         Query query = getDslContext().update(CLEARING_EVENT_INFO)
                 .set(CLEARING_EVENT_INFO.STATUS, status)
-                .where(CLEARING_EVENT_INFO.ID.eq(clearingId));
+                .where(CLEARING_EVENT_INFO.EVENT_ID.eq(clearingId))
+                .and(CLEARING_EVENT_INFO.PROVIDER_ID.eq(providerId));
         execute(query);
     }
 

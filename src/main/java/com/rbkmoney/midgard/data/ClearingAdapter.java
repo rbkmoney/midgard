@@ -13,5 +13,6 @@ public class ClearingAdapter {
     private ClearingAdapterSrv.Iface adapter;
     private String adapterName;
     private int adapterId;
+    private int packageSize;
 
 }
