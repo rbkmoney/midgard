@@ -12,7 +12,7 @@
 
     <groupId>com.rbkmoney</groupId>
     <artifactId>midgard</artifactId>
-    <version>1.7.9-SNAPSHOT</version>
+    <version>1.8.5-SNAPSHOT</version>
 
     <name>midgard</name>
     <description>Application for work with clearing data</description>
@@ -191,7 +191,7 @@
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>midgard-proto</artifactId>
-            <version>1.20-d5f066c</version>
+            <version>1.21-b08c9d4</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
