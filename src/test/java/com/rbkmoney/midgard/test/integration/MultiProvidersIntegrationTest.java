@@ -6,6 +6,7 @@ import com.rbkmoney.midgard.data.ClearingAdapter;
 import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
 import com.rbkmoney.midgard.service.clearing.ClearingRevisionService;
+import com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant;
 import io.github.benas.randombeans.api.EnhancedRandom;
 import lombok.Data;
 import org.apache.thrift.TException;
@@ -72,6 +73,8 @@ public class MultiProvidersIntegrationTest extends AbstractIntegrationTest {
             clearingTransaction.setProviderId(providerId);
             clearingTransaction.setTransactionCurrency("RUB");
             clearingTransaction.setTransactionClearingState(TransactionClearingState.READY);
+            clearingTransaction.setPayerBankCardExpiredDateMonth(InvoiceTestConstant.CARD_EXP_DATE_MONTH);
+            clearingTransaction.setPayerBankCardExpiredDateYear(InvoiceTestConstant.CARD_EXP_DATE_YEAR);
             transactionsDao.save(clearingTransaction);
         }
         return clearingTransactions.size();

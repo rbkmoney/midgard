@@ -1,0 +1,3 @@
+ALTER TABLE midgard.clearing_transaction ADD COLUMN payer_bank_card_cardholder_name CHARACTER VARYING;
+ALTER TABLE midgard.clearing_transaction ADD COLUMN payer_bank_card_expired_date_month CHARACTER VARYING;
+ALTER TABLE midgard.clearing_transaction ADD COLUMN payer_bank_card_expired_date_year CHARACTER VARYING;
