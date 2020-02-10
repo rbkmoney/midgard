@@ -76,10 +76,15 @@ public final class MappingUtils {
     }
 
     private static TransactionCardInfo getTransactionCardInfo(ClearingTransaction clrTran) {
-        BankCardExpDate expDate = new BankCardExpDate(
-                Byte.valueOf(clrTran.getPayerBankCardExpiredDateMonth()),
-                Short.valueOf(clrTran.getPayerBankCardExpiredDateYear())
-        );
+        BankCardExpDate expDate = null;
+        if (clrTran.getPayerBankCardExpiredDateMonth() != null
+                && clrTran.getPayerBankCardExpiredDateYear() != null) {
+            expDate = new BankCardExpDate(
+                    Byte.valueOf(clrTran.getPayerBankCardExpiredDateMonth()),
+                    Short.valueOf(clrTran.getPayerBankCardExpiredDateYear())
+            );
+        }
+
         return new TransactionCardInfo()
                 .setPayerBankCardToken(clrTran.getPayerBankCardToken())
                 .setPayerBankCardBin(clrTran.getPayerBankCardBin())
@@ -182,6 +187,7 @@ public final class MappingUtils {
         fillPaymentTrxInfo(trx, paymentSession);
         fillPaymentCashInfo(trx, payment);
         fillPayerInfoToTrx(trx, payment);
+
         return trx;
     }
 
