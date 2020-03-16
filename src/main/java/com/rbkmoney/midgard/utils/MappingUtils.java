@@ -24,11 +24,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ch.qos.logback.core.CoreConstants.EMPTY_STRING;
+
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MappingUtils {
 
     public static final int DEFAULT_TRX_VERSION = 1;
+
+    public static final int MOCKETBANK_PROVIDER_ID = 1;
 
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
 
@@ -248,7 +252,8 @@ public final class MappingUtils {
     public static ClearingRefund transformRefund(InvoicePaymentRefund invoicePaymentRefund,
                                                  MachineEvent event,
                                                  com.rbkmoney.damsel.domain.InvoicePayment payment,
-                                                 Integer changeId) {
+                                                 Integer changeId,
+                                                 int providerId) {
         var refund = invoicePaymentRefund.getRefund();
 
         ClearingRefund clearingRefund = new ClearingRefund();
@@ -266,7 +271,7 @@ public final class MappingUtils {
         clearingRefund.setClearingState(TransactionClearingState.READY);
         clearingRefund.setTrxVersion(MappingUtils.DEFAULT_TRX_VERSION);
         fillRefundCashInfo(refund, clearingRefund);
-        fillTransactionAdditionalInfo(invoicePaymentRefund, clearingRefund, event);
+        fillTransactionAdditionalInfo(invoicePaymentRefund, clearingRefund, event, providerId);
 
         return clearingRefund;
     }
@@ -280,13 +285,25 @@ public final class MappingUtils {
 
     private static void fillTransactionAdditionalInfo(InvoicePaymentRefund invoicePaymentRefund,
                                                       ClearingRefund clearingRefund,
-                                                      MachineEvent event) {
+                                                      MachineEvent event,
+                                                      int providerId) {
         var transactionInfo = invoicePaymentRefund.getSessions().stream()
                 .findFirst()
                 .map(InvoiceRefundSession::getTransactionInfo)
-                .orElseThrow(() -> new NotFoundException(String.format("Refund session for refund (invoice id '%s'," +
-                        "sequenceId id '%d') not found!", event.getSourceId(), event.getEventId())));
+                .orElse(null);
 
+        // Very often there are problems with sessions for test returns.
+        // In order to avoid problems with receiving data, such returns are skipped.
+        if (transactionInfo == null) {
+            if (providerId == MOCKETBANK_PROVIDER_ID) {
+                String emptyJson = "{}";
+                clearingRefund.setExtra(emptyJson);
+                clearingRefund.setTransactionId(EMPTY_STRING);
+                return;
+            }
+            throw new NotFoundException(String.format("Refund session for refund (invoice id '%s'," +
+                    "sequenceId id '%d') not found!", event.getSourceId(), event.getEventId()));
+        }
         clearingRefund.setTransactionId(transactionInfo.getId());
         clearingRefund.setExtra(JsonUtil.objectToJsonString(transactionInfo.getExtra()));
     }
