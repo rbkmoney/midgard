@@ -68,7 +68,9 @@ public class RefundStatusChangedEventHandler extends AbstractInvoicingEventHandl
             throw new NotFoundException(String.format("Route or session info for payment with invoice id '%s', " +
                     "sequenceId = '%d' and changeId = '%d' not found!", invoiceId, sequenceId, changeId));
         }
-        if (!isExistProviderId(adapters, invoicePayment.getRoute().getProvider().getId())) {
+
+        int providerId = invoicePayment.getRoute().getProvider().getId();
+        if (!isExistProviderId(adapters, providerId)) {
             return;
         }
         if (!invoicePayment.isSetRefunds()) {
@@ -84,7 +86,8 @@ public class RefundStatusChangedEventHandler extends AbstractInvoicingEventHandl
             throw new NotFoundException(String.format("InvoicePaymentRefund or sessions for refund " +
                     "(invoice id '%s', sequence id '%d', change id '%d') not found!", invoiceId, sequenceId, changeId));
         }
-        ClearingRefund clearingRefund = transformRefund(refund, event, invoicePayment.getPayment(), changeId);
+        ClearingRefund clearingRefund =
+                transformRefund(refund, event, invoicePayment.getPayment(), changeId, providerId);
         Long refundSeqId = clearingRefundDao.save(clearingRefund);
         if (refundSeqId == null) {
             log.info("Refund with status 'succeeded' (invoiceId = '{}', sequenceId = '{}', " +
@@ -93,7 +96,6 @@ public class RefundStatusChangedEventHandler extends AbstractInvoicingEventHandl
             log.info("Refund with status 'succeeded' (invoiceId = '{}', sequenceId = '{}', " +
                     "changeId = '{}') was processed", invoiceId, sequenceId, changeId);
         }
-
     }
 
     @Override

@@ -16,6 +16,8 @@ import static org.junit.Assert.assertEquals;
 
 public class MappingTest {
 
+    private static final int DEFAULT_PROVIDER_ID = 1;
+
     @Test
     public void transactionMappingTest() {
         MachineEvent event = new MachineEvent();
@@ -40,7 +42,8 @@ public class MappingTest {
                 .setSourceId(INVOICE_ID_1);
         InvoicePaymentRefund refund = getInvoicePaymentRefund();
         InvoicePayment payment = getInvoicePayment();
-        ClearingRefund clearingRefund = transformRefund(refund, event, payment.getPayment(), CHANGE_ID_1);
+        ClearingRefund clearingRefund =
+                transformRefund(refund, event, payment.getPayment(), CHANGE_ID_1, DEFAULT_PROVIDER_ID);
         ClearingRefund testClearingRefund = getTestClearingRefund();
         assertEquals("Resulting clearing refund is not equal to the reference",
                 testClearingRefund, clearingRefund);
