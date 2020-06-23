@@ -84,6 +84,15 @@ service:
     registerEnable: true
 
 management:
+#  endpoint:
+#    health:
+#      group:
+#        readiness:
+#          include: '*'
+#          show-details: always
+#        liveness:
+#          include: '*'
+#          show-details: always
   security:
     flag: false
   metrics:
