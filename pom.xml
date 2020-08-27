@@ -18,6 +18,7 @@
     <description>Application for work with clearing data</description>
 
     <properties>
+
         <project.maintainer>Dmitrii Baikov &lt;d.baykov@rbkmoney.com&gt;</project.maintainer>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dockerfile.base.service.tag>c0d0900ec19c907d866f8360031a836049985110</dockerfile.base.service.tag>
@@ -26,7 +27,7 @@
         <damsel.version>1.449-e2de943</damsel.version>
         <fistful-proto.version>1.37-b3ce731</fistful-proto.version>
         <shared.resources.version>0.3.8</shared.resources.version>
-        <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
+        <sonar.jacoco.reportPath>target/sites/jacoco/jacoco.exec</sonar.jacoco.reportPath>
         <sonar.cobertura.reportPath>target/site/cobertura/coverage.xml</sonar.cobertura.reportPath>
         <!-- Ports -->
         <server.port>8022</server.port>
