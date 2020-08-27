@@ -227,7 +227,7 @@ public final class MappingUtils {
         trx.setPayerBankCardToken(bankCard.getToken());
         trx.setPayerBankCardPaymentSystem(bankCard.getPaymentSystem().name());
         trx.setPayerBankCardBin(bankCard.getBin());
-        trx.setPayerBankCardMaskedPan(bankCard.getMaskedPan());
+        trx.setPayerBankCardMaskedPan(bankCard.getBin() + "******" + bankCard.getLastDigits());
         trx.setPayerBankCardTokenProvider(bankCard.getTokenProvider() == null ?
                 null : bankCard.getTokenProvider().name());
         trx.setPayerBankCardCardholderName(bankCard.getCardholderName());

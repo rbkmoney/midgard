@@ -81,7 +81,8 @@ public final class TestTransactionsData {
                 .setBankName(BANK_NAME)
                 .setCardholderName(CARDHOLDER_NAME)
                 .setPaymentSystem(CARD_PAYMENT_SYSTEM)
-                .setMaskedPan(CARD_MASKED_PAN)
+                .setBin(CARD_BIN)
+                .setLastDigits(CARD_LAST_DIGIT)
                 .setExpDate(new com.rbkmoney.damsel.domain.BankCardExpDate(
                         Byte.valueOf(CARD_EXP_DATE_MONTH),
                         Short.valueOf(CARD_EXP_DATE_YEAR))
