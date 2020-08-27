@@ -12,7 +12,7 @@
 
     <groupId>com.rbkmoney</groupId>
     <artifactId>midgard</artifactId>
-    <version>1.8.8-SNAPSHOT</version>
+    <version>1.8.9-SNAPSHOT</version>
   
     <name>midgard</name>
     <description>Application for work with clearing data</description>
@@ -36,7 +36,7 @@
         <otj-pg-embedded>0.12.5</otj-pg-embedded>
         <postgresql.jdbc.version>42.2.16</postgresql.jdbc.version>
         <HikariCP>3.4.5</HikariCP>
-        <jackson.version>2.11.2</jackson.version>
+        <jackson.version>2.11.1</jackson.version>
         <geck.version>0.6.11</geck.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
         <commons-lang3.version>3.11</commons-lang3.version>
@@ -201,7 +201,7 @@
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
-            <version>6.4</version>
+            <version>5.2</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
