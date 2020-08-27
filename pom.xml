@@ -32,11 +32,17 @@
         <server.port>8022</server.port>
         <exposed.ports>${server.port}</exposed.ports>
         <!-- Environment settings -->
-        <flyway.version>5.2.4</flyway.version>
-        <jooq.version>3.11.7</jooq.version>
+        <flyway.version>6.5.5</flyway.version>
+        <jooq.version>3.13.4</jooq.version>
         <otj-pg-embedded>0.12.5</otj-pg-embedded>
-        <postgresql.jdbc.version>42.2.5</postgresql.jdbc.version>
-        <HikariCP>3.3.1</HikariCP>
+        <postgresql.jdbc.version>42.2.16</postgresql.jdbc.version>
+        <HikariCP>3.4.5</HikariCP>
+        <jackson.version>2.11.2</jackson.version>
+        <geck.version>0.6.11</geck.version>
+        <validation-api.version>2.0.1.Final</validation-api.version>
+        <commons-lang3.version>3.11</commons-lang3.version>
+        <kafka-common-lib.varsion>0.1.5</kafka-common-lib.varsion>
+        <sink-common-lib.version>0.0.6</sink-common-lib.version>
         <!-- Props for local PG. It's need for getting jooq files at build time -->
         <local.pg.port>15432</local.pg.port>
         <local.pg.db.name>midgard</local.pg.db.name>
@@ -92,12 +98,12 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.4</version>
+            <version>1.18.12</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>4.13</version>
             <scope>test</scope>
         </dependency>
 
@@ -144,12 +150,12 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.11.2</version>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>2.11.2</version>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney.maven.plugins</groupId>
@@ -159,7 +165,7 @@
         <dependency>
             <groupId>com.rbkmoney.geck</groupId>
             <artifactId>serializer</artifactId>
-            <version>0.6.11</version>
+            <version>${geck.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.kafka</groupId>
@@ -169,19 +175,24 @@
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
-            <version>2.0.1.Final</version>
+            <version>${validation-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
         </dependency>
 
         <!-- RBK.Money -->
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>kafka-common-lib</artifactId>
-            <version>0.0.9</version>
+            <version>0.1.5</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>sink-common-lib</artifactId>
-            <version>0.0.3</version>
+            <version>0.0.6</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
@@ -191,7 +202,7 @@
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
-            <version>5.2</version>
+            <version>6.4</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
@@ -224,17 +235,10 @@
             <version>1.11-efc08c2</version>
         </dependency>
 
-
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.github.benas</groupId> <!-- Ha Ha! Benis! -->
-            <artifactId>random-beans</artifactId>
-            <version>3.7.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -256,19 +260,15 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>easyway</artifactId>
-            <version>0.1.0</version>
+            <version>0.4.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.github.benas</groupId>
             <artifactId>random-beans</artifactId>
-            <version>3.6.0</version>
+            <version>3.9.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -360,7 +360,7 @@
             <plugin>
                 <groupId>org.jooq</groupId>
                 <artifactId>jooq-codegen-maven</artifactId>
-                <version>3.11.7</version>
+                <version>${jooq.version}</version>
                 <configuration>
                     <jdbc>
                         <driver>org.postgresql.Driver</driver>
