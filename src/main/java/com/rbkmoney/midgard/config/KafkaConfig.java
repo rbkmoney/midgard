@@ -31,6 +31,7 @@ import org.springframework.kafka.listener.ErrorHandler;
 import org.springframework.kafka.listener.SeekToCurrentErrorHandler;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.support.RetryTemplate;
+import org.springframework.util.backoff.FixedBackOff;
 
 import java.io.File;
 import java.util.Collections;
@@ -103,7 +104,7 @@ public class KafkaConfig {
     }
 
     private ErrorHandler kafkaErrorHandler() {
-        return new SeekToCurrentErrorHandler(-1);
+        return new SeekToCurrentErrorHandler(new FixedBackOff(0, maxAttempts));
     }
 
     @Bean
