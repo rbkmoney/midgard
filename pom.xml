@@ -27,8 +27,9 @@
         <damsel.version>1.449-e2de943</damsel.version>
         <fistful-proto.version>1.37-b3ce731</fistful-proto.version>
         <shared.resources.version>0.3.8</shared.resources.version>
-        <sonar.jacoco.reportPath>target/sites/jacoco/jacoco.exec</sonar.jacoco.reportPath>
+        <sonar.jacoco.reportPath>target/site/jacoco/jacoco.xml</sonar.jacoco.reportPath>
         <sonar.cobertura.reportPath>target/site/cobertura/coverage.xml</sonar.cobertura.reportPath>
+        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <!-- Ports -->
         <server.port>8022</server.port>
         <exposed.ports>${server.port}</exposed.ports>
@@ -405,7 +406,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.2</version>
+                <version>0.8.5</version>
                 <configuration>
                     <destFile>${sonar.jacoco.reportPath}</destFile>
                     <append>true</append>
