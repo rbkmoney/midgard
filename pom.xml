@@ -12,7 +12,7 @@
 
     <groupId>com.rbkmoney</groupId>
     <artifactId>midgard</artifactId>
-    <version>1.8.9-SNAPSHOT</version>
+    <version>1.8.10-SNAPSHOT</version>
   
     <name>midgard</name>
     <description>Application for work with clearing data</description>
@@ -20,7 +20,7 @@
     <properties>
         <project.maintainer>Dmitrii Baikov &lt;d.baykov@rbkmoney.com&gt;</project.maintainer>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dockerfile.base.service.tag>c0d0900ec19c907d866f8360031a836049985110</dockerfile.base.service.tag>
+        <dockerfile.base.service.tag>57e26d8ee999d7b0b50248c22afc63e6f926d276</dockerfile.base.service.tag>
         <dockerfile.registry>dr2.rbkmoney.com</dockerfile.registry>
 <!--        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>-->
         <!-- RBK.Money environment settings -->

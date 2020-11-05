@@ -24,7 +24,7 @@ public class InvoicingService implements EventService<MachineEvent, EventPayload
     @Override
     public void handleEvents(MachineEvent simpleEvent, EventPayload payload) {
         try {
-            log.debug("Handling event with machineId='{}' and eventId='{}'", simpleEvent.getSourceId(),
+            log.info("Handling event with machineId='{}' and eventId='{}'", simpleEvent.getSourceId(),
                     simpleEvent.getEventId());
             List<InvoiceChange> invoiceChanges = payload.getInvoiceChanges();
             for (int i = 0; i < invoiceChanges.size(); i++) {
