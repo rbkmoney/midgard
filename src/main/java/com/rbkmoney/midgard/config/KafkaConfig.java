@@ -104,7 +104,7 @@ public class KafkaConfig {
     }
 
     private ErrorHandler kafkaErrorHandler() {
-        return new SeekToCurrentErrorHandler(new FixedBackOff(0, maxAttempts));
+        return new SeekToCurrentErrorHandler(new FixedBackOff());
     }
 
     @Bean
