@@ -30,7 +30,7 @@ public class ScheduleService {
         scheduleClearingEventForProvider(115);
     }
 
-    @Scheduled(cron = "0 0 11/4 ? * *", zone = "Europe/Moscow")
+    @Scheduled(cron = "0 0 11/2 ? * *", zone = "Europe/Moscow")
     private void scheduleProvider1() {
         scheduleClearingEventForProvider(1);
     }
