@@ -25,12 +25,12 @@ public class ScheduleService {
 
     private final List<ClearingAdapter> adapters;
 
-    @Scheduled(cron = "00 01 00 * * *", zone = "Europe/Moscow")
+    @Scheduled(cron = "00 01 00 * * *")
     private void scheduleProvider115() {
         scheduleClearingEventForProvider(115);
     }
 
-    @Scheduled(cron = "0 0 11/2 ? * *", zone = "Europe/Moscow")
+    @Scheduled(cron = "0 0 11/2 ? * *")
     private void scheduleProvider1() {
         scheduleClearingEventForProvider(1);
     }
