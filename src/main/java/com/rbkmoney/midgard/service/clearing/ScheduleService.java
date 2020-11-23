@@ -27,12 +27,12 @@ public class ScheduleService {
 
     private final List<ClearingAdapter> adapters;
 
-    @Scheduled(cron = "00 01 00 * * *")
+    @Scheduled(cron = "21 01 00 * * *") // UTC
     private void scheduleProvider115() {
         scheduleClearingEventForProvider(115);
     }
 
-    @Scheduled(cron = "0 0 11/2 ? * *")
+    @Scheduled(cron = "0 0 8/2 ? * *") //UTC
     private void scheduleProvider1() {
         log.info("For the test clearing: Instant time - '{}', LocalDateTime = '{}'",
                 Instant.now().toString(), LocalDateTime.now().toString());
