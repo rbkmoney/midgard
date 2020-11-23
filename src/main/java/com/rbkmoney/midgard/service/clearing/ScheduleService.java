@@ -10,6 +10,8 @@ import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventInfo;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.rbkmoney.midgard.utils.ClearingAdaptersUtils.getClearingAdapter;
@@ -32,6 +34,8 @@ public class ScheduleService {
 
     @Scheduled(cron = "0 0 11/2 ? * *")
     private void scheduleProvider1() {
+        log.info("For the test clearing: Instant time - '{}', LocalDateTime = '{}'",
+                Instant.now().toString(), LocalDateTime.now().toString());
         scheduleClearingEventForProvider(1);
     }
 

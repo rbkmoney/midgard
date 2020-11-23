@@ -7,12 +7,12 @@
     <parent>
         <groupId>com.rbkmoney</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.2.RELEASE</version>
+        <version>2.3.4.RELEASE</version>
     </parent>
 
     <groupId>com.rbkmoney</groupId>
     <artifactId>midgard</artifactId>
-    <version>1.8.10-SNAPSHOT</version>
+    <version>1.8.11-SNAPSHOT</version>
   
     <name>midgard</name>
     <description>Application for work with clearing data</description>
@@ -232,6 +232,11 @@
             <groupId>com.rbkmoney</groupId>
             <artifactId>schedulator-proto</artifactId>
             <version>1.11-efc08c2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rbkmoney</groupId>
+            <artifactId>custom-actuator-endpoints</artifactId>
+            <version>0.0.4</version>
         </dependency>
 
         <!-- Test -->
