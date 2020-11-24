@@ -27,14 +27,42 @@ public class ScheduleService {
 
     private final List<ClearingAdapter> adapters;
 
-    @Scheduled(cron = "21 01 00 * * *") // UTC
+    @Scheduled(cron = "00 01 21 * * *") // UTC
     private void scheduleProvider115() {
         scheduleClearingEventForProvider(115);
     }
 
-    @Scheduled(cron = "0 0 8/2 ? * *") //UTC
+    //@Scheduled(cron = "0 0 8/2 ? * *") //UTC
     private void scheduleProvider1() {
         log.info("For the test clearing: Instant time - '{}', LocalDateTime = '{}'",
+                Instant.now().toString(), LocalDateTime.now().toString());
+        scheduleClearingEventForProvider(1);
+    }
+
+    @Scheduled(cron = "00 01 11 * * *") // UTC
+    private void scheduleProvider1at14() {
+        log.info("For the test clearing at 14:01 MSK: Instant time - '{}', LocalDateTime = '{}'",
+                Instant.now().toString(), LocalDateTime.now().toString());
+        scheduleClearingEventForProvider(1);
+    }
+
+    @Scheduled(cron = "00 01 12 * * *") // UTC
+    private void scheduleProvider1at15() {
+        log.info("For the test clearing at 15:01 MSK: Instant time - '{}', LocalDateTime = '{}'",
+                Instant.now().toString(), LocalDateTime.now().toString());
+        scheduleClearingEventForProvider(1);
+    }
+
+    @Scheduled(cron = "00 01 13 * * *") // UTC
+    private void scheduleProvider1at16() {
+        log.info("For the test clearing at 16:01 MSK: Instant time - '{}', LocalDateTime = '{}'",
+                Instant.now().toString(), LocalDateTime.now().toString());
+        scheduleClearingEventForProvider(1);
+    }
+
+    @Scheduled(cron = "00 01 14 * * *") // UTC
+    private void scheduleProvider1at17() {
+        log.info("For the test clearing at 17:01 MSK: Instant time - '{}', LocalDateTime = '{}'",
                 Instant.now().toString(), LocalDateTime.now().toString());
         scheduleClearingEventForProvider(1);
     }
