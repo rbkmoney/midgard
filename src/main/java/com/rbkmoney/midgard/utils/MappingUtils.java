@@ -45,7 +45,8 @@ public final class MappingUtils {
                 .setTransactionCurrency(refund.getCurrencyCode())
                 .setInvoiceId(refund.getInvoiceId())
                 .setPaymentId(refund.getPaymentId())
-                .setTransactionType("REFUND");
+                .setTransactionType("REFUND")
+                .setIsReversed(refund.getIsReversed() == null ? false : refund.getIsReversed());
 
         return fillAdditionalInfo(generalTranInfo, clrTran, refund.getExtra());
     }

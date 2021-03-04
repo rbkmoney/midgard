@@ -34,7 +34,7 @@ public class BaseClearingEventTest {
                     .thenReturn(null);
             Handler handler = mock(Handler.class);
             ClearingEventService clearingEventService =
-                    new ClearingEventService(clearingEventInfoDao, getClearingAdapters());
+                    new ClearingEventService(clearingEventInfoDao, new ArrayList<>(), getClearingAdapters());
             clearingEventService.startClearingEvent(getClearingEvent(200, FAIL_PROVIDER_ID));
         } catch (ProviderNotFound providerNotFound) {
             isThrownProviderNotFoundException = true;
