@@ -2,6 +2,7 @@ package com.rbkmoney.midgard.test.integration.handler;
 
 import com.rbkmoney.midgard.ClearingOperationInfo;
 import com.rbkmoney.midgard.ClearingOperationType;
+import com.rbkmoney.midgard.OperationNotFound;
 import com.rbkmoney.midgard.dao.refund.ClearingRefundDao;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
 import com.rbkmoney.midgard.handler.reverse.ReverseClearingRefundHandler;
@@ -21,7 +22,7 @@ public class ReverseClearingOperationHandlerTest extends AbstractIntegrationTest
     private ClearingRefundDao clearingRefundDao;
 
     @Test
-    public void reverseRefundOperationTest() {
+    public void reverseRefundOperationTest() throws OperationNotFound {
         ClearingRefund sourceRefund = random(ClearingRefund.class);
         ClearingOperationInfo operationInfo = getTestClearingOperationInfo(sourceRefund);
 
