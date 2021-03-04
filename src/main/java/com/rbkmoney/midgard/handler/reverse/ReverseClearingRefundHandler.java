@@ -2,6 +2,7 @@ package com.rbkmoney.midgard.handler.reverse;
 
 import com.rbkmoney.midgard.ClearingOperationInfo;
 import com.rbkmoney.midgard.ClearingOperationType;
+import com.rbkmoney.midgard.OperationNotFound;
 import com.rbkmoney.midgard.dao.refund.ClearingRefundDao;
 import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
@@ -19,7 +20,7 @@ public class ReverseClearingRefundHandler implements ReverseClearingOperationHan
     private final ClearingRefundDao clearingRefundDao;
 
     @Override
-    public void reverseOperation(ClearingOperationInfo operationInfo) {
+    public void reverseOperation(ClearingOperationInfo operationInfo) throws OperationNotFound {
         log.info("Starting the reverse operation process (operationInfo: {})", operationInfo);
         ClearingRefund refund = clearingRefundDao.getRefund(
                 operationInfo.getInvoiceId(),
@@ -27,6 +28,9 @@ public class ReverseClearingRefundHandler implements ReverseClearingOperationHan
                 operationInfo.getRefundId(),
                 operationInfo.getVersion()
         );
+        if (refund == null) {
+            throw new OperationNotFound();
+        }
         refund.setId(null);
         refund.setClearingState(TransactionClearingState.READY);
         if (operationInfo.isSetAmount()) {
