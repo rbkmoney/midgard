@@ -4,6 +4,8 @@ import com.rbkmoney.midgard.*;
 import com.rbkmoney.midgard.dao.info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.data.ClearingAdapter;
 import com.rbkmoney.midgard.exception.AdapterNotFoundException;
+import com.rbkmoney.midgard.exception.NotFoundException;
+import com.rbkmoney.midgard.handler.reverse.ReverseClearingOperationHandler;
 import com.rbkmoney.midgard.utils.ClearingAdaptersUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +15,7 @@ import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventInfo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.rbkmoney.midgard.domain.enums.ClearingEventStatus.CREATED;
 
@@ -28,6 +31,8 @@ import static com.rbkmoney.midgard.domain.enums.ClearingEventStatus.CREATED;
 public class ClearingEventService implements ClearingServiceSrv.Iface {
 
     private final ClearingEventInfoDao clearingEventInfoDao;
+
+    private final List<ReverseClearingOperationHandler> reverseClearingOperationHandlers;
 
     private final List<ClearingAdapter> adapters;
 
@@ -89,6 +94,20 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
         clearingEventInfoDao.updateClearingStatus(eventId, providerId, ClearingEventStatus.STARTED);
         log.info("Resend clearing file for provider id {} and event id {}. Update event status finished",
                 providerId, eventId);
+    }
+
+    @Override
+    public void reverseClearingOperation(ClearingOperationInfo clearingOperationInfo) throws TException {
+        Optional<ReverseClearingOperationHandler> reverseClearingOperationHandler =
+                reverseClearingOperationHandlers.stream()
+                        .filter(handler -> handler.isAccept(clearingOperationInfo))
+                        .findFirst();
+        if (reverseClearingOperationHandler.isPresent()) {
+            reverseClearingOperationHandler.get().reverseOperation(clearingOperationInfo);
+        } else {
+            throw new NotFoundException(String.format("Handler for processing operation type '%s' not found! " +
+                    "(ClearingOperationInfo: {})", clearingOperationInfo.getTransactionType(), clearingOperationInfo));
+        }
     }
 
 }
