@@ -36,6 +36,10 @@ public final class MappingUtils {
 
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
 
+    public static final String TRANSACTION_TYPE_PAYMENT = "PAYMENT";
+
+    public static final String TRANSACTION_TYPE_REFUND = "REFUND";
+
     public static Transaction transformRefundTransaction(ClearingTransaction clrTran,
                                                          ClearingRefund refund) {
         GeneralTransactionInfo generalTranInfo = new GeneralTransactionInfo()
@@ -45,7 +49,7 @@ public final class MappingUtils {
                 .setTransactionCurrency(refund.getCurrencyCode())
                 .setInvoiceId(refund.getInvoiceId())
                 .setPaymentId(refund.getPaymentId())
-                .setTransactionType("REFUND")
+                .setTransactionType(TRANSACTION_TYPE_REFUND)
                 .setIsReversed(refund.getIsReversed() == null ? false : refund.getIsReversed());
 
         return fillAdditionalInfo(generalTranInfo, clrTran, refund.getExtra());
@@ -59,7 +63,8 @@ public final class MappingUtils {
                 .setTransactionCurrency(clrTran.getTransactionCurrency())
                 .setInvoiceId(clrTran.getInvoiceId())
                 .setPaymentId(clrTran.getPaymentId())
-                .setTransactionType("PAYMENT");
+                .setTransactionType(TRANSACTION_TYPE_PAYMENT)
+                .setIsReversed(clrTran.getIsReversed() == null ? false : clrTran.getIsReversed());
 
         return fillAdditionalInfo(generalTranInfo, clrTran, clrTran.getExtra());
     }
