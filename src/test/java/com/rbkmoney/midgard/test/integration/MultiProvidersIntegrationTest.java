@@ -1,6 +1,5 @@
 package com.rbkmoney.midgard.test.integration;
 
-import com.rbkmoney.midgard.ClearingAdapterException;
 import com.rbkmoney.midgard.ClearingAdapterSrv;
 import com.rbkmoney.midgard.ClearingDataPackageTag;
 import com.rbkmoney.midgard.ClearingDataRequest;
