@@ -234,8 +234,8 @@ public final class MappingUtils {
         trx.setPayerBankCardPaymentSystem(bankCard.getPaymentSystem().name());
         trx.setPayerBankCardBin(bankCard.getBin());
         trx.setPayerBankCardMaskedPan(bankCard.getBin() + "******" + bankCard.getLastDigits());
-        trx.setPayerBankCardTokenProvider(bankCard.getTokenProvider() == null ?
-                null : bankCard.getTokenProvider().name());
+        trx.setPayerBankCardTokenProvider(bankCard.getTokenProvider() == null
+                ? null : bankCard.getTokenProvider().name());
         trx.setPayerBankCardCardholderName(bankCard.getCardholderName());
         if (bankCard.getExpDate() != null) {
             trx.setPayerBankCardExpiredDateMonth(String.valueOf(bankCard.getExpDate().getMonth()));
@@ -251,7 +251,8 @@ public final class MappingUtils {
         } else if (payer.isSetPaymentResource()) {
             return payer.getPaymentResource().getResource().getPaymentTool().getBankCard();
         } else {
-            throw new NotFoundException(String.format("Payer type '%s' not found!", payer.getSetField().getFieldName()));
+            throw new NotFoundException(
+                    String.format("Payer type '%s' not found!", payer.getSetField().getFieldName()));
         }
     }
 

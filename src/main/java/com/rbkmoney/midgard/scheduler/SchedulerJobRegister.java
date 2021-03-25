@@ -98,12 +98,6 @@ public class SchedulerJobRegister implements ApplicationListener<ApplicationRead
         }
     }
 
-    private void deregisterJob(ClearingServiceProperties.AdapterProperties properties) throws TException {
-        log.info("Deregister a job for provider with id {}", properties.getProviderId());
-        ClearingServiceProperties.SchedulerProperties scheduler = properties.getScheduler();
-        schedulatorClient.deregisterJob(scheduler.getJobId());
-    }
-
     private Void registerJob(String jobId, RegisterJobRequest registerJobRequest) {
         try {
             log.info("Register '{}' job", jobId);
@@ -116,6 +110,12 @@ public class SchedulerJobRegister implements ApplicationListener<ApplicationRead
             throw new RuntimeException(e);
         }
         return null;
+    }
+
+    private void deregisterJob(ClearingServiceProperties.AdapterProperties properties) throws TException {
+        log.info("Deregister a job for provider with id {}", properties.getProviderId());
+        ClearingServiceProperties.SchedulerProperties scheduler = properties.getScheduler();
+        schedulatorClient.deregisterJob(scheduler.getJobId());
     }
 
     private Schedule buildsSchedule(int scheduleRefId, int calendarRefId, long revision) {

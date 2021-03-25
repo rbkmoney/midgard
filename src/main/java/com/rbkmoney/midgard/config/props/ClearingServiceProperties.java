@@ -40,7 +40,7 @@ public class ClearingServiceProperties {
 
     @Data
     @Component
-    @ConfigurationProperties(prefix="scheduler")
+    @ConfigurationProperties(prefix = "scheduler")
     public static class SchedulerProperties {
 
         @NotEmpty

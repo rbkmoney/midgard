@@ -64,6 +64,28 @@ public abstract class AbstractGenericDao extends NamedParameterJdbcDaoSupport im
     }
 
     @Override
+    public int execute(String namedSql,
+                       SqlParameterSource parameterSource,
+                       int expectedRowsAffected,
+                       NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+        try {
+            int rowsAffected = namedParameterJdbcTemplate.update(
+                    namedSql,
+                    parameterSource);
+
+            if (expectedRowsAffected != -1 && rowsAffected != expectedRowsAffected) {
+                throw new JdbcUpdateAffectedIncorrectNumberOfRowsException(
+                        namedSql, expectedRowsAffected, rowsAffected
+                );
+            }
+
+            return rowsAffected;
+        } catch (NestedRuntimeException ex) {
+            throw new DaoException(ex);
+        }
+    }
+
+    @Override
     public <T> T fetchOne(Query query, Class<T> type) {
         return fetchOne(query, type, getNamedParameterJdbcTemplate());
     }
@@ -162,8 +184,17 @@ public abstract class AbstractGenericDao extends NamedParameterJdbcDaoSupport im
     }
 
     @Override
-    public int executeWithReturn(Query query, int expectedRowsAffected, NamedParameterJdbcTemplate namedParameterJdbcTemplate, KeyHolder keyHolder) {
-        return executeWithReturn(query.getSQL(ParamType.NAMED), toSqlParameterSource(query.getParams()), expectedRowsAffected, namedParameterJdbcTemplate, keyHolder);
+    public int executeWithReturn(Query query,
+                                 int expectedRowsAffected,
+                                 NamedParameterJdbcTemplate namedParameterJdbcTemplate,
+                                 KeyHolder keyHolder) {
+        return executeWithReturn(
+                query.getSQL(ParamType.NAMED),
+                toSqlParameterSource(query.getParams()),
+                expectedRowsAffected,
+                namedParameterJdbcTemplate,
+                keyHolder
+        );
     }
 
     @Override
@@ -177,8 +208,13 @@ public abstract class AbstractGenericDao extends NamedParameterJdbcDaoSupport im
     }
 
     @Override
-    public int executeWithReturn(String namedSql, SqlParameterSource parameterSource, int expectedRowsAffected, KeyHolder keyHolder) {
-        return executeWithReturn(namedSql, parameterSource, expectedRowsAffected, getNamedParameterJdbcTemplate(), keyHolder);
+    public int executeWithReturn(String namedSql,
+                                 SqlParameterSource parameterSource,
+                                 int expectedRowsAffected,
+                                 KeyHolder keyHolder) {
+        return executeWithReturn(
+                namedSql, parameterSource, expectedRowsAffected, getNamedParameterJdbcTemplate(), keyHolder
+        );
     }
 
     @Override
@@ -194,28 +230,10 @@ public abstract class AbstractGenericDao extends NamedParameterJdbcDaoSupport im
                     keyHolder);
 
             if (expectedRowsAffected != -1 && rowsAffected != expectedRowsAffected) {
-                throw new JdbcUpdateAffectedIncorrectNumberOfRowsException(namedSql, expectedRowsAffected, rowsAffected);
+                throw new JdbcUpdateAffectedIncorrectNumberOfRowsException(
+                        namedSql, expectedRowsAffected, rowsAffected
+                );
             }
-            return rowsAffected;
-        } catch (NestedRuntimeException ex) {
-            throw new DaoException(ex);
-        }
-    }
-
-    @Override
-    public int execute(String namedSql,
-                       SqlParameterSource parameterSource,
-                       int expectedRowsAffected,
-                       NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        try {
-            int rowsAffected = namedParameterJdbcTemplate.update(
-                    namedSql,
-                    parameterSource);
-
-            if (expectedRowsAffected != -1 && rowsAffected != expectedRowsAffected) {
-                throw new JdbcUpdateAffectedIncorrectNumberOfRowsException(namedSql, expectedRowsAffected, rowsAffected);
-            }
-
             return rowsAffected;
         } catch (NestedRuntimeException ex) {
             throw new DaoException(ex);
@@ -223,7 +241,7 @@ public abstract class AbstractGenericDao extends NamedParameterJdbcDaoSupport im
     }
 
     /**
-     * Метод преобразовывает структуру JOOQ параметров в список параметров Spring
+     * Метод преобразовывает структуру JOOQ параметров в список параметров Spring.
      *
      * @param params спосок jooq параметров
      * @return возвращает spring структуру

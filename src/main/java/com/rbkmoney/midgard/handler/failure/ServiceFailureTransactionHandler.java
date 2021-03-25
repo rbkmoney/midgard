@@ -13,7 +13,8 @@ import static com.rbkmoney.midgard.domain.enums.ClearingTrxType.REFUND;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ServiceFailureTransactionHandler implements FailureTransactionHandler<ClearingEventTransactionInfo, String> {
+public class ServiceFailureTransactionHandler
+        implements FailureTransactionHandler<ClearingEventTransactionInfo, String> {
 
     private final TransactionsDao transactionsDao;
 
@@ -35,9 +36,9 @@ public class ServiceFailureTransactionHandler implements FailureTransactionHandl
                 transactionsDao.saveFailureTransaction(MappingUtils.getFailureTransaction(info, errorMessage, PAYMENT));
                 break;
             case REFUND:
-                log.error("Error was caught while clearing processed {} transaction with invoice_id {}, payment id {} " +
-                                "and refund id {}. Reason: \n{}", info.getTransactionType(), info.getInvoiceId(),
-                        info.getPaymentId(), info.getRefundId(), errorMessage);
+                log.error("Error was caught while clearing processed {} transaction with invoice_id {}, " +
+                                "payment id {} and refund id {}. Reason: \n{}", info.getTransactionType(),
+                        info.getInvoiceId(), info.getPaymentId(), info.getRefundId(), errorMessage);
                 transactionsDao.saveFailureTransaction(MappingUtils.getFailureTransaction(info, errorMessage, REFUND));
                 break;
             default:

@@ -38,7 +38,12 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
         ClearingRefundRecord record = getDslContext().newRecord(CLEARING_REFUND, refund);
         Query query = getDslContext().insertInto(CLEARING_REFUND)
                 .set(record)
-                .onConflict(CLEARING_REFUND.INVOICE_ID, CLEARING_REFUND.PAYMENT_ID, CLEARING_REFUND.REFUND_ID, CLEARING_REFUND.TRX_VERSION)
+                .onConflict(
+                        CLEARING_REFUND.INVOICE_ID,
+                        CLEARING_REFUND.PAYMENT_ID,
+                        CLEARING_REFUND.REFUND_ID,
+                        CLEARING_REFUND.TRX_VERSION
+                )
                 .doNothing()
                 .returning(CLEARING_REFUND.SEQUENCE_ID);
 

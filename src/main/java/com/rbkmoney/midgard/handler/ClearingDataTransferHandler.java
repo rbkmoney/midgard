@@ -96,13 +96,16 @@ public class ClearingDataTransferHandler implements Handler<ClearingProcessingEv
     private void processAdapterFailureTransactions(List<Transaction> failureTransactions,
                                                    Long clearingId,
                                                    int packageNumber) {
-        log.info("Start processing failure transactions for package id {} and clearing id {}", packageNumber, clearingId);
+        log.info("Start processing failure transactions for package id {} and clearing id {}",
+                packageNumber, clearingId);
         if (failureTransactions != null) {
             failureTransactions.forEach(transaction ->
                     adapterFailureTransactionHandler.handleTransaction(transaction, clearingId));
-            log.info("Finish processing failure transactions for package id {} and clearing id {}", packageNumber, clearingId);
+            log.info("Finish processing failure transactions for package id {} and clearing id {}",
+                    packageNumber, clearingId);
         } else {
-            log.info("List of failure transactions for package id {} and clearing id {} is empty", packageNumber, clearingId);
+            log.info("List of failure transactions for package id {} and clearing id {} is empty",
+                    packageNumber, clearingId);
         }
     }
 

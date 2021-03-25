@@ -37,16 +37,12 @@ public class RefundStatusChangedEventHandler extends AbstractInvoicingEventHandl
 
     @Override
     public void handle(InvoiceChange invoiceChange, MachineEvent event, Integer changeId) throws Exception {
-        InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
-        InvoicePaymentRefundChange invoicePaymentRefundChange = invoicePaymentChange.getPayload()
-                .getInvoicePaymentRefundChange();
         String invoiceId = event.getSourceId();
         long sequenceId = event.getEventId();
 
         log.info("Processing refund with status 'succeeded' (invoiceId = '{}', sequenceId = '{}', " +
                 "changeId = '{}')", invoiceId, sequenceId, changeId);
         String paymentId = invoiceChange.getInvoicePaymentChange().getId();
-        String refundId = invoicePaymentRefundChange.getId();
 
         Invoice invoice = invoicingService.get(USER_INFO, invoiceId, getEventRange((int) sequenceId));
         if (invoice == null || !invoice.isSetPayments()) {
@@ -77,6 +73,11 @@ public class RefundStatusChangedEventHandler extends AbstractInvoicingEventHandl
             throw new NotFoundException(String.format("Refunds for invoice not found! (invoice id '%s', " +
                     "sequenceId = '%d' and changeId = '%d')", invoiceId, sequenceId, changeId));
         }
+
+        InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
+        InvoicePaymentRefundChange invoicePaymentRefundChange = invoicePaymentChange.getPayload()
+                .getInvoicePaymentRefundChange();
+        String refundId = invoicePaymentRefundChange.getId();
         InvoicePaymentRefund refund = invoicePayment.getRefunds().stream()
                 .filter(hgRefund -> refundId.equals(hgRefund.getRefund().getId()))
                 .findFirst()

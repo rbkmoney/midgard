@@ -1,7 +1,7 @@
 package com.rbkmoney.midgard.service.invoicing;
 
-public interface EventService<TEvent, TPayload> {
+public interface EventService<E, P> {
 
-    void handleEvents(TEvent processingEvent, TPayload payload);
+    void handleEvents(E event, P payload);
 
 }

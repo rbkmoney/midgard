@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.rbkmoney.midgard.test.integration.data.ClearingEventTestData.getClearingEvent;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class MultiProvidersIntegrationTest extends AbstractIntegrationTest {
@@ -39,8 +40,10 @@ public class MultiProvidersIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void multiProvidersTest() throws TException {
         // Write multiple transactions to the database for different providers
-        Integer targetProviderId = 115, secondProviderId = 121;
-        Integer targetOpersCount = 10, opersCountForSecondProvider = 15;
+        int targetProviderId = 115;
+        int secondProviderId = 121;
+        int targetOpersCount = 10;
+        int opersCountForSecondProvider = 15;
 
         createTestClearingTransactionsByPtovider(targetProviderId, targetOpersCount);
         createTestClearingTransactionsByPtovider(secondProviderId, opersCountForSecondProvider);
@@ -56,13 +59,13 @@ public class MultiProvidersIntegrationTest extends AbstractIntegrationTest {
                 .orElseThrow();
         TestClearingAdapter testClearingAdapter = (TestClearingAdapter) clearingAdapter.getAdapter();
         int totalTranListSize = testClearingAdapter.getTotalTransactionsList().size();
-        assertTrue("The number of operations sent to the adapter is not expected",
-                targetOpersCount == totalTranListSize);
+        assertEquals("The number of operations sent to the adapter is not expected",
+                targetOpersCount, totalTranListSize);
 
         List<ClearingTransaction> readyClearingTransactions =
                 transactionsDao.getReadyClearingTransactions(secondProviderId, 1000);
-        assertTrue("The number of ready operations for the second adapter is not equal to expected",
-                opersCountForSecondProvider == readyClearingTransactions.size());
+        assertEquals("The number of ready operations for the second adapter is not equal to expected",
+                opersCountForSecondProvider, readyClearingTransactions.size());
     }
 
     private int createTestClearingTransactionsByPtovider(int providerId, int count) {
@@ -86,13 +89,14 @@ public class MultiProvidersIntegrationTest extends AbstractIntegrationTest {
         private final List<Transaction> totalTransactionsList = new ArrayList<>();
 
         @Override
-        public String startClearingEvent(long clearingId) throws ClearingAdapterException, TException {
+        public String startClearingEvent(long clearingId) throws TException {
             return "TestUploadId";
         }
 
         @Override
         public ClearingDataResponse sendClearingDataPackage(String uploadId,
-                                                            ClearingDataRequest clearingDataRequest) throws ClearingAdapterException, TException {
+                                                            ClearingDataRequest clearingDataRequest)
+                throws TException {
             totalTransactionsList.addAll(clearingDataRequest.getTransactions());
             ClearingDataResponse response = new ClearingDataResponse();
             response.setClearingDataPackageTag(new ClearingDataPackageTag(
@@ -106,7 +110,7 @@ public class MultiProvidersIntegrationTest extends AbstractIntegrationTest {
         public void completeClearingEvent(String uploadId,
                                           long clearingId,
                                           List<ClearingDataPackageTag> tags)
-                throws ClearingAdapterException, TException {
+                throws TException {
 
         }
 

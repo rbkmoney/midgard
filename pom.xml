@@ -6,13 +6,12 @@
 
     <parent>
         <groupId>com.rbkmoney</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.8</version>
+        <artifactId>service-parent-pom</artifactId>
+        <version>1.0.8</version>
     </parent>
 
-    <groupId>com.rbkmoney</groupId>
     <artifactId>midgard</artifactId>
-    <version>1.8.12-SNAPSHOT</version>
+    <version>1.8.13-SNAPSHOT</version>
   
     <name>midgard</name>
     <description>Application for work with clearing data</description>
@@ -24,7 +23,7 @@
         <dockerfile.registry>dr2.rbkmoney.com</dockerfile.registry>
 <!--        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>-->
         <!-- RBK.Money environment settings -->
-        <damsel.version>1.475-bde841f</damsel.version>
+        <damsel.version>1.485-78ccbad</damsel.version>
         <fistful-proto.version>1.37-b3ce731</fistful-proto.version>
         <shared.resources.version>0.3.8</shared.resources.version>
         <!-- Ports -->
@@ -55,6 +54,7 @@
         <db.user>postgres</db.user>
         <db.password>postgres</db.password>
         <db.schema>midgard</db.schema>
+        <checkstyle.config.suppressions.path>./src/main/resources/checkstyle/checkstyle-suppressions.xml</checkstyle.config.suppressions.path>
     </properties>
 
     <dependencies>
@@ -410,10 +410,6 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.5</version>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -74,7 +74,8 @@ public class ScheduleService {
 
             ClearingEventInfo lastClearingEvent = clearingEventInfoDao.getLastClearingEvent(providerId);
             ClearingEvent clearingEvent = new ClearingEvent();
-            long eventId = lastClearingEvent == null || lastClearingEvent.getEventId() == null ? 0 : lastClearingEvent.getEventId() + 1;
+            long eventId = lastClearingEvent == null || lastClearingEvent.getEventId() == null
+                    ? 0 : lastClearingEvent.getEventId() + 1;
             clearingEvent.setEventId(eventId);
             clearingEvent.setProviderId(providerId);
             clearingEventService.startClearingEvent(clearingEvent);

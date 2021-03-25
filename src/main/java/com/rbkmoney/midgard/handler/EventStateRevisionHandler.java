@@ -56,14 +56,23 @@ public class EventStateRevisionHandler implements Handler<ClearingProcessingEven
         ClearingEventState clearingState = response.getClearingState();
         if (clearingState == SUCCESS) {
             if (response.getFailureTransactions() == null || response.getFailureTransactions().isEmpty()) {
-                clearingEventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.COMPLETE, providerId);
+                clearingEventInfoDao.updateClearingStatus(
+                        clearingId,
+                        ClearingEventStatus.COMPLETE,
+                        providerId
+                );
             } else {
-                clearingEventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.COMPLETE_WITH_ERRORS, providerId);
+                clearingEventInfoDao.updateClearingStatus(
+                        clearingId,
+                        ClearingEventStatus.COMPLETE_WITH_ERRORS,
+                        providerId
+                );
             }
         } else if (clearingState == FAILED) {
             clearingEventInfoDao.updateClearingStatus(clearingId, ClearingEventStatus.FAILED, providerId);
         } else {
-            log.info("For clearing event {} received state {}. No change of status will be made");
+            log.info("For clearing event {} received state {}. No change of status will be made",
+                    clearingId, clearingState);
         }
     }
 

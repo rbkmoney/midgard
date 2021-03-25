@@ -56,11 +56,15 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
         Query query = getDslContext()
                 .insertInto(CLEARING_TRANSACTION)
                 .set(record)
-                .onConflict(CLEARING_TRANSACTION.INVOICE_ID, CLEARING_TRANSACTION.PAYMENT_ID, CLEARING_TRANSACTION.TRX_VERSION)
+                .onConflict(
+                        CLEARING_TRANSACTION.INVOICE_ID,
+                        CLEARING_TRANSACTION.PAYMENT_ID,
+                        CLEARING_TRANSACTION.TRX_VERSION
+                )
                 .doNothing()
                 .returning(CLEARING_TRANSACTION.SEQUENCE_ID);
 
-                GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         executeWithReturn(query, keyHolder);
         log.info("Clearing transaction with invoice id '{}', sequence id '{}' and change id '{}' was added",
                 trx.getInvoiceId(), trx.getSequenceId(), trx.getChangeId());

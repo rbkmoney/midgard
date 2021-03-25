@@ -20,7 +20,8 @@ import java.util.stream.Collectors;
 
 import static com.rbkmoney.midgard.domain.enums.ClearingEventStatus.*;
 
-/** Сервис проверки статуса клиринговых событий
+/**
+ * Сервис проверки статуса клиринговых событий.
  *
  * Примечание: так как ответ от банка может поступить с задержкой необходимо с
  *             определенной периодчиностью опрашивать адаптер на предмет ответа;
@@ -33,11 +34,11 @@ public class ClearingRevisionService implements GenericService {
 
     private final ClearingEventInfoDao eventInfoDao;
 
-    private final Handler eventStateRevisionHandler;
+    private final Handler<ClearingProcessingEvent> eventStateRevisionHandler;
 
-    private final Handler prepareClearingDataHandler;
+    private final Handler<ClearingProcessingEvent> prepareClearingDataHandler;
 
-    private final Handler clearingDataTransferHandler;
+    private final Handler<ClearingProcessingEvent> clearingDataTransferHandler;
 
     private final List<ClearingAdapter> adapters;
 
@@ -59,8 +60,10 @@ public class ClearingRevisionService implements GenericService {
 
     private void processAdapterFaultClearingEvents() {
         // ADAPTER_FAULT - это ошибка при взаимодействии с клиринговым адаптером.
-        List<ClearingEventInfo> adapterFaultEvents = eventInfoDao.getAllClearingEventsByStatus(ADAPTER_FAULT).stream()
-                .filter(event -> event.getDate().plusHours(retriesHourCount).isAfter(LocalDateTime.now(Clock.systemUTC())))
+        List<ClearingEventInfo> adapterFaultEvents =
+                eventInfoDao.getAllClearingEventsByStatus(ADAPTER_FAULT).stream()
+                .filter(event ->
+                        event.getDate().plusHours(retriesHourCount).isAfter(LocalDateTime.now(Clock.systemUTC())))
                 .collect(Collectors.toList());
         log.info("Count of 'ADAPTER FAULT' clearing events: {} ", adapterFaultEvents.size());
         adapterFaultEvents.forEach(event -> clearingRevision(event, clearingDataTransferHandler));

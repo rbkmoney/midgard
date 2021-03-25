@@ -14,7 +14,10 @@ public class AdapterNotFoundException extends RuntimeException {
         super(cause);
     }
 
-    public AdapterNotFoundException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public AdapterNotFoundException(String message,
+                                    Throwable cause,
+                                    boolean enableSuppression,
+                                    boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 

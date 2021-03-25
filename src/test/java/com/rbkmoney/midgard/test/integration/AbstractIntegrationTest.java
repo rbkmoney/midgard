@@ -91,7 +91,7 @@ public abstract class AbstractIntegrationTest {
             statement.execute("CREATE DATABASE " + dbName);
             statement.close();
         } catch (SQLException e) {
-            log.error("An error occurred while creating the database "+ dbName, e);
+            log.error("An error occurred while creating the database " + dbName, e);
             e.printStackTrace();
         }
     }
@@ -160,7 +160,7 @@ public abstract class AbstractIntegrationTest {
                     "clearing-service.adapters.[1].url=http://localhost:8023/v1/adapter/mock_2",
                     "clearing-service.adapters.[1].networkTimeout=60000",
                     "clearing-service.adapters.[1].package-size=25",
-                    "clearing-service.adapters.[1].providerId=115" )
+                    "clearing-service.adapters.[1].providerId=115")
                     .applyTo(configurableApplicationContext.getEnvironment(), MAP, "testcontainers");
 
             if (postgres == null) {

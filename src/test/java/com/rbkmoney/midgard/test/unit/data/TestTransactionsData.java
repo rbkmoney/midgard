@@ -5,8 +5,8 @@ import com.rbkmoney.damsel.payment_processing.Invoice;
 import com.rbkmoney.damsel.payment_processing.InvoicePayment;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentSession;
 import com.rbkmoney.damsel.payment_processing.InvoiceRefundSession;
-import com.rbkmoney.midgard.BankCardExpDate;
 import com.rbkmoney.midgard.*;
+import com.rbkmoney.midgard.BankCardExpDate;
 import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
@@ -97,7 +97,11 @@ public final class TestTransactionsData {
 
     private static InvoicePaymentSession getTestInvoicePaymentSession() {
         return new InvoicePaymentSession()
-                .setTargetStatus(com.rbkmoney.damsel.domain.TargetInvoicePaymentStatus.captured(new InvoicePaymentCaptured()))
+                .setTargetStatus(
+                        com.rbkmoney.damsel.domain.TargetInvoicePaymentStatus.captured(
+                                new InvoicePaymentCaptured()
+                        )
+                )
                 .setTransactionInfo(getTransactionInfo(TRANSACTION_ID_1));
     }
 
@@ -282,7 +286,9 @@ public final class TestTransactionsData {
     }
 
     private static BankCardExpDate createPayerBankCardExpDate() {
-        return new BankCardExpDate().setMonth(Byte.valueOf(CARD_EXP_DATE_MONTH)).setYear(Short.valueOf(CARD_EXP_DATE_YEAR));
+        return new BankCardExpDate()
+                .setMonth(Byte.valueOf(CARD_EXP_DATE_MONTH))
+                .setYear(Short.valueOf(CARD_EXP_DATE_YEAR));
     }
 
 }
