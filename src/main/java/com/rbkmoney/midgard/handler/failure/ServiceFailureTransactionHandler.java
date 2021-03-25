@@ -1,10 +1,10 @@
 package com.rbkmoney.midgard.handler.failure;
 
-import com.rbkmoney.midgard.utils.MappingUtils;
 import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventTransactionInfo;
+import com.rbkmoney.midgard.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventTransactionInfo;
 import org.springframework.stereotype.Component;
 
 import static com.rbkmoney.midgard.domain.enums.ClearingTrxType.PAYMENT;
@@ -13,7 +13,8 @@ import static com.rbkmoney.midgard.domain.enums.ClearingTrxType.REFUND;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ServiceFailureTransactionHandler implements FailureTransactionHandler<ClearingEventTransactionInfo, String> {
+public class ServiceFailureTransactionHandler
+        implements FailureTransactionHandler<ClearingEventTransactionInfo, String> {
 
     private final TransactionsDao transactionsDao;
 
@@ -35,9 +36,9 @@ public class ServiceFailureTransactionHandler implements FailureTransactionHandl
                 transactionsDao.saveFailureTransaction(MappingUtils.getFailureTransaction(info, errorMessage, PAYMENT));
                 break;
             case REFUND:
-                log.error("Error was caught while clearing processed {} transaction with invoice_id {}, payment id {} " +
-                                "and refund id {}. Reason: \n{}", info.getTransactionType(), info.getInvoiceId(),
-                        info.getPaymentId(), info.getRefundId(), errorMessage);
+                log.error("Error was caught while clearing processed {} transaction with invoice_id {}, " +
+                                "payment id {} and refund id {}. Reason: \n{}", info.getTransactionType(),
+                        info.getInvoiceId(), info.getPaymentId(), info.getRefundId(), errorMessage);
                 transactionsDao.saveFailureTransaction(MappingUtils.getFailureTransaction(info, errorMessage, REFUND));
                 break;
             default:

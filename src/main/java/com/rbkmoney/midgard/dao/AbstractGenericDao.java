@@ -1,7 +1,12 @@
 package com.rbkmoney.midgard.dao;
 
 import com.rbkmoney.midgard.exception.DaoException;
-import org.jooq.*;
+import org.jooq.Configuration;
+import org.jooq.DSLContext;
+import org.jooq.EnumType;
+import org.jooq.Param;
+import org.jooq.Query;
+import org.jooq.SQLDialect;
 import org.jooq.conf.ParamType;
 import org.jooq.impl.AbstractRoutine;
 import org.jooq.impl.DSL;
@@ -12,10 +17,15 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
-import org.springframework.jdbc.core.namedparam.*;
+import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.KeyHolder;
 
 import javax.sql.DataSource;
+
 import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -61,6 +71,28 @@ public abstract class AbstractGenericDao extends NamedParameterJdbcDaoSupport im
                 toSqlParameterSource(query.getParams()),
                 expectedRowsAffected,
                 namedParameterJdbcTemplate);
+    }
+
+    @Override
+    public int execute(String namedSql,
+                       SqlParameterSource parameterSource,
+                       int expectedRowsAffected,
+                       NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+        try {
+            int rowsAffected = namedParameterJdbcTemplate.update(
+                    namedSql,
+                    parameterSource);
+
+            if (expectedRowsAffected != -1 && rowsAffected != expectedRowsAffected) {
+                throw new JdbcUpdateAffectedIncorrectNumberOfRowsException(
+                        namedSql, expectedRowsAffected, rowsAffected
+                );
+            }
+
+            return rowsAffected;
+        } catch (NestedRuntimeException ex) {
+            throw new DaoException(ex);
+        }
     }
 
     @Override
@@ -162,8 +194,17 @@ public abstract class AbstractGenericDao extends NamedParameterJdbcDaoSupport im
     }
 
     @Override
-    public int executeWithReturn(Query query, int expectedRowsAffected, NamedParameterJdbcTemplate namedParameterJdbcTemplate, KeyHolder keyHolder) {
-        return executeWithReturn(query.getSQL(ParamType.NAMED), toSqlParameterSource(query.getParams()), expectedRowsAffected, namedParameterJdbcTemplate, keyHolder);
+    public int executeWithReturn(Query query,
+                                 int expectedRowsAffected,
+                                 NamedParameterJdbcTemplate namedParameterJdbcTemplate,
+                                 KeyHolder keyHolder) {
+        return executeWithReturn(
+                query.getSQL(ParamType.NAMED),
+                toSqlParameterSource(query.getParams()),
+                expectedRowsAffected,
+                namedParameterJdbcTemplate,
+                keyHolder
+        );
     }
 
     @Override
@@ -177,8 +218,13 @@ public abstract class AbstractGenericDao extends NamedParameterJdbcDaoSupport im
     }
 
     @Override
-    public int executeWithReturn(String namedSql, SqlParameterSource parameterSource, int expectedRowsAffected, KeyHolder keyHolder) {
-        return executeWithReturn(namedSql, parameterSource, expectedRowsAffected, getNamedParameterJdbcTemplate(), keyHolder);
+    public int executeWithReturn(String namedSql,
+                                 SqlParameterSource parameterSource,
+                                 int expectedRowsAffected,
+                                 KeyHolder keyHolder) {
+        return executeWithReturn(
+                namedSql, parameterSource, expectedRowsAffected, getNamedParameterJdbcTemplate(), keyHolder
+        );
     }
 
     @Override
@@ -194,28 +240,10 @@ public abstract class AbstractGenericDao extends NamedParameterJdbcDaoSupport im
                     keyHolder);
 
             if (expectedRowsAffected != -1 && rowsAffected != expectedRowsAffected) {
-                throw new JdbcUpdateAffectedIncorrectNumberOfRowsException(namedSql, expectedRowsAffected, rowsAffected);
+                throw new JdbcUpdateAffectedIncorrectNumberOfRowsException(
+                        namedSql, expectedRowsAffected, rowsAffected
+                );
             }
-            return rowsAffected;
-        } catch (NestedRuntimeException ex) {
-            throw new DaoException(ex);
-        }
-    }
-
-    @Override
-    public int execute(String namedSql,
-                       SqlParameterSource parameterSource,
-                       int expectedRowsAffected,
-                       NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        try {
-            int rowsAffected = namedParameterJdbcTemplate.update(
-                    namedSql,
-                    parameterSource);
-
-            if (expectedRowsAffected != -1 && rowsAffected != expectedRowsAffected) {
-                throw new JdbcUpdateAffectedIncorrectNumberOfRowsException(namedSql, expectedRowsAffected, rowsAffected);
-            }
-
             return rowsAffected;
         } catch (NestedRuntimeException ex) {
             throw new DaoException(ex);
@@ -223,7 +251,7 @@ public abstract class AbstractGenericDao extends NamedParameterJdbcDaoSupport im
     }
 
     /**
-     * Метод преобразовывает структуру JOOQ параметров в список параметров Spring
+     * Метод преобразовывает структуру JOOQ параметров в список параметров Spring.
      *
      * @param params спосок jooq параметров
      * @return возвращает spring структуру

@@ -2,12 +2,12 @@ package com.rbkmoney.midgard.dao.refund;
 
 import com.rbkmoney.midgard.dao.AbstractGenericDao;
 import com.rbkmoney.midgard.dao.RecordRowMapper;
-import com.zaxxer.hikari.HikariDataSource;
-import lombok.extern.slf4j.Slf4j;
-import org.jooq.Query;
 import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
 import com.rbkmoney.midgard.domain.tables.records.ClearingRefundRecord;
+import com.zaxxer.hikari.HikariDataSource;
+import lombok.extern.slf4j.Slf4j;
+import org.jooq.Query;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
@@ -23,9 +23,8 @@ import static com.rbkmoney.midgard.domain.tables.ClearingRefund.CLEARING_REFUND;
 @Component
 public class ClearingRefundDaoImpl extends AbstractGenericDao implements ClearingRefundDao {
 
-    private final RowMapper<ClearingRefund> clearingRefundRowMapper;
-
     private static final int DEFAULT_TRX_VERSION = 1;
+    private final RowMapper<ClearingRefund> clearingRefundRowMapper;
 
     public ClearingRefundDaoImpl(HikariDataSource dataSource) {
         super(dataSource);
@@ -38,7 +37,12 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
         ClearingRefundRecord record = getDslContext().newRecord(CLEARING_REFUND, refund);
         Query query = getDslContext().insertInto(CLEARING_REFUND)
                 .set(record)
-                .onConflict(CLEARING_REFUND.INVOICE_ID, CLEARING_REFUND.PAYMENT_ID, CLEARING_REFUND.REFUND_ID, CLEARING_REFUND.TRX_VERSION)
+                .onConflict(
+                        CLEARING_REFUND.INVOICE_ID,
+                        CLEARING_REFUND.PAYMENT_ID,
+                        CLEARING_REFUND.REFUND_ID,
+                        CLEARING_REFUND.TRX_VERSION
+                )
                 .doNothing()
                 .returning(CLEARING_REFUND.SEQUENCE_ID);
 
@@ -65,7 +69,7 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
                 .where(CLEARING_REFUND.INVOICE_ID.eq(invoiceId))
                 .and(CLEARING_REFUND.PAYMENT_ID.eq(paymentId))
                 .and(CLEARING_REFUND.REFUND_ID.eq(refundId)
-                .and(CLEARING_REFUND.TRX_VERSION.eq(trxVersion)));
+                        .and(CLEARING_REFUND.TRX_VERSION.eq(trxVersion)));
         ClearingRefund clearingRefund = fetchOne(query, clearingRefundRowMapper);
         log.debug("Refund with invoice id {} and payment id {} {}", invoiceId, paymentId,
                 clearingRefund == null ? "not found" : "found");
@@ -77,9 +81,9 @@ public class ClearingRefundDaoImpl extends AbstractGenericDao implements Clearin
         Query query = getDslContext().select(CLEARING_REFUND.fields())
                 .from(CLEARING_REFUND)
                 .join(CLEARING_TRANSACTION).on(CLEARING_TRANSACTION.INVOICE_ID.eq(CLEARING_REFUND.INVOICE_ID))
-                    .and(CLEARING_TRANSACTION.PAYMENT_ID.eq(CLEARING_REFUND.PAYMENT_ID))
-                    .and(CLEARING_TRANSACTION.TRX_VERSION.eq(DEFAULT_TRX_VERSION))
-                    .and(CLEARING_TRANSACTION.PROVIDER_ID.eq(providerId))
+                .and(CLEARING_TRANSACTION.PAYMENT_ID.eq(CLEARING_REFUND.PAYMENT_ID))
+                .and(CLEARING_TRANSACTION.TRX_VERSION.eq(DEFAULT_TRX_VERSION))
+                .and(CLEARING_TRANSACTION.PROVIDER_ID.eq(providerId))
                 .where(CLEARING_REFUND.CLEARING_STATE.in(READY, FAILED))
                 .limit(packageSize);
         return fetch(query, clearingRefundRowMapper);

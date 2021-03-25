@@ -1,6 +1,10 @@
 package com.rbkmoney.midgard.handler.invoicing;
 
-import com.rbkmoney.damsel.payment_processing.*;
+import com.rbkmoney.damsel.payment_processing.EventRange;
+import com.rbkmoney.damsel.payment_processing.InvoiceChange;
+import com.rbkmoney.damsel.payment_processing.ServiceUser;
+import com.rbkmoney.damsel.payment_processing.UserInfo;
+import com.rbkmoney.damsel.payment_processing.UserType;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 
 public abstract class AbstractInvoicingEventHandler implements EventHandler<InvoiceChange, MachineEvent> {

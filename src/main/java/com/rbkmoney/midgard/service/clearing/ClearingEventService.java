@@ -1,8 +1,15 @@
 package com.rbkmoney.midgard.service.clearing;
 
-import com.rbkmoney.midgard.*;
+import com.rbkmoney.midgard.ClearingEvent;
+import com.rbkmoney.midgard.ClearingEventState;
+import com.rbkmoney.midgard.ClearingEventStateResponse;
+import com.rbkmoney.midgard.ClearingOperationInfo;
+import com.rbkmoney.midgard.ClearingServiceSrv;
+import com.rbkmoney.midgard.ProviderNotFound;
 import com.rbkmoney.midgard.dao.info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.data.ClearingAdapter;
+import com.rbkmoney.midgard.domain.enums.ClearingEventStatus;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventInfo;
 import com.rbkmoney.midgard.exception.AdapterNotFoundException;
 import com.rbkmoney.midgard.exception.NotFoundException;
 import com.rbkmoney.midgard.handler.reverse.ReverseClearingOperationHandler;
@@ -10,8 +17,6 @@ import com.rbkmoney.midgard.utils.ClearingAdaptersUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import com.rbkmoney.midgard.domain.enums.ClearingEventStatus;
-import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventInfo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,11 +24,12 @@ import java.util.Optional;
 
 import static com.rbkmoney.midgard.domain.enums.ClearingEventStatus.CREATED;
 
-/** Сервис запуска клирингового события
- *
+/**
+ * Сервис запуска клирингового события.
+ * <p>
  * Примечание: сначала производится агрегация данных клиринговых транзакций для
- *             определенного провайдера, затем по этим данным сформировываются
- *             пачки и отправляются в адаптер
+ * определенного провайдера, затем по этим данным сформировываются
+ * пачки и отправляются в адаптер
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -74,7 +80,7 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
 
     @Override
     public ClearingEventStateResponse getClearingEventState(int providerId, long eventId)
-            throws NoClearingEvent, TException {
+            throws TException {
         log.info("Getting the state of event {}", eventId);
         ClearingEventInfo clearingEvent = clearingEventInfoDao.getClearingEvent(eventId, providerId);
         ClearingEventStateResponse response = new ClearingEventStateResponse();
@@ -88,7 +94,7 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
     }
 
     @Override
-    public void resendClearingFile(int providerId, long eventId) throws NoClearingEvent, TException {
+    public void resendClearingFile(int providerId, long eventId) throws TException {
         log.info("Resend clearing file for provider id {} and event id {}. Update event status get started",
                 providerId, eventId);
         clearingEventInfoDao.updateClearingStatus(eventId, providerId, ClearingEventStatus.STARTED);
@@ -106,7 +112,7 @@ public class ClearingEventService implements ClearingServiceSrv.Iface {
             reverseClearingOperationHandler.get().reverseOperation(clearingOperationInfo);
         } else {
             throw new NotFoundException(String.format("Handler for processing operation type '%s' not found! " +
-                    "(ClearingOperationInfo: {})", clearingOperationInfo.getTransactionType(), clearingOperationInfo));
+                    "(ClearingOperationInfo: %s)", clearingOperationInfo.getTransactionType(), clearingOperationInfo));
         }
     }
 

@@ -2,7 +2,12 @@ package com.rbkmoney.midgard.scheduler;
 
 import com.rbkmoney.damsel.domain.BusinessScheduleRef;
 import com.rbkmoney.damsel.domain.CalendarRef;
-import com.rbkmoney.damsel.schedule.*;
+import com.rbkmoney.damsel.schedule.BadContextProvided;
+import com.rbkmoney.damsel.schedule.DominantBasedSchedule;
+import com.rbkmoney.damsel.schedule.RegisterJobRequest;
+import com.rbkmoney.damsel.schedule.SchedulatorSrv;
+import com.rbkmoney.damsel.schedule.Schedule;
+import com.rbkmoney.damsel.schedule.ScheduleAlreadyExists;
 import com.rbkmoney.midgard.config.props.ClearingServiceProperties;
 import com.rbkmoney.midgard.scheduler.model.AdapterJobContext;
 import com.rbkmoney.midgard.scheduler.serialize.ScheduleJobSerializer;
@@ -19,10 +24,6 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.validation.constraints.NotEmpty;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -98,12 +99,6 @@ public class SchedulerJobRegister implements ApplicationListener<ApplicationRead
         }
     }
 
-    private void deregisterJob(ClearingServiceProperties.AdapterProperties properties) throws TException {
-        log.info("Deregister a job for provider with id {}", properties.getProviderId());
-        ClearingServiceProperties.SchedulerProperties scheduler = properties.getScheduler();
-        schedulatorClient.deregisterJob(scheduler.getJobId());
-    }
-
     private Void registerJob(String jobId, RegisterJobRequest registerJobRequest) {
         try {
             log.info("Register '{}' job", jobId);
@@ -116,6 +111,12 @@ public class SchedulerJobRegister implements ApplicationListener<ApplicationRead
             throw new RuntimeException(e);
         }
         return null;
+    }
+
+    private void deregisterJob(ClearingServiceProperties.AdapterProperties properties) throws TException {
+        log.info("Deregister a job for provider with id {}", properties.getProviderId());
+        ClearingServiceProperties.SchedulerProperties scheduler = properties.getScheduler();
+        schedulatorClient.deregisterJob(scheduler.getJobId());
     }
 
     private Schedule buildsSchedule(int scheduleRefId, int calendarRefId, long revision) {

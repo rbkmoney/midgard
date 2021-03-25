@@ -1,6 +1,10 @@
 package com.rbkmoney.midgard.scheduler;
 
-import com.rbkmoney.damsel.schedule.*;
+import com.rbkmoney.damsel.schedule.ContextValidationResponse;
+import com.rbkmoney.damsel.schedule.ExecuteJobRequest;
+import com.rbkmoney.damsel.schedule.ScheduledJobExecutorSrv;
+import com.rbkmoney.damsel.schedule.ValidationResponseStatus;
+import com.rbkmoney.damsel.schedule.ValidationSuccess;
 import com.rbkmoney.midgard.ClearingEvent;
 import com.rbkmoney.midgard.ClearingServiceSrv;
 import com.rbkmoney.midgard.dao.info.ClearingEventInfoDao;

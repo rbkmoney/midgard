@@ -6,7 +6,11 @@ import com.rbkmoney.damsel.payment_processing.InvoicePaymentSession;
 import com.rbkmoney.damsel.payment_processing.InvoiceRefundSession;
 import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
-import com.rbkmoney.midgard.*;
+import com.rbkmoney.midgard.BankCardExpDate;
+import com.rbkmoney.midgard.Content;
+import com.rbkmoney.midgard.GeneralTransactionInfo;
+import com.rbkmoney.midgard.Transaction;
+import com.rbkmoney.midgard.TransactionCardInfo;
 import com.rbkmoney.midgard.data.ClearingAdapter;
 import com.rbkmoney.midgard.domain.enums.ClearingTrxType;
 import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
@@ -234,8 +238,8 @@ public final class MappingUtils {
         trx.setPayerBankCardPaymentSystem(bankCard.getPaymentSystem().name());
         trx.setPayerBankCardBin(bankCard.getBin());
         trx.setPayerBankCardMaskedPan(bankCard.getBin() + "******" + bankCard.getLastDigits());
-        trx.setPayerBankCardTokenProvider(bankCard.getTokenProvider() == null ?
-                null : bankCard.getTokenProvider().name());
+        trx.setPayerBankCardTokenProvider(bankCard.getTokenProvider() == null
+                ? null : bankCard.getTokenProvider().name());
         trx.setPayerBankCardCardholderName(bankCard.getCardholderName());
         if (bankCard.getExpDate() != null) {
             trx.setPayerBankCardExpiredDateMonth(String.valueOf(bankCard.getExpDate().getMonth()));
@@ -251,7 +255,8 @@ public final class MappingUtils {
         } else if (payer.isSetPaymentResource()) {
             return payer.getPaymentResource().getResource().getPaymentTool().getBankCard();
         } else {
-            throw new NotFoundException(String.format("Payer type '%s' not found!", payer.getSetField().getFieldName()));
+            throw new NotFoundException(
+                    String.format("Payer type '%s' not found!", payer.getSetField().getFieldName()));
         }
     }
 

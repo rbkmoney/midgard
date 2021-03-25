@@ -1,6 +1,13 @@
 package com.rbkmoney.midgard.test.integration;
 
-import com.rbkmoney.midgard.*;
+import com.rbkmoney.midgard.ClearingAdapterSrv;
+import com.rbkmoney.midgard.ClearingDataPackageTag;
+import com.rbkmoney.midgard.ClearingDataRequest;
+import com.rbkmoney.midgard.ClearingDataResponse;
+import com.rbkmoney.midgard.ClearingEventResponse;
+import com.rbkmoney.midgard.ClearingEventState;
+import com.rbkmoney.midgard.ClearingServiceSrv;
+import com.rbkmoney.midgard.Transaction;
 import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
 import com.rbkmoney.midgard.data.ClearingAdapter;
 import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
@@ -19,14 +26,18 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.rbkmoney.midgard.test.integration.data.ClearingEventTestData.getClearingEvent;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 public class MultiProvidersIntegrationTest extends AbstractIntegrationTest {
 
-    @Autowired private TransactionsDao transactionsDao;
-    @Autowired private ClearingServiceSrv.Iface clearingEventService;
-    @Autowired private ClearingRevisionService clearingRevisionService;
-    @Autowired private List<ClearingAdapter> adapters;
+    @Autowired
+    private TransactionsDao transactionsDao;
+    @Autowired
+    private ClearingServiceSrv.Iface clearingEventService;
+    @Autowired
+    private ClearingRevisionService clearingRevisionService;
+    @Autowired
+    private List<ClearingAdapter> adapters;
 
     @Before
     public void before() {
@@ -39,14 +50,16 @@ public class MultiProvidersIntegrationTest extends AbstractIntegrationTest {
     @Test
     public void multiProvidersTest() throws TException {
         // Write multiple transactions to the database for different providers
-        Integer targetProviderId = 115, secondProviderId = 121;
-        Integer targetOpersCount = 10, opersCountForSecondProvider = 15;
+        int targetProviderId = 115;
+        int secondProviderId = 121;
+        int targetOpersCount = 10;
+        int opersCountForSecondProvider = 15;
 
         createTestClearingTransactionsByPtovider(targetProviderId, targetOpersCount);
         createTestClearingTransactionsByPtovider(secondProviderId, opersCountForSecondProvider);
 
         // Start clearing for a specific provider
-        clearingEventService.startClearingEvent(getClearingEvent(11,targetProviderId));
+        clearingEventService.startClearingEvent(getClearingEvent(11, targetProviderId));
         clearingRevisionService.process();
 
         // Check the result of the clearing
@@ -56,13 +69,13 @@ public class MultiProvidersIntegrationTest extends AbstractIntegrationTest {
                 .orElseThrow();
         TestClearingAdapter testClearingAdapter = (TestClearingAdapter) clearingAdapter.getAdapter();
         int totalTranListSize = testClearingAdapter.getTotalTransactionsList().size();
-        assertTrue("The number of operations sent to the adapter is not expected",
-                targetOpersCount == totalTranListSize);
+        assertEquals("The number of operations sent to the adapter is not expected",
+                targetOpersCount, totalTranListSize);
 
         List<ClearingTransaction> readyClearingTransactions =
                 transactionsDao.getReadyClearingTransactions(secondProviderId, 1000);
-        assertTrue("The number of ready operations for the second adapter is not equal to expected",
-                opersCountForSecondProvider == readyClearingTransactions.size());
+        assertEquals("The number of ready operations for the second adapter is not equal to expected",
+                opersCountForSecondProvider, readyClearingTransactions.size());
     }
 
     private int createTestClearingTransactionsByPtovider(int providerId, int count) {
@@ -86,13 +99,14 @@ public class MultiProvidersIntegrationTest extends AbstractIntegrationTest {
         private final List<Transaction> totalTransactionsList = new ArrayList<>();
 
         @Override
-        public String startClearingEvent(long clearingId) throws ClearingAdapterException, TException {
+        public String startClearingEvent(long clearingId) throws TException {
             return "TestUploadId";
         }
 
         @Override
         public ClearingDataResponse sendClearingDataPackage(String uploadId,
-                                                            ClearingDataRequest clearingDataRequest) throws ClearingAdapterException, TException {
+                                                            ClearingDataRequest clearingDataRequest)
+                throws TException {
             totalTransactionsList.addAll(clearingDataRequest.getTransactions());
             ClearingDataResponse response = new ClearingDataResponse();
             response.setClearingDataPackageTag(new ClearingDataPackageTag(
@@ -106,13 +120,13 @@ public class MultiProvidersIntegrationTest extends AbstractIntegrationTest {
         public void completeClearingEvent(String uploadId,
                                           long clearingId,
                                           List<ClearingDataPackageTag> tags)
-                throws ClearingAdapterException, TException {
+                throws TException {
 
         }
 
         @Override
         public ClearingEventResponse getBankResponse(long clearingId)
-                throws ClearingAdapterException, TException {
+                throws TException {
             return new ClearingEventResponse(clearingId, ClearingEventState.EXECUTE);
         }
     }

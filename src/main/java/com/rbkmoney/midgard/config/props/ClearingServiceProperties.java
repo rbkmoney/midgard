@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class ClearingServiceProperties {
 
     @Data
     @Component
-    @ConfigurationProperties(prefix="scheduler")
+    @ConfigurationProperties(prefix = "scheduler")
     public static class SchedulerProperties {
 
         @NotEmpty

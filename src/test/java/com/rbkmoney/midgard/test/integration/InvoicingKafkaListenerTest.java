@@ -36,6 +36,15 @@ public class InvoicingKafkaListenerTest extends AbstractIntegrationTest {
     @MockBean
     MachineEventParser eventParser;
 
+    public static Producer<String, SinkEvent> createProducer() {
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, "client_id");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, new ThriftSerializer<SinkEvent>().getClass());
+        return new KafkaProducer<>(props);
+    }
+
     @Test
     public void listenEmptyChanges() throws InterruptedException {
         Mockito.when(eventParser.parse(any())).thenReturn(EventPayload.invoice_changes(emptyList()));
@@ -76,15 +85,6 @@ public class InvoicingKafkaListenerTest extends AbstractIntegrationTest {
         message.setSourceId(SOURCE_ID);
         message.setData(data);
         return message;
-    }
-
-    public static Producer<String, SinkEvent> createProducer() {
-        Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, "client_id");
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, new ThriftSerializer<SinkEvent>().getClass());
-        return new KafkaProducer<>(props);
     }
 
 }

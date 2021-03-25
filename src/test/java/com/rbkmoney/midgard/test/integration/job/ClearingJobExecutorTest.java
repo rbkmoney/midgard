@@ -1,6 +1,10 @@
 package com.rbkmoney.midgard.test.integration.job;
 
-import com.rbkmoney.damsel.schedule.*;
+import com.rbkmoney.damsel.schedule.ContextValidationResponse;
+import com.rbkmoney.damsel.schedule.ExecuteJobRequest;
+import com.rbkmoney.damsel.schedule.ScheduledJobExecutorSrv;
+import com.rbkmoney.damsel.schedule.ValidationResponseStatus;
+import com.rbkmoney.damsel.schedule.ValidationSuccess;
 import com.rbkmoney.midgard.ClearingServiceSrv;
 import com.rbkmoney.midgard.dao.info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventInfo;
@@ -16,7 +20,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.nio.ByteBuffer;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ClearingJobExecutorTest extends AbstractIntegrationTest {
 
@@ -31,6 +37,15 @@ public class ClearingJobExecutorTest extends AbstractIntegrationTest {
 
     @MockBean
     private ClearingEventInfoDao clearingEventInfoDao;
+
+    private static AdapterJobContext createAdapterJobContext() {
+        AdapterJobContext adapterJobContext = new AdapterJobContext();
+        adapterJobContext.setUrl("testUrl");
+        adapterJobContext.setName("testName");
+        adapterJobContext.setNetworkTimeout(60000);
+        adapterJobContext.setProviderId(1);
+        return adapterJobContext;
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -75,15 +90,6 @@ public class ClearingJobExecutorTest extends AbstractIntegrationTest {
         Assert.assertEquals(adapterJobContext.getName(), adapterJobContextResult.getName());
         Assert.assertEquals(adapterJobContext.getNetworkTimeout(), adapterJobContextResult.getNetworkTimeout());
         Assert.assertEquals(adapterJobContext.getProviderId(), adapterJobContextResult.getProviderId());
-    }
-
-    private static AdapterJobContext createAdapterJobContext() {
-        AdapterJobContext adapterJobContext = new AdapterJobContext();
-        adapterJobContext.setUrl("testUrl");
-        adapterJobContext.setName("testName");
-        adapterJobContext.setNetworkTimeout(60000);
-        adapterJobContext.setProviderId(1);
-        return adapterJobContext;
     }
 
 }

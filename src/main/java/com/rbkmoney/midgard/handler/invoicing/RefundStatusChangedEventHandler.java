@@ -1,6 +1,12 @@
 package com.rbkmoney.midgard.handler.invoicing;
 
-import com.rbkmoney.damsel.payment_processing.*;
+import com.rbkmoney.damsel.payment_processing.Invoice;
+import com.rbkmoney.damsel.payment_processing.InvoiceChange;
+import com.rbkmoney.damsel.payment_processing.InvoicePayment;
+import com.rbkmoney.damsel.payment_processing.InvoicePaymentChange;
+import com.rbkmoney.damsel.payment_processing.InvoicePaymentRefund;
+import com.rbkmoney.damsel.payment_processing.InvoicePaymentRefundChange;
+import com.rbkmoney.damsel.payment_processing.InvoicingSrv;
 import com.rbkmoney.geck.filter.Filter;
 import com.rbkmoney.geck.filter.PathConditionFilter;
 import com.rbkmoney.geck.filter.condition.IsNullCondition;
@@ -8,10 +14,10 @@ import com.rbkmoney.geck.filter.rule.PathConditionRule;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.dao.refund.ClearingRefundDao;
 import com.rbkmoney.midgard.data.ClearingAdapter;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
 import com.rbkmoney.midgard.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -37,16 +43,12 @@ public class RefundStatusChangedEventHandler extends AbstractInvoicingEventHandl
 
     @Override
     public void handle(InvoiceChange invoiceChange, MachineEvent event, Integer changeId) throws Exception {
-        InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
-        InvoicePaymentRefundChange invoicePaymentRefundChange = invoicePaymentChange.getPayload()
-                .getInvoicePaymentRefundChange();
         String invoiceId = event.getSourceId();
         long sequenceId = event.getEventId();
 
         log.info("Processing refund with status 'succeeded' (invoiceId = '{}', sequenceId = '{}', " +
                 "changeId = '{}')", invoiceId, sequenceId, changeId);
         String paymentId = invoiceChange.getInvoicePaymentChange().getId();
-        String refundId = invoicePaymentRefundChange.getId();
 
         Invoice invoice = invoicingService.get(USER_INFO, invoiceId, getEventRange((int) sequenceId));
         if (invoice == null || !invoice.isSetPayments()) {
@@ -77,6 +79,11 @@ public class RefundStatusChangedEventHandler extends AbstractInvoicingEventHandl
             throw new NotFoundException(String.format("Refunds for invoice not found! (invoice id '%s', " +
                     "sequenceId = '%d' and changeId = '%d')", invoiceId, sequenceId, changeId));
         }
+
+        InvoicePaymentChange invoicePaymentChange = invoiceChange.getInvoicePaymentChange();
+        InvoicePaymentRefundChange invoicePaymentRefundChange = invoicePaymentChange.getPayload()
+                .getInvoicePaymentRefundChange();
+        String refundId = invoicePaymentRefundChange.getId();
         InvoicePaymentRefund refund = invoicePayment.getRefunds().stream()
                 .filter(hgRefund -> refundId.equals(hgRefund.getRefund().getId()))
                 .findFirst()

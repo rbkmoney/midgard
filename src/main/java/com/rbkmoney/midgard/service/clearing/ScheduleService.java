@@ -4,9 +4,9 @@ import com.rbkmoney.midgard.ClearingEvent;
 import com.rbkmoney.midgard.ClearingServiceSrv;
 import com.rbkmoney.midgard.dao.info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.data.ClearingAdapter;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventInfo;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -74,7 +74,8 @@ public class ScheduleService {
 
             ClearingEventInfo lastClearingEvent = clearingEventInfoDao.getLastClearingEvent(providerId);
             ClearingEvent clearingEvent = new ClearingEvent();
-            long eventId = lastClearingEvent == null || lastClearingEvent.getEventId() == null ? 0 : lastClearingEvent.getEventId() + 1;
+            long eventId = lastClearingEvent == null || lastClearingEvent.getEventId() == null
+                    ? 0 : lastClearingEvent.getEventId() + 1;
             clearingEvent.setEventId(eventId);
             clearingEvent.setProviderId(providerId);
             clearingEventService.startClearingEvent(clearingEvent);

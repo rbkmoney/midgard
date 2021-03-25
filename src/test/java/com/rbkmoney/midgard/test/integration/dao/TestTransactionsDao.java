@@ -2,15 +2,16 @@ package com.rbkmoney.midgard.test.integration.dao;
 
 import com.rbkmoney.midgard.dao.AbstractGenericDao;
 import com.rbkmoney.midgard.dao.RecordRowMapper;
+import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
 import com.rbkmoney.midgard.exception.DaoException;
 import org.jooq.Field;
 import org.jooq.Query;
 import org.jooq.Record1;
-import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
-import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
 import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
+
 import java.util.List;
 
 import static com.rbkmoney.midgard.domain.tables.ClearingRefund.CLEARING_REFUND;

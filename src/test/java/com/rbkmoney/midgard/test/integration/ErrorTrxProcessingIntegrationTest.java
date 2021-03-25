@@ -4,11 +4,11 @@ import com.rbkmoney.midgard.ClearingDataRequest;
 import com.rbkmoney.midgard.dao.refund.ClearingRefundDao;
 import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
 import com.rbkmoney.midgard.data.ClearingDataPackage;
-import com.rbkmoney.midgard.handler.ClearingPackageHandler;
-import com.rbkmoney.midgard.utils.MappingUtils;
-import com.rbkmoney.midgard.test.unit.data.TestTransactionsData;
 import com.rbkmoney.midgard.domain.enums.ClearingTrxType;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventTransactionInfo;
+import com.rbkmoney.midgard.handler.ClearingPackageHandler;
+import com.rbkmoney.midgard.test.unit.data.TestTransactionsData;
+import com.rbkmoney.midgard.utils.MappingUtils;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,27 +18,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 
 public class ErrorTrxProcessingIntegrationTest extends AbstractIntegrationTest {
 
+    private static final long CLEARING_ID = 1;
+    private static final int PROVIDER_ID = 1;
+    private static final int TRX_INFO_COUNT = 10;
+    private static final int REFUND_INFO_COUNT = 3;
     @Autowired
     private ClearingPackageHandler clearingTransactionPackageHandler;
-
     @MockBean
     private TransactionsDao transactionsDao;
-
     @MockBean
     private ClearingRefundDao clearingRefundDao;
-
-    private static final long CLEARING_ID = 1;
-
-    private static final int PROVIDER_ID = 1;
-
-    private static final int TRX_INFO_COUNT = 10;
-
-    private static final int REFUND_INFO_COUNT = 3;
 
     @Test
     public void testFailureProcessing() {
@@ -50,34 +44,36 @@ public class ErrorTrxProcessingIntegrationTest extends AbstractIntegrationTest {
                 0L,
                 1
         );
-        assertTrue("The clearing package must not be null", clearingPackage != null);
+        assertNotNull("The clearing package must not be null", clearingPackage);
         ClearingDataRequest request = clearingPackage.getClearingDataRequest();
-        assertTrue("The list of transactions must not be null", request.getTransactions() != null);
+        assertNotNull("The list of transactions must not be null", request.getTransactions());
         assertEquals("Count of expected transactions is not equal to the received",
                 TRX_INFO_COUNT, request.getTransactions().size());
     }
 
     private void mockDao() {
         when(transactionsDao.getClearingTransactionsByClearingId(Mockito.any(Long.class),
-                Mockito.any(Integer.class), Mockito.any(Long.class), Mockito.any(Integer.class))).thenReturn(getTrxList(TRX_INFO_COUNT, REFUND_INFO_COUNT));
+                Mockito.any(Integer.class), Mockito.any(Long.class), Mockito.any(Integer.class)))
+                .thenReturn(getTrxList(TRX_INFO_COUNT, REFUND_INFO_COUNT));
 
-        when(transactionsDao.getLastTransaction()).thenReturn(TestTransactionsData.getTestClearingTransaction());
-
-        when(transactionsDao.getTransaction(Mockito.any(String.class), Mockito.any(String.class), Mockito.any(Integer.class)))
+        when(transactionsDao.getLastTransaction())
                 .thenReturn(TestTransactionsData.getTestClearingTransaction());
 
-        when(clearingRefundDao.getRefund(Mockito.any(String.class), Mockito.any(String.class), Mockito.any(String.class), Mockito.any(Integer.class)))
-                .thenReturn(null);
+        when(transactionsDao.getTransaction(Mockito.any(String.class), Mockito.any(String.class),
+                Mockito.any(Integer.class))).thenReturn(TestTransactionsData.getTestClearingTransaction());
+
+        when(clearingRefundDao.getRefund(Mockito.any(String.class), Mockito.any(String.class),
+                Mockito.any(String.class), Mockito.any(Integer.class))).thenReturn(null);
 
     }
 
     private List<ClearingEventTransactionInfo> getTrxList(int trxCount, int refundCount) {
         List<ClearingEventTransactionInfo> trxList = new ArrayList<>();
-        for(int i = 0; i < trxCount; i++) {
+        for (int i = 0; i < trxCount; i++) {
             trxList.add(getClearingTrxInfo(i, ClearingTrxType.PAYMENT));
         }
 
-        for(int i = 0; i < refundCount; i++) {
+        for (int i = 0; i < refundCount; i++) {
             trxList.add(getClearingTrxInfo(i, ClearingTrxType.REFUND));
         }
         return trxList;

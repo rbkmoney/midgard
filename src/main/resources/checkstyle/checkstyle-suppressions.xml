@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <suppress checks="LineLength"
+              files="KafkaConfig.java"/>
+    <suppress checks="MethodName|ParameterName"
+              files="JsonUtil.java"/>
+    <suppress checks="VariableDeclarationUsageDistance"
+              files="TestTransactionsData.java"/>
+    <suppress checks="ImportOrder"
+              files="com[\\/]rbkmoney[\\/]midgard[\\/].*.java"/>
+</suppressions>

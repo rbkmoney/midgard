@@ -40,7 +40,8 @@ public interface Dao {
 
     <T> T fetchOne(Query query, Class<T> type) throws DaoException;
 
-    <T> T fetchOne(Query query, Class<T> type, NamedParameterJdbcTemplate namedParameterJdbcTemplate) throws DaoException;
+    <T> T fetchOne(Query query, Class<T> type, NamedParameterJdbcTemplate namedParameterJdbcTemplate)
+            throws DaoException;
 
     <T> List<T> fetch(Query query, RowMapper<T> rowMapper) throws DaoException;
 

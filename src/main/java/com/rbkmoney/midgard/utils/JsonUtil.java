@@ -5,10 +5,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rbkmoney.geck.serializer.kit.json.JsonHandler;
 import com.rbkmoney.geck.serializer.kit.tbase.TBaseProcessor;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.thrift.TBase;
 
 import java.io.IOException;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class JsonUtil {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -36,7 +39,5 @@ public final class JsonUtil {
             throw new RuntimeException("Couldn't convert object to json string: " + o, e);
         }
     }
-
-    private JsonUtil() {}
 
 }

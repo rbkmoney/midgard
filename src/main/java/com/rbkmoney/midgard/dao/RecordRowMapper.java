@@ -18,6 +18,12 @@ public class RecordRowMapper<T> implements RowMapper<T> {
     private final Table table;
     private final Class<T> type;
 
+    public static <T extends Enum<T>> T toEnumField(String name, Class<T> enumType) {
+        return Optional.ofNullable(name)
+                .map(value -> Enum.valueOf(enumType, name))
+                .orElse(null);
+    }
+
     @Override
     public T mapRow(ResultSet resultSet, int i) throws SQLException {
         ResultSetMetaData rsMetaData = resultSet.getMetaData();
@@ -44,11 +50,5 @@ public class RecordRowMapper<T> implements RowMapper<T> {
             return toEnumField(resultSet.getString(field.getName()), field.getType());
         }
         return resultSet.getObject(field.getName(), field.getType());
-    }
-
-    public static <T extends Enum<T>> T toEnumField(String name, Class<T> enumType) {
-        return Optional.ofNullable(name)
-                .map(value -> Enum.valueOf(enumType, name))
-                .orElse(null);
     }
 }

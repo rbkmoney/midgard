@@ -16,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.KafkaContainer;
 
 import javax.sql.DataSource;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,36 +39,18 @@ import static org.springframework.boot.test.util.TestPropertyValues.Type.MAP;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public abstract class AbstractIntegrationTest {
 
-    private static final int PORT = 15432;
-
-    private static final String dbName = "midgard";
-
-    private static final String dbUser = "postgres";
-
-    private static final String dbPassword = "postgres";
-
-    private static final String jdbcUrl = "jdbc:postgresql://localhost:" + PORT + "/" + dbName;
-
-    private static final String FILE_NAME = "target/test-classes/InsertFeedInitialData.sql";
-
     public static final String SOURCE_ID = "source_id";
-
     public static final String SOURCE_NS = "source_ns";
-
+    private static final int PORT = 15432;
+    private static final String dbName = "midgard";
+    private static final String dbUser = "postgres";
+    private static final String dbPassword = "postgres";
+    private static final String jdbcUrl = "jdbc:postgresql://localhost:" + PORT + "/" + dbName;
+    private static final String FILE_NAME = "target/test-classes/InsertFeedInitialData.sql";
     private static final String CONFLUENT_PLATFORM_VERSION = "5.0.1";
-
-    private static EmbeddedPostgres postgres;
-
     @ClassRule
     public static KafkaContainer kafka = new KafkaContainer(CONFLUENT_PLATFORM_VERSION).withEmbeddedZookeeper();
-
-    @After
-    public void destroy() throws IOException {
-        if (postgres != null) {
-            postgres.close();
-            postgres = null;
-        }
-    }
+    private static EmbeddedPostgres postgres;
 
     private static void startPgServer() {
         try {
@@ -91,7 +74,7 @@ public abstract class AbstractIntegrationTest {
             statement.execute("CREATE DATABASE " + dbName);
             statement.close();
         } catch (SQLException e) {
-            log.error("An error occurred while creating the database "+ dbName, e);
+            log.error("An error occurred while creating the database " + dbName, e);
             e.printStackTrace();
         }
     }
@@ -102,6 +85,14 @@ public abstract class AbstractIntegrationTest {
         String dir = "target" + File.separator + "pgdata_" + currentDate;
         log.info("Postgres source files in {}", dir);
         return dir;
+    }
+
+    @After
+    public void destroy() throws IOException {
+        if (postgres != null) {
+            postgres.close();
+            postgres = null;
+        }
     }
 
     public void initDb() throws SQLException, IOException {
@@ -160,7 +151,7 @@ public abstract class AbstractIntegrationTest {
                     "clearing-service.adapters.[1].url=http://localhost:8023/v1/adapter/mock_2",
                     "clearing-service.adapters.[1].networkTimeout=60000",
                     "clearing-service.adapters.[1].package-size=25",
-                    "clearing-service.adapters.[1].providerId=115" )
+                    "clearing-service.adapters.[1].providerId=115")
                     .applyTo(configurableApplicationContext.getEnvironment(), MAP, "testcontainers");
 
             if (postgres == null) {

@@ -2,12 +2,12 @@ package com.rbkmoney.midgard.dao.info;
 
 import com.rbkmoney.midgard.dao.AbstractGenericDao;
 import com.rbkmoney.midgard.dao.RecordRowMapper;
-import com.zaxxer.hikari.HikariDataSource;
-import lombok.extern.slf4j.Slf4j;
-import org.jooq.Query;
 import com.rbkmoney.midgard.domain.enums.ClearingEventStatus;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventInfo;
 import com.rbkmoney.midgard.domain.tables.records.ClearingEventInfoRecord;
+import com.zaxxer.hikari.HikariDataSource;
+import lombok.extern.slf4j.Slf4j;
+import org.jooq.Query;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;

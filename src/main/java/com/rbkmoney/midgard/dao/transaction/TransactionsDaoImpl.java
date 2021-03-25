@@ -2,11 +2,6 @@ package com.rbkmoney.midgard.dao.transaction;
 
 import com.rbkmoney.midgard.dao.AbstractGenericDao;
 import com.rbkmoney.midgard.dao.RecordRowMapper;
-import com.zaxxer.hikari.HikariDataSource;
-import lombok.extern.slf4j.Slf4j;
-import org.jooq.Field;
-import org.jooq.Query;
-import org.jooq.Record1;
 import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventTransactionInfo;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
@@ -14,6 +9,11 @@ import com.rbkmoney.midgard.domain.tables.pojos.FailureTransaction;
 import com.rbkmoney.midgard.domain.tables.records.ClearingEventTransactionInfoRecord;
 import com.rbkmoney.midgard.domain.tables.records.ClearingTransactionRecord;
 import com.rbkmoney.midgard.domain.tables.records.FailureTransactionRecord;
+import com.zaxxer.hikari.HikariDataSource;
+import lombok.extern.slf4j.Slf4j;
+import org.jooq.Field;
+import org.jooq.Query;
+import org.jooq.Record1;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
@@ -56,11 +56,15 @@ public class TransactionsDaoImpl extends AbstractGenericDao implements Transacti
         Query query = getDslContext()
                 .insertInto(CLEARING_TRANSACTION)
                 .set(record)
-                .onConflict(CLEARING_TRANSACTION.INVOICE_ID, CLEARING_TRANSACTION.PAYMENT_ID, CLEARING_TRANSACTION.TRX_VERSION)
+                .onConflict(
+                        CLEARING_TRANSACTION.INVOICE_ID,
+                        CLEARING_TRANSACTION.PAYMENT_ID,
+                        CLEARING_TRANSACTION.TRX_VERSION
+                )
                 .doNothing()
                 .returning(CLEARING_TRANSACTION.SEQUENCE_ID);
 
-                GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         executeWithReturn(query, keyHolder);
         log.info("Clearing transaction with invoice id '{}', sequence id '{}' and change id '{}' was added",
                 trx.getInvoiceId(), trx.getSequenceId(), trx.getChangeId());

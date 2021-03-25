@@ -3,18 +3,17 @@ package com.rbkmoney.midgard.handler;
 import com.rbkmoney.midgard.ClearingDataRequest;
 import com.rbkmoney.midgard.Transaction;
 import com.rbkmoney.midgard.dao.refund.ClearingRefundDao;
-import com.rbkmoney.midgard.data.ClearingDataPackage;
-import com.rbkmoney.midgard.utils.ClearingEventUtils;
-import com.rbkmoney.midgard.utils.MappingUtils;
 import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
-import com.rbkmoney.midgard.handler.failure.FailureTransactionHandler;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.rbkmoney.midgard.data.ClearingDataPackage;
 import com.rbkmoney.midgard.domain.enums.ClearingTrxType;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventTransactionInfo;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
-import org.springframework.beans.factory.annotation.Value;
+import com.rbkmoney.midgard.handler.failure.FailureTransactionHandler;
+import com.rbkmoney.midgard.utils.ClearingEventUtils;
+import com.rbkmoney.midgard.utils.MappingUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -68,7 +67,7 @@ public class ClearingTransactionPackageHandler implements ClearingPackageHandler
 
                 if (info.getTransactionType() == ClearingTrxType.PAYMENT) {
                     log.info("Payment transaction with invoice id = '{}' and payment id = '{}' " +
-                            "was added to package {} for clearing event {} with number {}", info.getInvoiceId(),
+                                    "was added to package {} for clearing event {} with number {}", info.getInvoiceId(),
                             info.getPaymentId(), packageNumber, clearingId, ++transactionPackageCount);
                 } else {
                     log.info("Refund transaction with invoice id = '{}', payment id = '{}' and refund id = '{}' " +
