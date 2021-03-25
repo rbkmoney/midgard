@@ -112,6 +112,10 @@
             <artifactId>jooq-codegen</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jooq</groupId>
             <artifactId>jooq-meta-extensions</artifactId>
             <version>${jooq.version}</version>
@@ -122,10 +126,6 @@
             <version>${jackson-bom.version}</version>
             <type>pom</type>
             <scope>import</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <!-- RBK.Money -->
@@ -148,6 +148,10 @@
         <dependency>
             <groupId>com.rbkmoney.geck</groupId>
             <artifactId>serializer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.rbkmoney</groupId>
+            <artifactId>damsel</artifactId>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
@@ -178,10 +182,6 @@
             <groupId>com.rbkmoney</groupId>
             <artifactId>eventstock-client-fistful</artifactId>
             <version>1.2.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.rbkmoney</groupId>
-            <artifactId>damsel</artifactId>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
@@ -301,7 +301,6 @@
             <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
-                <version>${flyway.version}</version>
                 <configuration>
                     <url>${local.db.url}</url>
                     <user>${local.db.user}</user>
@@ -330,7 +329,6 @@
             <plugin>
                 <groupId>org.jooq</groupId>
                 <artifactId>jooq-codegen-maven</artifactId>
-                <version>${jooq.version}</version>
                 <configuration>
                     <jdbc>
                         <driver>org.postgresql.Driver</driver>
