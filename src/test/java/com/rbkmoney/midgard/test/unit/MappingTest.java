@@ -8,10 +8,19 @@ import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
 import org.junit.Test;
 
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.*;
-import static com.rbkmoney.midgard.test.unit.data.TestTransactionsData.*;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CHANGE_ID_1;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.INVOICE_ID_1;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.SEQUENCE_ID_1;
+import static com.rbkmoney.midgard.test.unit.data.TestTransactionsData.getInvoicePayment;
+import static com.rbkmoney.midgard.test.unit.data.TestTransactionsData.getInvoicePaymentRefund;
+import static com.rbkmoney.midgard.test.unit.data.TestTransactionsData.getTestClearingRefund;
 import static com.rbkmoney.midgard.test.unit.data.TestTransactionsData.getTestClearingTransaction;
-import static com.rbkmoney.midgard.utils.MappingUtils.*;
+import static com.rbkmoney.midgard.test.unit.data.TestTransactionsData.getTestProtoRefundTransaction;
+import static com.rbkmoney.midgard.test.unit.data.TestTransactionsData.getTestProtoTransaction;
+import static com.rbkmoney.midgard.utils.MappingUtils.transformClearingTransaction;
+import static com.rbkmoney.midgard.utils.MappingUtils.transformRefund;
+import static com.rbkmoney.midgard.utils.MappingUtils.transformRefundTransaction;
+import static com.rbkmoney.midgard.utils.MappingUtils.transformTransaction;
 import static org.junit.Assert.assertEquals;
 
 public class MappingTest {

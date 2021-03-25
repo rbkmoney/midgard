@@ -36,7 +36,7 @@ public class ApplicationConfig {
     public ThreadPoolTaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         taskScheduler.setPoolSize(schedulerPoolSize);
-        return  taskScheduler;
+        return taskScheduler;
     }
 
     @Bean

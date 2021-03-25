@@ -1,6 +1,10 @@
 package com.rbkmoney.midgard.test.integration.data;
 
-import com.rbkmoney.midgard.*;
+import com.rbkmoney.midgard.ClearingDataPackageTag;
+import com.rbkmoney.midgard.ClearingDataResponse;
+import com.rbkmoney.midgard.ClearingEvent;
+import com.rbkmoney.midgard.ClearingEventResponse;
+import com.rbkmoney.midgard.ClearingEventState;
 
 public class ClearingEventTestData {
 

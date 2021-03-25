@@ -93,8 +93,8 @@ public class KafkaConfig {
 
     @Bean
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, MachineEvent>> kafkaListenerContainerFactory(
-                    ConsumerFactory<String, MachineEvent> consumerFactory,
-                    KafkaConsumerProperties kafkaConsumerProperties) {
+            ConsumerFactory<String, MachineEvent> consumerFactory,
+            KafkaConsumerProperties kafkaConsumerProperties) {
         ConcurrentKafkaListenerContainerFactory<String, MachineEvent> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);

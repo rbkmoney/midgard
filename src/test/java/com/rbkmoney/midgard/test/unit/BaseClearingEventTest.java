@@ -53,8 +53,8 @@ public class BaseClearingEventTest {
     }
 
     private ClearingAdapter getClearingAdapter(String adapterName,
-                                              int adapterId,
-                                              List<AdapterWorkFlow> adapterWorkflows) throws Exception {
+                                               int adapterId,
+                                               List<AdapterWorkFlow> adapterWorkflows) throws Exception {
         ClearingAdapterSrv.Iface adapter = mock(ClearingAdapterSrv.Iface.class);
         for (AdapterWorkFlow adapterWorkflow : adapterWorkflows) {
             Long clearingId = adapterWorkflow.getClearingId();

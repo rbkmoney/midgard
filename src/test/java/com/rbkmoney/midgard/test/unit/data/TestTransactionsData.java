@@ -1,12 +1,29 @@
 package com.rbkmoney.midgard.test.unit.data;
 
-import com.rbkmoney.damsel.domain.*;
+import com.rbkmoney.damsel.domain.BankCard;
+import com.rbkmoney.damsel.domain.Cash;
+import com.rbkmoney.damsel.domain.CurrencyRef;
+import com.rbkmoney.damsel.domain.CustomerPayer;
+import com.rbkmoney.damsel.domain.InvoicePaymentCaptured;
+import com.rbkmoney.damsel.domain.InvoicePaymentRefund;
+import com.rbkmoney.damsel.domain.InvoicePaymentRefundStatus;
+import com.rbkmoney.damsel.domain.InvoicePaymentRefundSucceeded;
+import com.rbkmoney.damsel.domain.InvoicePaymentStatus;
+import com.rbkmoney.damsel.domain.Payer;
+import com.rbkmoney.damsel.domain.PaymentRoute;
+import com.rbkmoney.damsel.domain.PaymentTool;
+import com.rbkmoney.damsel.domain.ProviderRef;
+import com.rbkmoney.damsel.domain.TerminalRef;
+import com.rbkmoney.damsel.domain.TransactionInfo;
 import com.rbkmoney.damsel.payment_processing.Invoice;
 import com.rbkmoney.damsel.payment_processing.InvoicePayment;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentSession;
 import com.rbkmoney.damsel.payment_processing.InvoiceRefundSession;
-import com.rbkmoney.midgard.*;
 import com.rbkmoney.midgard.BankCardExpDate;
+import com.rbkmoney.midgard.Content;
+import com.rbkmoney.midgard.GeneralTransactionInfo;
+import com.rbkmoney.midgard.Transaction;
+import com.rbkmoney.midgard.TransactionCardInfo;
 import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingRefund;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
@@ -20,7 +37,35 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.*;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.BANK_NAME;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CARDHOLDER_NAME;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CARD_BIN;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CARD_EXP_DATE_MONTH;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CARD_EXP_DATE_YEAR;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CARD_LAST_DIGIT;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CARD_MASKED_PAN;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CARD_PAYMENT_SYSTEM;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CARD_TOKEN;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CHANGE_ID_1;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CONTENT_TYPE;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.DOMAIN_REVISION;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.INSTANT_DATE_TIME;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.INVOICE_ID_1;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.INVOICE_PAYMENT_1_AMOUNT;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.INVOICE_PAYMENT_1_CURRENCY;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.INVOICE_REFUND_1_AMOUNT;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.INVOICE_REFUND_1_CURRENCY;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.LOCAL_DATE_TIME;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.PARTY_ID;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.PAYMENT_ID_1;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.PROVIDER_ID;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.REFUND_ID_1;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.REFUND_REASON_1;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.REFUND_TRANSACTION_ID_1;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.SEQUENCE_ID_1;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.SHOP_ID;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.TERMINAL_ID;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.TRANSACTION_ID_1;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TestTransactionsData {

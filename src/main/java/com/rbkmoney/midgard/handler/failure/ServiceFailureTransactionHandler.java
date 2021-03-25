@@ -1,10 +1,10 @@
 package com.rbkmoney.midgard.handler.failure;
 
-import com.rbkmoney.midgard.utils.MappingUtils;
 import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventTransactionInfo;
+import com.rbkmoney.midgard.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventTransactionInfo;
 import org.springframework.stereotype.Component;
 
 import static com.rbkmoney.midgard.domain.enums.ClearingTrxType.PAYMENT;
