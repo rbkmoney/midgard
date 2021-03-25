@@ -20,8 +20,6 @@
         <project.maintainer>Dmitrii Baikov &lt;d.baykov@rbkmoney.com&gt;</project.maintainer>
         <dockerfile.base.service.tag>c0612d6052ac049496b72a23a04acb142035f249</dockerfile.base.service.tag>
         <dockerfile.registry>${env.REGISTRY}</dockerfile.registry>
-        <!-- RBK.Money environment settings -->
-        <fistful-proto.version>1.37-b3ce731</fistful-proto.version>
         <!-- Ports -->
         <server.port>8022</server.port>
         <management.port>8023</management.port>
@@ -150,6 +148,14 @@
             <artifactId>serializer</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.rbkmoney.geck</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.rbkmoney.geck</groupId>
+            <artifactId>filter</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>damsel</artifactId>
         </dependency>
@@ -172,21 +178,6 @@
             <groupId>com.rbkmoney</groupId>
             <artifactId>midgard-proto</artifactId>
             <version>1.25-f7d8a86</version>
-        </dependency>
-        <dependency>
-            <groupId>com.rbkmoney</groupId>
-            <artifactId>eventstock-client-damsel</artifactId>
-            <version>1.2.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.rbkmoney</groupId>
-            <artifactId>eventstock-client-fistful</artifactId>
-            <version>1.2.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.rbkmoney</groupId>
-            <artifactId>fistful-proto</artifactId>
-            <version>${fistful-proto.version}</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
