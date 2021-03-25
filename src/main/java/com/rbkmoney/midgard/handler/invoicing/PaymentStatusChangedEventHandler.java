@@ -11,10 +11,10 @@ import com.rbkmoney.geck.filter.rule.PathConditionRule;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
 import com.rbkmoney.midgard.data.ClearingAdapter;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
 import com.rbkmoney.midgard.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

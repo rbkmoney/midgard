@@ -5,13 +5,13 @@ import com.rbkmoney.midgard.ClearingEventResponse;
 import com.rbkmoney.midgard.ClearingEventState;
 import com.rbkmoney.midgard.FailureTransactionData;
 import com.rbkmoney.midgard.dao.info.ClearingEventInfoDao;
-import com.rbkmoney.midgard.data.ClearingProcessingEvent;
 import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
+import com.rbkmoney.midgard.data.ClearingProcessingEvent;
+import com.rbkmoney.midgard.domain.enums.ClearingEventStatus;
+import com.rbkmoney.midgard.domain.tables.pojos.FailureTransaction;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import com.rbkmoney.midgard.domain.enums.ClearingEventStatus;
-import com.rbkmoney.midgard.domain.tables.pojos.FailureTransaction;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 

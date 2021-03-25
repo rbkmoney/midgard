@@ -4,11 +4,11 @@ import com.rbkmoney.midgard.ClearingDataRequest;
 import com.rbkmoney.midgard.dao.refund.ClearingRefundDao;
 import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
 import com.rbkmoney.midgard.data.ClearingDataPackage;
-import com.rbkmoney.midgard.handler.ClearingPackageHandler;
-import com.rbkmoney.midgard.utils.MappingUtils;
-import com.rbkmoney.midgard.test.unit.data.TestTransactionsData;
 import com.rbkmoney.midgard.domain.enums.ClearingTrxType;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventTransactionInfo;
+import com.rbkmoney.midgard.handler.ClearingPackageHandler;
+import com.rbkmoney.midgard.test.unit.data.TestTransactionsData;
+import com.rbkmoney.midgard.utils.MappingUtils;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,27 +17,22 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 
 public class ErrorTrxProcessingIntegrationTest extends AbstractIntegrationTest {
 
+    private static final long CLEARING_ID = 1;
+    private static final int PROVIDER_ID = 1;
+    private static final int TRX_INFO_COUNT = 10;
+    private static final int REFUND_INFO_COUNT = 3;
     @Autowired
     private ClearingPackageHandler clearingTransactionPackageHandler;
-
     @MockBean
     private TransactionsDao transactionsDao;
-
     @MockBean
     private ClearingRefundDao clearingRefundDao;
-
-    private static final long CLEARING_ID = 1;
-
-    private static final int PROVIDER_ID = 1;
-
-    private static final int TRX_INFO_COUNT = 10;
-
-    private static final int REFUND_INFO_COUNT = 3;
 
     @Test
     public void testFailureProcessing() {

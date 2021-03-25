@@ -1,9 +1,9 @@
 package com.rbkmoney.midgard.utils;
 
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventTransactionInfo;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventTransactionInfo;
 
 import java.util.Comparator;
 import java.util.List;

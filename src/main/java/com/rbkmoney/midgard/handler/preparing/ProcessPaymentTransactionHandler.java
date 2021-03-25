@@ -1,12 +1,12 @@
 package com.rbkmoney.midgard.handler.preparing;
 
 import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
-import com.rbkmoney.midgard.utils.MappingUtils;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventTransactionInfo;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
+import com.rbkmoney.midgard.utils.MappingUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 

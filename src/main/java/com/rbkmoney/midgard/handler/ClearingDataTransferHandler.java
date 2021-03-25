@@ -1,16 +1,20 @@
 package com.rbkmoney.midgard.handler;
 
-import com.rbkmoney.midgard.*;
+import com.rbkmoney.midgard.ClearingAdapterException;
+import com.rbkmoney.midgard.ClearingAdapterSrv;
+import com.rbkmoney.midgard.ClearingDataPackageTag;
+import com.rbkmoney.midgard.ClearingDataRequest;
+import com.rbkmoney.midgard.ClearingDataResponse;
+import com.rbkmoney.midgard.Transaction;
 import com.rbkmoney.midgard.dao.info.ClearingEventInfoDao;
+import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
 import com.rbkmoney.midgard.data.ClearingDataPackage;
 import com.rbkmoney.midgard.data.ClearingProcessingEvent;
-import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
+import com.rbkmoney.midgard.domain.enums.ClearingEventStatus;
 import com.rbkmoney.midgard.handler.failure.FailureTransactionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
-import com.rbkmoney.midgard.domain.enums.ClearingEventStatus;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

@@ -1,6 +1,14 @@
 package com.rbkmoney.midgard.test.integration;
 
-import com.rbkmoney.midgard.*;
+import com.rbkmoney.midgard.ClearingAdapterException;
+import com.rbkmoney.midgard.ClearingAdapterSrv;
+import com.rbkmoney.midgard.ClearingDataPackageTag;
+import com.rbkmoney.midgard.ClearingDataRequest;
+import com.rbkmoney.midgard.ClearingDataResponse;
+import com.rbkmoney.midgard.ClearingEventResponse;
+import com.rbkmoney.midgard.ClearingEventState;
+import com.rbkmoney.midgard.ClearingServiceSrv;
+import com.rbkmoney.midgard.Transaction;
 import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
 import com.rbkmoney.midgard.data.ClearingAdapter;
 import com.rbkmoney.midgard.domain.enums.TransactionClearingState;
@@ -20,14 +28,17 @@ import java.util.List;
 
 import static com.rbkmoney.midgard.test.integration.data.ClearingEventTestData.getClearingEvent;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class MultiProvidersIntegrationTest extends AbstractIntegrationTest {
 
-    @Autowired private TransactionsDao transactionsDao;
-    @Autowired private ClearingServiceSrv.Iface clearingEventService;
-    @Autowired private ClearingRevisionService clearingRevisionService;
-    @Autowired private List<ClearingAdapter> adapters;
+    @Autowired
+    private TransactionsDao transactionsDao;
+    @Autowired
+    private ClearingServiceSrv.Iface clearingEventService;
+    @Autowired
+    private ClearingRevisionService clearingRevisionService;
+    @Autowired
+    private List<ClearingAdapter> adapters;
 
     @Before
     public void before() {
@@ -49,7 +60,7 @@ public class MultiProvidersIntegrationTest extends AbstractIntegrationTest {
         createTestClearingTransactionsByPtovider(secondProviderId, opersCountForSecondProvider);
 
         // Start clearing for a specific provider
-        clearingEventService.startClearingEvent(getClearingEvent(11,targetProviderId));
+        clearingEventService.startClearingEvent(getClearingEvent(11, targetProviderId));
         clearingRevisionService.process();
 
         // Check the result of the clearing
@@ -116,7 +127,7 @@ public class MultiProvidersIntegrationTest extends AbstractIntegrationTest {
 
         @Override
         public ClearingEventResponse getBankResponse(long clearingId)
-                throws ClearingAdapterException, TException {
+                throws TException {
             return new ClearingEventResponse(clearingId, ClearingEventState.EXECUTE);
         }
     }

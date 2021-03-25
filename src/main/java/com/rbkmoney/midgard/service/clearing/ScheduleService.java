@@ -4,9 +4,9 @@ import com.rbkmoney.midgard.ClearingEvent;
 import com.rbkmoney.midgard.ClearingServiceSrv;
 import com.rbkmoney.midgard.dao.info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.data.ClearingAdapter;
+import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.rbkmoney.midgard.domain.tables.pojos.ClearingEventInfo;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 

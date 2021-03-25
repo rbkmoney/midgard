@@ -2,10 +2,10 @@ package com.rbkmoney.midgard.handler.failure;
 
 import com.rbkmoney.midgard.Transaction;
 import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
+import com.rbkmoney.midgard.domain.tables.pojos.FailureTransaction;
 import com.rbkmoney.midgard.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.rbkmoney.midgard.domain.tables.pojos.FailureTransaction;
 import org.springframework.stereotype.Component;
 
 @Slf4j
