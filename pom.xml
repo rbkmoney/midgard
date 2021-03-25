@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.rbkmoney</groupId>
         <artifactId>service-parent-pom</artifactId>
-        <version>1.0.8</version>
+        <version>1.0.9</version>
     </parent>
 
     <artifactId>midgard</artifactId>
@@ -19,11 +19,10 @@
     <properties>
         <project.maintainer>Dmitrii Baikov &lt;d.baykov@rbkmoney.com&gt;</project.maintainer>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dockerfile.base.service.tag>57e26d8ee999d7b0b50248c22afc63e6f926d276</dockerfile.base.service.tag>
+        <dockerfile.base.service.tag>c0612d6052ac049496b72a23a04acb142035f249</dockerfile.base.service.tag>
         <dockerfile.registry>dr2.rbkmoney.com</dockerfile.registry>
 <!--        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>-->
         <!-- RBK.Money environment settings -->
-        <damsel.version>1.485-78ccbad</damsel.version>
         <fistful-proto.version>1.37-b3ce731</fistful-proto.version>
         <shared.resources.version>0.3.8</shared.resources.version>
         <!-- Ports -->
@@ -37,10 +36,8 @@
         <postgresql.jdbc.version>42.2.16</postgresql.jdbc.version>
         <HikariCP>3.4.5</HikariCP>
         <jackson.version>2.11.1</jackson.version>
-        <geck.version>0.6.11</geck.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
         <commons-lang3.version>3.11</commons-lang3.version>
-        <kafka-common-lib.varsion>0.1.5</kafka-common-lib.varsion>
         <sink-common-lib.version>0.0.6</sink-common-lib.version>
         <!-- Props for local PG. It's need for getting jooq files at build time -->
         <local.pg.port>15432</local.pg.port>
@@ -98,7 +95,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.12</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -165,7 +161,6 @@
         <dependency>
             <groupId>com.rbkmoney.geck</groupId>
             <artifactId>serializer</artifactId>
-            <version>${geck.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.kafka</groupId>
@@ -187,7 +182,6 @@
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>kafka-common-lib</artifactId>
-            <version>0.1.5</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
@@ -222,7 +216,6 @@
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>damsel</artifactId>
-            <version>${damsel.version}</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>

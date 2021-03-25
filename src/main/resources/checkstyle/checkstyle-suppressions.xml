@@ -5,7 +5,6 @@
         "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 
 <suppressions>
-    <!--    we need to suppress modules by reason of 3DS domain specific -->
     <suppress checks="LineLength"
               files="KafkaConfig.java"/>
     <suppress checks="MethodName|ParameterName"
