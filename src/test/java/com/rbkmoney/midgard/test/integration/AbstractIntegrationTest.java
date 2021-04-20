@@ -147,7 +147,8 @@ public abstract class AbstractIntegrationTest {
                     "clearing-service.adapters.[1].scheduler.revisionId=16396",
                     "clearing-service.adapters.[1].scheduler.schedulerId=64",
                     "clearing-service.adapters.[1].scheduler.calendarId=1",
-                    "clearing-service.adapters.[1].scheduler.serviceCallbackPath=http://midgard:8022/v1/clearing_scheduler_job",
+                    "clearing-service.adapters.[1].scheduler.serviceCallbackPath=" +
+                            "http://midgard:8022/v1/clearing_scheduler_job",
                     "clearing-service.adapters.[1].url=http://localhost:8023/v1/adapter/mock_2",
                     "clearing-service.adapters.[1].networkTimeout=60000",
                     "clearing-service.adapters.[1].package-size=25",
