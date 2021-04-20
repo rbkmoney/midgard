@@ -207,8 +207,10 @@ public final class MappingUtils {
 
     private static void fillPaymentTrxInfo(ClearingTransaction trx, InvoicePaymentSession paymentSession) {
         var transactionInfo = paymentSession.getTransactionInfo();
-        trx.setTransactionId(transactionInfo.getId());
-        trx.setExtra(JsonUtil.objectToJsonString(transactionInfo.getExtra()));
+        if (transactionInfo != null) {
+            trx.setTransactionId(transactionInfo.getId());
+            trx.setExtra(JsonUtil.objectToJsonString(transactionInfo.getExtra()));
+        }
     }
 
     private static void fillPaymentCashInfo(ClearingTransaction trx,
