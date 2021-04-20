@@ -186,7 +186,8 @@ public final class MappingUtils {
         trx.setTrxVersion(MappingUtils.DEFAULT_TRX_VERSION);
 
         var payment = invoicePayment.getPayment();
-        trx.setPaymentId(payment.getId());
+        String paymentId = payment.getId();
+        trx.setPaymentId(paymentId);
         trx.setPartyId(payment.getOwnerId());
         trx.setShopId(payment.getShopId());
         trx.setTransactionDate(TypeUtil.stringToLocalDateTime(payment.getCreatedAt()));
@@ -198,16 +199,20 @@ public final class MappingUtils {
                                 "invoice id '%s', sequence id '%d' and change id '%d' not found!",
                         invoiceId, sequenceId, changeId)));
 
-        fillPaymentTrxInfo(trx, paymentSession);
+        fillPaymentTrxInfo(trx, paymentSession, invoiceId + "." + paymentId);
         fillPaymentCashInfo(trx, payment);
         fillPayerInfoToTrx(trx, payment);
 
         return trx;
     }
 
-    private static void fillPaymentTrxInfo(ClearingTransaction trx, InvoicePaymentSession paymentSession) {
+    private static void fillPaymentTrxInfo(ClearingTransaction trx,
+                                           InvoicePaymentSession paymentSession,
+                                           String paymentId) {
         var transactionInfo = paymentSession.getTransactionInfo();
-        if (transactionInfo != null) {
+        if (transactionInfo == null) {
+            trx.setTransactionId(paymentId);
+        } else {
             trx.setTransactionId(transactionInfo.getId());
             trx.setExtra(JsonUtil.objectToJsonString(transactionInfo.getExtra()));
         }
