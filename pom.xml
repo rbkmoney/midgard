@@ -7,12 +7,12 @@
     <parent>
         <groupId>com.rbkmoney</groupId>
         <artifactId>service-parent-pom</artifactId>
-        <version>1.1.1</version>
+        <version>1.1.2</version>
     </parent>
 
     <artifactId>midgard</artifactId>
     <version>1.9.0-SNAPSHOT</version>
-  
+
     <name>midgard</name>
     <description>Application for work with clearing data</description>
 
@@ -158,6 +158,10 @@
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>damsel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.rbkmoney</groupId>
+            <artifactId>mamsel</artifactId>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>

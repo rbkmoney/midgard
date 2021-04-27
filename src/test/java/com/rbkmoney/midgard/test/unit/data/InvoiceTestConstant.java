@@ -1,6 +1,5 @@
 package com.rbkmoney.midgard.test.unit.data;
 
-import com.rbkmoney.damsel.domain.BankCardPaymentSystem;
 import com.rbkmoney.geck.common.util.TypeUtil;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -33,7 +32,7 @@ public final class InvoiceTestConstant {
     public static final String SHOP_ID = "Shop-1";
 
     public static final String CARD_TOKEN = "Card-Token-001";
-    public static final BankCardPaymentSystem CARD_PAYMENT_SYSTEM = BankCardPaymentSystem.visa;
+    public static final String CARD_PAYMENT_SYSTEM = "visa";
     public static final String CARD_BIN = "443322";
     public static final String CARDHOLDER_NAME = "443322";
     public static final String CARD_MASKED_PAN = "443322******1234";
