@@ -6,6 +6,8 @@ import com.rbkmoney.damsel.payment_processing.InvoicePaymentSession;
 import com.rbkmoney.damsel.payment_processing.InvoiceRefundSession;
 import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
+import com.rbkmoney.mamsel.PaymentSystemUtil;
+import com.rbkmoney.mamsel.TokenProviderUtil;
 import com.rbkmoney.midgard.BankCardExpDate;
 import com.rbkmoney.midgard.Content;
 import com.rbkmoney.midgard.GeneralTransactionInfo;
@@ -242,11 +244,11 @@ public final class MappingUtils {
 
     private static void fillBankCardData(ClearingTransaction trx, com.rbkmoney.damsel.domain.BankCard bankCard) {
         trx.setPayerBankCardToken(bankCard.getToken());
-        trx.setPayerBankCardPaymentSystem(bankCard.getPaymentSystem().name());
+        trx.setPayerBankCardPaymentSystem(PaymentSystemUtil.getPaymentSystemName(bankCard));
         trx.setPayerBankCardBin(bankCard.getBin());
         trx.setPayerBankCardMaskedPan(bankCard.getBin() + "******" + bankCard.getLastDigits());
-        trx.setPayerBankCardTokenProvider(bankCard.getTokenProvider() == null
-                ? null : bankCard.getTokenProvider().name());
+        trx.setPayerBankCardTokenProvider(TokenProviderUtil.isSetTokenProvider(bankCard)
+                ? TokenProviderUtil.getTokenProviderName(bankCard) : null);
         trx.setPayerBankCardCardholderName(bankCard.getCardholderName());
         if (bankCard.getExpDate() != null) {
             trx.setPayerBankCardExpiredDateMonth(String.valueOf(bankCard.getExpDate().getMonth()));

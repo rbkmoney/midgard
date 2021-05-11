@@ -1,20 +1,6 @@
 package com.rbkmoney.midgard.test.unit.data;
 
-import com.rbkmoney.damsel.domain.BankCard;
-import com.rbkmoney.damsel.domain.Cash;
-import com.rbkmoney.damsel.domain.CurrencyRef;
-import com.rbkmoney.damsel.domain.CustomerPayer;
-import com.rbkmoney.damsel.domain.InvoicePaymentCaptured;
-import com.rbkmoney.damsel.domain.InvoicePaymentRefund;
-import com.rbkmoney.damsel.domain.InvoicePaymentRefundStatus;
-import com.rbkmoney.damsel.domain.InvoicePaymentRefundSucceeded;
-import com.rbkmoney.damsel.domain.InvoicePaymentStatus;
-import com.rbkmoney.damsel.domain.Payer;
-import com.rbkmoney.damsel.domain.PaymentRoute;
-import com.rbkmoney.damsel.domain.PaymentTool;
-import com.rbkmoney.damsel.domain.ProviderRef;
-import com.rbkmoney.damsel.domain.TerminalRef;
-import com.rbkmoney.damsel.domain.TransactionInfo;
+import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.payment_processing.Invoice;
 import com.rbkmoney.damsel.payment_processing.InvoicePayment;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentSession;
@@ -37,35 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.BANK_NAME;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CARDHOLDER_NAME;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CARD_BIN;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CARD_EXP_DATE_MONTH;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CARD_EXP_DATE_YEAR;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CARD_LAST_DIGIT;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CARD_MASKED_PAN;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CARD_PAYMENT_SYSTEM;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CARD_TOKEN;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CHANGE_ID_1;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.CONTENT_TYPE;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.DOMAIN_REVISION;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.INSTANT_DATE_TIME;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.INVOICE_ID_1;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.INVOICE_PAYMENT_1_AMOUNT;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.INVOICE_PAYMENT_1_CURRENCY;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.INVOICE_REFUND_1_AMOUNT;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.INVOICE_REFUND_1_CURRENCY;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.LOCAL_DATE_TIME;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.PARTY_ID;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.PAYMENT_ID_1;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.PROVIDER_ID;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.REFUND_ID_1;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.REFUND_REASON_1;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.REFUND_TRANSACTION_ID_1;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.SEQUENCE_ID_1;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.SHOP_ID;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.TERMINAL_ID;
-import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.TRANSACTION_ID_1;
+import static com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant.*;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TestTransactionsData {
@@ -125,7 +83,8 @@ public final class TestTransactionsData {
                 .setBin(CARD_BIN)
                 .setBankName(BANK_NAME)
                 .setCardholderName(CARDHOLDER_NAME)
-                .setPaymentSystem(CARD_PAYMENT_SYSTEM)
+                .setPaymentSystemDeprecated(CARD_PAYMENT_SYSTEM)
+                .setPaymentSystem(new PaymentSystemRef().setId(CARD_PAYMENT_SYSTEM_REF))
                 .setBin(CARD_BIN)
                 .setLastDigits(CARD_LAST_DIGIT)
                 .setExpDate(new com.rbkmoney.damsel.domain.BankCardExpDate(
@@ -229,7 +188,7 @@ public final class TestTransactionsData {
         trx.setPayerType("customer");
 
         trx.setPayerBankCardToken(CARD_TOKEN);
-        trx.setPayerBankCardPaymentSystem(CARD_PAYMENT_SYSTEM.name());
+        trx.setPayerBankCardPaymentSystem("1");
         trx.setPayerBankCardBin(CARD_BIN);
         trx.setPayerBankCardMaskedPan(CARD_MASKED_PAN);
         trx.setPayerBankCardExpiredDateMonth(CARD_EXP_DATE_MONTH);
@@ -260,7 +219,7 @@ public final class TestTransactionsData {
         tranCardInfo.setPayerBankCardToken(CARD_TOKEN);
         tranCardInfo.setPayerBankCardBin(CARD_BIN);
         tranCardInfo.setPayerBankCardMaskedPan(CARD_MASKED_PAN);
-        tranCardInfo.setPayerBankCardPaymentSystem(CARD_PAYMENT_SYSTEM.name());
+        tranCardInfo.setPayerBankCardPaymentSystem(CARD_PAYMENT_SYSTEM_REF);
         tranCardInfo.setPayerBankCardCardholderName(CARDHOLDER_NAME);
         tranCardInfo.setPayerBankCardExpDate(createPayerBankCardExpDate());
         trx.setTransactionCardInfo(tranCardInfo);
@@ -292,7 +251,7 @@ public final class TestTransactionsData {
         tranCardInfo.setPayerBankCardToken(CARD_TOKEN);
         tranCardInfo.setPayerBankCardBin(CARD_BIN);
         tranCardInfo.setPayerBankCardMaskedPan(CARD_MASKED_PAN);
-        tranCardInfo.setPayerBankCardPaymentSystem(CARD_PAYMENT_SYSTEM.name());
+        tranCardInfo.setPayerBankCardPaymentSystem(CARD_PAYMENT_SYSTEM_REF);
         tranCardInfo.setPayerBankCardCardholderName(CARDHOLDER_NAME);
         tranCardInfo.setPayerBankCardExpDate(createPayerBankCardExpDate());
         trx.setTransactionCardInfo(tranCardInfo);
