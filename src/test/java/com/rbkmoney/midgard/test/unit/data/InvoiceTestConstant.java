@@ -34,6 +34,7 @@ public final class InvoiceTestConstant {
 
     public static final String CARD_TOKEN = "Card-Token-001";
     public static final LegacyBankCardPaymentSystem CARD_PAYMENT_SYSTEM = LegacyBankCardPaymentSystem.visa;
+    public static final String CARD_PAYMENT_SYSTEM_REF = "1";
     public static final String CARD_BIN = "443322";
     public static final String CARDHOLDER_NAME = "443322";
     public static final String CARD_MASKED_PAN = "443322******1234";
