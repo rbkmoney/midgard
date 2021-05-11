@@ -157,10 +157,6 @@
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
-            <artifactId>damsel</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.rbkmoney</groupId>
             <artifactId>sink-common-lib</artifactId>
             <version>0.0.6</version>
         </dependency>
@@ -188,6 +184,16 @@
             <groupId>com.rbkmoney.maven.plugins</groupId>
             <artifactId>pg-embedded-plugin</artifactId>
             <version>1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rbkmoney</groupId>
+            <artifactId>damsel</artifactId>
+            <version>1.489-8851c24</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rbkmoney</groupId>
+            <artifactId>mamsel</artifactId>
+            <version>0.0.1</version>
         </dependency>
 
         <!-- Test -->
@@ -217,7 +223,7 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>kafka</artifactId>
-            <version>1.10.2</version>
+            <version>1.15.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
