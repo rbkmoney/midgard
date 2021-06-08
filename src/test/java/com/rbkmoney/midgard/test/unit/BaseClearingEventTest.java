@@ -3,8 +3,10 @@ package com.rbkmoney.midgard.test.unit;
 import com.rbkmoney.midgard.ClearingAdapterSrv;
 import com.rbkmoney.midgard.ClearingDataRequest;
 import com.rbkmoney.midgard.ProviderNotFound;
+import com.rbkmoney.midgard.config.props.ClearingServiceProperties;
 import com.rbkmoney.midgard.dao.info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.data.ClearingAdapter;
+import com.rbkmoney.midgard.domain.tables.ClearingTransaction;
 import com.rbkmoney.midgard.handler.Handler;
 import com.rbkmoney.midgard.service.clearing.ClearingEventService;
 import lombok.AllArgsConstructor;
@@ -47,14 +49,19 @@ public class BaseClearingEventTest {
         AdapterWorkFlow adapterWorkFlow = new AdapterWorkFlow(1L, "upload");
         List<AdapterWorkFlow> adapterWorkFlowList = new ArrayList<>();
         adapterWorkFlowList.add(adapterWorkFlow);
-        clearingAdapters.add(getClearingAdapter("BANK_1", 1, adapterWorkFlowList));
-        clearingAdapters.add(getClearingAdapter("TEST", 2, adapterWorkFlowList));
+        ClearingServiceProperties.Transactions transactions = new ClearingServiceProperties.Transactions();
+        transactions.setTypes(new String[] {});
+        clearingAdapters.add(getClearingAdapter("BANK_1", 1, adapterWorkFlowList, transactions));
+        clearingAdapters.add(getClearingAdapter("TEST", 2, adapterWorkFlowList, transactions));
         return clearingAdapters;
     }
 
     private ClearingAdapter getClearingAdapter(String adapterName,
                                                int adapterId,
-                                               List<AdapterWorkFlow> adapterWorkflows) throws Exception {
+                                               List<AdapterWorkFlow> adapterWorkflows,
+                                               ClearingServiceProperties.Transactions transactions
+
+    ) throws Exception {
         ClearingAdapterSrv.Iface adapter = mock(ClearingAdapterSrv.Iface.class);
         for (AdapterWorkFlow adapterWorkflow : adapterWorkflows) {
             Long clearingId = adapterWorkflow.getClearingId();
@@ -63,7 +70,7 @@ public class BaseClearingEventTest {
             when(adapter.sendClearingDataPackage(uploadId, getDataPackage(clearingId)))
                     .thenReturn(getDataPackageTag(1, "tag_1"));
         }
-        return new ClearingAdapter(adapter, adapterName, adapterId, 1000);
+        return new ClearingAdapter(adapter, adapterName, adapterId, 1000, transactions);
     }
 
     private ClearingDataRequest getDataPackage(long clearingId) {

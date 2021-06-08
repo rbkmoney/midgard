@@ -81,8 +81,6 @@ public class PaymentStatusChangedEventHandler extends AbstractInvoicingEventHand
             }
         }
 
-
-
         ClearingTransaction clearingTransaction = transformTransaction(payment, event, invoiceId, changeId);
         Long trxSeqId = transactionsDao.save(clearingTransaction);
         if (trxSeqId == null) {
