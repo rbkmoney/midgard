@@ -23,7 +23,7 @@ public class AdaptersConfig {
                             props.getName(),
                             props.getProviderId(),
                             props.getPackageSize(),
-                            props.getTransactions()
+                            props.getExcludeTransactions()
                     )
             );
         }

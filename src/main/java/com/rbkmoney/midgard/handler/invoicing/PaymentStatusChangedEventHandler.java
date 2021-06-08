@@ -13,13 +13,12 @@ import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
 import com.rbkmoney.midgard.data.ClearingAdapter;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
 import com.rbkmoney.midgard.exception.NotFoundException;
-import com.rbkmoney.midgard.utils.MappingUtils;
+import com.rbkmoney.midgard.service.check.CheckTransactionType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.rbkmoney.midgard.utils.MappingUtils.isExistProviderId;
 import static com.rbkmoney.midgard.utils.MappingUtils.transformTransaction;
@@ -34,6 +33,8 @@ public class PaymentStatusChangedEventHandler extends AbstractInvoicingEventHand
     private final InvoicingSrv.Iface invoicingService;
 
     private final List<ClearingAdapter> adapters;
+
+    private final CheckTransactionType checkTransactionType;
 
     private final Filter filter = new PathConditionFilter(
             new PathConditionRule("invoice_payment_change.payload.invoice_payment_status_changed.status.captured",
@@ -70,15 +71,9 @@ public class PaymentStatusChangedEventHandler extends AbstractInvoicingEventHand
             return;
         }
 
-        Optional<ClearingAdapter> clearingAdapter = MappingUtils.extractClearingAdapter(
-                adapters, payment.getRoute().getProvider().getId()
-        );
-
-        if (clearingAdapter.isPresent()) {
-            if (MappingUtils.isTypeTransactionToSkipped(clearingAdapter.get(),
-                    payment, invoiceId, changeId, event.getEventId())) {
-                return;
-            }
+        if (checkTransactionType.isTypeTransactionToSkipped(
+                payment, invoiceId, changeId, event.getEventId(), payment.getRoute().getProvider().getId())) {
+            return;
         }
 
         ClearingTransaction clearingTransaction = transformTransaction(payment, event, invoiceId, changeId);

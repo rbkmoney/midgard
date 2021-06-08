@@ -2,13 +2,10 @@ package com.rbkmoney.midgard.config.props;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.stereotype.Component;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -41,14 +38,14 @@ public class ClearingServiceProperties {
         private SchedulerProperties scheduler;
 
         @NestedConfigurationProperty
-        private Transactions transactions;
+        private ExcludeTransactions excludeTransactions;
 
     }
 
     @Data
     @Component
-    @ConfigurationProperties(prefix = "transactions")
-    public static class Transactions {
+    @ConfigurationProperties(prefix = "exclude-transactions")
+    public static class ExcludeTransactions {
         private String[] types;
     }
 

@@ -50,8 +50,10 @@ public final class MappingUtils {
 
     public static final String TRANSACTION_TYPE_REFUND = "REFUND";
 
-    public static Transaction transformRefundTransaction(ClearingTransaction clrTran,
-                                                         ClearingRefund refund) {
+    public static Transaction transformRefundTransaction(
+            ClearingTransaction clrTran,
+            ClearingRefund refund
+    ) {
         GeneralTransactionInfo generalTranInfo = new GeneralTransactionInfo()
                 .setTransactionId(refund.getTransactionId())
                 .setTransactionDate(refund.getCreatedAt().toInstant(ZoneOffset.UTC).toString())
@@ -79,9 +81,11 @@ public final class MappingUtils {
         return fillAdditionalInfo(generalTranInfo, clrTran, clrTran.getExtra());
     }
 
-    private static Transaction fillAdditionalInfo(GeneralTransactionInfo generalTranInfo,
-                                                  ClearingTransaction clrTran,
-                                                  String extra) {
+    private static Transaction fillAdditionalInfo(
+            GeneralTransactionInfo generalTranInfo,
+            ClearingTransaction clrTran,
+            String extra
+    ) {
         return new Transaction()
                 .setGeneralTransactionInfo(generalTranInfo)
                 .setTransactionCardInfo(getTransactionCardInfo(clrTran))
@@ -129,9 +133,11 @@ public final class MappingUtils {
         return failureTransaction;
     }
 
-    public static FailureTransaction getFailureTransaction(ClearingEventTransactionInfo info,
-                                                           String errorMessage,
-                                                           ClearingTrxType type) {
+    public static FailureTransaction getFailureTransaction(
+            ClearingEventTransactionInfo info,
+            String errorMessage,
+            ClearingTrxType type
+    ) {
         FailureTransaction failureTransaction = new FailureTransaction();
         failureTransaction.setClearingId(info.getClearingId());
         failureTransaction.setTransactionId(info.getTransactionId());
@@ -143,9 +149,11 @@ public final class MappingUtils {
         return failureTransaction;
     }
 
-    public static ClearingEventTransactionInfo transformClearingTrx(long clearingId,
-                                                                    int providerId,
-                                                                    ClearingTransaction trx) {
+    public static ClearingEventTransactionInfo transformClearingTrx(
+            long clearingId,
+            int providerId,
+            ClearingTransaction trx
+    ) {
         ClearingEventTransactionInfo eventTrxInfo = new ClearingEventTransactionInfo();
         eventTrxInfo.setClearingId(clearingId);
         eventTrxInfo.setTransactionType(ClearingTrxType.PAYMENT);
@@ -158,9 +166,11 @@ public final class MappingUtils {
         return eventTrxInfo;
     }
 
-    public static ClearingEventTransactionInfo transformClearingRefund(long clearingId,
-                                                                       int providerId,
-                                                                       ClearingRefund refund) {
+    public static ClearingEventTransactionInfo transformClearingRefund(
+            long clearingId,
+            int providerId,
+            ClearingRefund refund
+    ) {
         ClearingEventTransactionInfo eventTrxInfo = new ClearingEventTransactionInfo();
         eventTrxInfo.setClearingId(clearingId);
         eventTrxInfo.setTransactionType(ClearingTrxType.REFUND);
@@ -208,8 +218,10 @@ public final class MappingUtils {
     }
 
     public static InvoicePaymentSession extractPaymentSession(
-            InvoicePayment invoicePayment, String invoiceId,
-            Integer changeId, long sequenceId
+            InvoicePayment invoicePayment,
+            String invoiceId,
+            Integer changeId,
+            long sequenceId
     ) {
         return invoicePayment.getSessions().stream()
                 .filter(session -> session.getTargetStatus().isSetCaptured())
@@ -344,39 +356,6 @@ public final class MappingUtils {
                 .map(ClearingAdapter::getAdapterId)
                 .collect(Collectors.toList());
         return providersIds.contains(providerId);
-    }
-
-    public static boolean isTypeTransactionToSkipped(
-            ClearingAdapter clearingAdapter,
-            InvoicePayment invoicePayment, String invoiceId,
-            Integer changeId, long sequenceId
-    ) {
-        TransactionInfo transactionInfo = extractTransactionInfo(invoicePayment, invoiceId, changeId, sequenceId);
-        if (transactionInfo != null) {
-            Map<String, String> extra = transactionInfo.getExtra();
-            Optional<String> transactionTypes = Arrays.stream(clearingAdapter.getTransactions().getTypes())
-                    .map(String::toLowerCase)
-                    .filter(value -> extra.containsValue(value.toLowerCase()))
-                    .findFirst();
-            return transactionTypes.isPresent();
-        }
-        return false;
-    }
-
-    private static TransactionInfo extractTransactionInfo(
-            InvoicePayment invoicePayment, String invoiceId,
-            Integer changeId, long sequenceId
-    ) {
-        InvoicePaymentSession paymentSession = MappingUtils.extractPaymentSession(
-                invoicePayment, invoiceId, changeId, sequenceId
-        );
-        return paymentSession.getTransactionInfo();
-    }
-
-    public static Optional<ClearingAdapter> extractClearingAdapter(List<ClearingAdapter> adapters, int providerId) {
-        return adapters.stream()
-                .filter(adapter -> adapter.getAdapterId() == providerId)
-                .findFirst();
     }
 
 }
