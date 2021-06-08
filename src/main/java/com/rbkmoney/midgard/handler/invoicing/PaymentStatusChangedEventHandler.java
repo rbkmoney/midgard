@@ -13,11 +13,13 @@ import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
 import com.rbkmoney.midgard.data.ClearingAdapter;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
 import com.rbkmoney.midgard.exception.NotFoundException;
+import com.rbkmoney.midgard.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.rbkmoney.midgard.utils.MappingUtils.isExistProviderId;
 import static com.rbkmoney.midgard.utils.MappingUtils.transformTransaction;
@@ -67,6 +69,20 @@ public class PaymentStatusChangedEventHandler extends AbstractInvoicingEventHand
         if (!isExistProviderId(adapters, payment.getRoute().getProvider().getId())) {
             return;
         }
+
+        Optional<ClearingAdapter> clearingAdapter = MappingUtils.extractClearingAdapter(
+                adapters, payment.getRoute().getProvider().getId()
+        );
+
+        if (clearingAdapter.isPresent()) {
+            if (MappingUtils.isTypeTransactionToSkipped(clearingAdapter.get(),
+                    payment, invoiceId, changeId, event.getEventId())) {
+                return;
+            }
+        }
+
+
+
         ClearingTransaction clearingTransaction = transformTransaction(payment, event, invoiceId, changeId);
         Long trxSeqId = transactionsDao.save(clearingTransaction);
         if (trxSeqId == null) {

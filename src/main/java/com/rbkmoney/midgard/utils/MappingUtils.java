@@ -1,5 +1,6 @@
 package com.rbkmoney.midgard.utils;
 
+import com.rbkmoney.damsel.domain.TransactionInfo;
 import com.rbkmoney.damsel.payment_processing.InvoicePayment;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentRefund;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentSession;
@@ -27,7 +28,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ch.qos.logback.core.CoreConstants.EMPTY_STRING;
@@ -194,18 +198,25 @@ public final class MappingUtils {
         trx.setShopId(payment.getShopId());
         trx.setTransactionDate(TypeUtil.stringToLocalDateTime(payment.getCreatedAt()));
 
-        InvoicePaymentSession paymentSession = invoicePayment.getSessions().stream()
-                .filter(session -> session.getTargetStatus().isSetCaptured())
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException(String.format("Session for transaction with " +
-                                "invoice id '%s', sequence id '%d' and change id '%d' not found!",
-                        invoiceId, sequenceId, changeId)));
+        InvoicePaymentSession paymentSession = extractPaymentSession(invoicePayment, invoiceId, changeId, sequenceId);
 
         fillPaymentTrxInfo(trx, paymentSession, invoiceId + "." + paymentId);
         fillPaymentCashInfo(trx, payment);
         fillPayerInfoToTrx(trx, payment);
 
         return trx;
+    }
+
+    public static InvoicePaymentSession extractPaymentSession(
+            InvoicePayment invoicePayment, String invoiceId,
+            Integer changeId, long sequenceId
+    ) {
+        return invoicePayment.getSessions().stream()
+                .filter(session -> session.getTargetStatus().isSetCaptured())
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException(String.format("Session for transaction with " +
+                                "invoice id '%s', sequence id '%d' and change id '%d' not found!",
+                        invoiceId, sequenceId, changeId)));
     }
 
     private static void fillPaymentTrxInfo(ClearingTransaction trx,
@@ -333,6 +344,39 @@ public final class MappingUtils {
                 .map(ClearingAdapter::getAdapterId)
                 .collect(Collectors.toList());
         return providersIds.contains(providerId);
+    }
+
+    public static boolean isTypeTransactionToSkipped(
+            ClearingAdapter clearingAdapter,
+            InvoicePayment invoicePayment, String invoiceId,
+            Integer changeId, long sequenceId
+    ) {
+        TransactionInfo transactionInfo = extractTransactionInfo(invoicePayment, invoiceId, changeId, sequenceId);
+        if (transactionInfo != null) {
+            Map<String, String> extra = transactionInfo.getExtra();
+            Optional<String> transactionTypes = Arrays.stream(clearingAdapter.getTransactions().getTypes())
+                    .map(String::toLowerCase)
+                    .filter(value -> extra.containsValue(value.toLowerCase()))
+                    .findFirst();
+            return transactionTypes.isPresent();
+        }
+        return false;
+    }
+
+    private static TransactionInfo extractTransactionInfo(
+            InvoicePayment invoicePayment, String invoiceId,
+            Integer changeId, long sequenceId
+    ) {
+        InvoicePaymentSession paymentSession = MappingUtils.extractPaymentSession(
+                invoicePayment, invoiceId, changeId, sequenceId
+        );
+        return paymentSession.getTransactionInfo();
+    }
+
+    public static Optional<ClearingAdapter> extractClearingAdapter(List<ClearingAdapter> adapters, int providerId) {
+        return adapters.stream()
+                .filter(adapter -> adapter.getAdapterId() == providerId)
+                .findFirst();
     }
 
 }

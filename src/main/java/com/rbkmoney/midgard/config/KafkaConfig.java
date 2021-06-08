@@ -98,7 +98,6 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<String, MachineEvent> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
-        factory.getContainerProperties().setAckOnError(false);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         factory.setErrorHandler(kafkaErrorHandler());
         factory.setConcurrency(kafkaConsumerProperties.getConcurrency());
