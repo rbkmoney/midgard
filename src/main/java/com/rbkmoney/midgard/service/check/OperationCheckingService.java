@@ -23,7 +23,7 @@ public class OperationCheckingService {
 
     private final List<ClearingAdapter> adapters;
 
-    public boolean isOperationForSkip(InvoicePayment invoicePayment {
+    public boolean isOperationForSkip(InvoicePayment invoicePayment) {
         ClearingAdapter clearingAdapter = ClearingAdaptersUtils.getClearingAdapter(adapters,
                 invoicePayment.getRoute().getProvider().getId());
         Optional<List<String>> excludeOperationParams = extractExcludeOperationParams(clearingAdapter);
