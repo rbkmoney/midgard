@@ -1,6 +1,5 @@
 package com.rbkmoney.midgard.utils;
 
-import com.rbkmoney.damsel.domain.TransactionInfo;
 import com.rbkmoney.damsel.payment_processing.InvoicePayment;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentRefund;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentSession;
@@ -28,10 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ch.qos.logback.core.CoreConstants.EMPTY_STRING;
@@ -50,10 +46,8 @@ public final class MappingUtils {
 
     public static final String TRANSACTION_TYPE_REFUND = "REFUND";
 
-    public static Transaction transformRefundTransaction(
-            ClearingTransaction clrTran,
-            ClearingRefund refund
-    ) {
+    public static Transaction transformRefundTransaction(ClearingTransaction clrTran,
+                                                         ClearingRefund refund) {
         GeneralTransactionInfo generalTranInfo = new GeneralTransactionInfo()
                 .setTransactionId(refund.getTransactionId())
                 .setTransactionDate(refund.getCreatedAt().toInstant(ZoneOffset.UTC).toString())
@@ -81,11 +75,9 @@ public final class MappingUtils {
         return fillAdditionalInfo(generalTranInfo, clrTran, clrTran.getExtra());
     }
 
-    private static Transaction fillAdditionalInfo(
-            GeneralTransactionInfo generalTranInfo,
-            ClearingTransaction clrTran,
-            String extra
-    ) {
+    private static Transaction fillAdditionalInfo(GeneralTransactionInfo generalTranInfo,
+                                                  ClearingTransaction clrTran,
+                                                  String extra) {
         return new Transaction()
                 .setGeneralTransactionInfo(generalTranInfo)
                 .setTransactionCardInfo(getTransactionCardInfo(clrTran))
@@ -133,11 +125,9 @@ public final class MappingUtils {
         return failureTransaction;
     }
 
-    public static FailureTransaction getFailureTransaction(
-            ClearingEventTransactionInfo info,
-            String errorMessage,
-            ClearingTrxType type
-    ) {
+    public static FailureTransaction getFailureTransaction(ClearingEventTransactionInfo info,
+                                                           String errorMessage,
+                                                           ClearingTrxType type) {
         FailureTransaction failureTransaction = new FailureTransaction();
         failureTransaction.setClearingId(info.getClearingId());
         failureTransaction.setTransactionId(info.getTransactionId());
@@ -149,11 +139,9 @@ public final class MappingUtils {
         return failureTransaction;
     }
 
-    public static ClearingEventTransactionInfo transformClearingTrx(
-            long clearingId,
-            int providerId,
-            ClearingTransaction trx
-    ) {
+    public static ClearingEventTransactionInfo transformClearingTrx(long clearingId,
+                                                                    int providerId,
+                                                                    ClearingTransaction trx) {
         ClearingEventTransactionInfo eventTrxInfo = new ClearingEventTransactionInfo();
         eventTrxInfo.setClearingId(clearingId);
         eventTrxInfo.setTransactionType(ClearingTrxType.PAYMENT);
@@ -166,11 +154,9 @@ public final class MappingUtils {
         return eventTrxInfo;
     }
 
-    public static ClearingEventTransactionInfo transformClearingRefund(
-            long clearingId,
-            int providerId,
-            ClearingRefund refund
-    ) {
+    public static ClearingEventTransactionInfo transformClearingRefund(long clearingId,
+                                                                       int providerId,
+                                                                       ClearingRefund refund) {
         ClearingEventTransactionInfo eventTrxInfo = new ClearingEventTransactionInfo();
         eventTrxInfo.setClearingId(clearingId);
         eventTrxInfo.setTransactionType(ClearingTrxType.REFUND);
@@ -217,12 +203,10 @@ public final class MappingUtils {
         return trx;
     }
 
-    public static InvoicePaymentSession extractPaymentSession(
-            InvoicePayment invoicePayment,
-            String invoiceId,
-            Integer changeId,
-            long sequenceId
-    ) {
+    public static InvoicePaymentSession extractPaymentSession(InvoicePayment invoicePayment,
+                                                              String invoiceId,
+                                                              Integer changeId,
+                                                              long sequenceId) {
         return invoicePayment.getSessions().stream()
                 .filter(session -> session.getTargetStatus().isSetCaptured())
                 .findFirst()

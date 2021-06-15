@@ -15,6 +15,6 @@ public class ClearingAdapter {
     private String adapterName;
     private int adapterId;
     private int packageSize;
-    private ClearingServiceProperties.ExcludeTransactions excludeTransactions;
+    private ClearingServiceProperties.ExcludeOperationParams excludeOperationParams;
 
 }

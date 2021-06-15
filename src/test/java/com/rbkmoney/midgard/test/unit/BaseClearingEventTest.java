@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.rbkmoney.midgard.test.integration.data.ClearingEventTestData.getClearingEvent;
@@ -48,18 +49,18 @@ public class BaseClearingEventTest {
         AdapterWorkFlow adapterWorkFlow = new AdapterWorkFlow(1L, "upload");
         List<AdapterWorkFlow> adapterWorkFlowList = new ArrayList<>();
         adapterWorkFlowList.add(adapterWorkFlow);
-        ClearingServiceProperties.ExcludeTransactions
-                excludeTransactions = new ClearingServiceProperties.ExcludeTransactions();
-        excludeTransactions.setTypes(new String[] {});
-        clearingAdapters.add(getClearingAdapter("BANK_1", 1, adapterWorkFlowList, excludeTransactions));
-        clearingAdapters.add(getClearingAdapter("TEST", 2, adapterWorkFlowList, excludeTransactions));
+        ClearingServiceProperties.ExcludeOperationParams
+                excludeOperationParams = new ClearingServiceProperties.ExcludeOperationParams();
+        excludeOperationParams.setTypes(Collections.emptyList());
+        clearingAdapters.add(getClearingAdapter("BANK_1", 1, adapterWorkFlowList, excludeOperationParams));
+        clearingAdapters.add(getClearingAdapter("TEST", 2, adapterWorkFlowList, excludeOperationParams));
         return clearingAdapters;
     }
 
     private ClearingAdapter getClearingAdapter(String adapterName,
                                                int adapterId,
                                                List<AdapterWorkFlow> adapterWorkflows,
-                                               ClearingServiceProperties.ExcludeTransactions excludeTransactions
+                                               ClearingServiceProperties.ExcludeOperationParams excludeOperationParams
 
     ) throws Exception {
         ClearingAdapterSrv.Iface adapter = mock(ClearingAdapterSrv.Iface.class);
@@ -70,7 +71,7 @@ public class BaseClearingEventTest {
             when(adapter.sendClearingDataPackage(uploadId, getDataPackage(clearingId)))
                     .thenReturn(getDataPackageTag(1, "tag_1"));
         }
-        return new ClearingAdapter(adapter, adapterName, adapterId, 1000, excludeTransactions);
+        return new ClearingAdapter(adapter, adapterName, adapterId, 1000, excludeOperationParams);
     }
 
     private ClearingDataRequest getDataPackage(long clearingId) {

@@ -13,7 +13,7 @@ import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
 import com.rbkmoney.midgard.data.ClearingAdapter;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
 import com.rbkmoney.midgard.exception.NotFoundException;
-import com.rbkmoney.midgard.service.check.CheckTransactionType;
+import com.rbkmoney.midgard.service.check.OperationCheckingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -34,7 +34,7 @@ public class PaymentStatusChangedEventHandler extends AbstractInvoicingEventHand
 
     private final List<ClearingAdapter> adapters;
 
-    private final CheckTransactionType checkTransactionType;
+    private final OperationCheckingService operationCheckingService;
 
     private final Filter filter = new PathConditionFilter(
             new PathConditionRule("invoice_payment_change.payload.invoice_payment_status_changed.status.captured",
@@ -71,8 +71,8 @@ public class PaymentStatusChangedEventHandler extends AbstractInvoicingEventHand
             return;
         }
 
-        if (checkTransactionType.isTypeTransactionToSkipped(
-                payment, invoiceId, changeId, event.getEventId(), payment.getRoute().getProvider().getId())) {
+        if (operationCheckingService.isOperationForSkip(
+                adapters, payment, invoiceId, changeId, event.getEventId(), payment.getRoute().getProvider().getId())) {
             return;
         }
 

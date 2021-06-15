@@ -60,7 +60,7 @@ clearing-service:
 #      networkTimeout: 120000
 #      providerId: 1
 #      package-size: 25
-#      exclude-transactions:
+#      exclude-operation-params:
 #        types: AFT
 #      scheduler:
 #        jobId: midgardClearingJobMock
