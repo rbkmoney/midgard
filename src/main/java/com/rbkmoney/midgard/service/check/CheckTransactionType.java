@@ -3,10 +3,12 @@ package com.rbkmoney.midgard.service.check;
 import com.rbkmoney.damsel.domain.TransactionInfo;
 import com.rbkmoney.damsel.payment_processing.InvoicePayment;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentSession;
+import com.rbkmoney.midgard.config.props.ClearingServiceProperties;
 import com.rbkmoney.midgard.data.ClearingAdapter;
 import com.rbkmoney.midgard.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -51,13 +53,23 @@ public class CheckTransactionType {
         TransactionInfo transactionInfo = extractTransactionInfo(invoicePayment, invoiceId, changeId, sequenceId);
         if (transactionInfo != null) {
             Map<String, String> extra = transactionInfo.getExtra();
-            Optional<String> transactionTypes = Arrays.stream(clearingAdapter.getExcludeTransactions().getTypes())
+            Optional<String[]> excludeTransactionType = extractExcludeTransactionType(clearingAdapter);
+            if (excludeTransactionType.isEmpty()) {
+                return false;
+            }
+            Optional<String> transactionTypes = Arrays.stream(excludeTransactionType.get())
                     .map(String::toLowerCase)
                     .filter(value -> extra.containsValue(value.toLowerCase()))
                     .findFirst();
             return transactionTypes.isPresent();
         }
         return false;
+    }
+
+    @NotNull
+    private Optional<String[]> extractExcludeTransactionType(ClearingAdapter clearingAdapter) {
+        return Optional.ofNullable(clearingAdapter.getExcludeTransactions())
+                .map(ClearingServiceProperties.ExcludeTransactions::getTypes);
     }
 
     private TransactionInfo extractTransactionInfo(
