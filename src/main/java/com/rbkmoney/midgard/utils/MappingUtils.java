@@ -194,7 +194,7 @@ public final class MappingUtils {
         trx.setShopId(payment.getShopId());
         trx.setTransactionDate(TypeUtil.stringToLocalDateTime(payment.getCreatedAt()));
 
-        InvoicePaymentSession paymentSession = extractPaymentSession(invoicePayment, invoiceId, changeId, sequenceId);
+        InvoicePaymentSession paymentSession = extractPaymentSession(invoicePayment);
 
         fillPaymentTrxInfo(trx, paymentSession, invoiceId + "." + paymentId);
         fillPaymentCashInfo(trx, payment);
@@ -203,16 +203,11 @@ public final class MappingUtils {
         return trx;
     }
 
-    public static InvoicePaymentSession extractPaymentSession(InvoicePayment invoicePayment,
-                                                              String invoiceId,
-                                                              Integer changeId,
-                                                              long sequenceId) {
+    public static InvoicePaymentSession extractPaymentSession(InvoicePayment invoicePayment) {
         return invoicePayment.getSessions().stream()
                 .filter(session -> session.getTargetStatus().isSetCaptured())
                 .findFirst()
-                .orElseThrow(() -> new NotFoundException(String.format("Session for transaction with " +
-                                "invoice id '%s', sequence id '%d' and change id '%d' not found!",
-                        invoiceId, sequenceId, changeId)));
+                .orElseThrow(() -> new NotFoundException("Session for transaction with not found!"));
     }
 
     private static void fillPaymentTrxInfo(ClearingTransaction trx,

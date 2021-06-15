@@ -42,12 +42,7 @@ class OperationCheckingServiceTest {
                 OperationCheckingServiceUtils.createTrxExtraMap(onTransactionType)
         );
         invoicePayment.setRoute(OperationCheckingServiceUtils.extractedPaymentRoute(providerId));
-        return operationCheckingService.isOperationForSkip(
-                invoicePayment,
-                InvoiceTestConstant.INVOICE_ID_1,
-                InvoiceTestConstant.CHANGE_ID_1,
-                InvoiceTestConstant.SEQUENCE_ID_1
-        );
+        return operationCheckingService.isOperationForSkip(invoicePayment);
     }
 
 }

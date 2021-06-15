@@ -71,20 +71,24 @@ public class PaymentStatusChangedEventHandler extends AbstractInvoicingEventHand
             return;
         }
 
-        if (operationCheckingService.isOperationForSkip(payment, invoiceId, changeId, event.getEventId())) {
-            return;
-        }
+        try {
+            if (operationCheckingService.isOperationForSkip(payment)) {
+                return;
+            }
 
-        ClearingTransaction clearingTransaction = transformTransaction(payment, event, invoiceId, changeId);
-        Long trxSeqId = transactionsDao.save(clearingTransaction);
-        if (trxSeqId == null) {
-            log.info("Payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +
-                    "changeId = '{}') was was skipped (it already exist)", invoiceId, sequenceId, changeId);
-        } else {
-            log.info("Payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +
-                    "changeId = '{}') was processed", invoiceId, sequenceId, changeId);
+            ClearingTransaction clearingTransaction = transformTransaction(payment, event, invoiceId, changeId);
+            Long trxSeqId = transactionsDao.save(clearingTransaction);
+            if (trxSeqId == null) {
+                log.info("Payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +
+                        "changeId = '{}') was was skipped (it already exist)", invoiceId, sequenceId, changeId);
+            } else {
+                log.info("Payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +
+                        "changeId = '{}') was processed", invoiceId, sequenceId, changeId);
+            }
+        } catch (NotFoundException ex) {
+            throw new NotFoundException(String.format("%s invoice id '%s', sequence id '%d' and change id '%d'",
+                    ex.getMessage(), invoiceId, sequenceId, changeId));
         }
-
     }
 
     private InvoicePayment getPaymentById(Invoice invoice, String paymentId) {
