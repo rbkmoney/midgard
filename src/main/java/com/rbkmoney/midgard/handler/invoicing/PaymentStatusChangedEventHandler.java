@@ -71,8 +71,7 @@ public class PaymentStatusChangedEventHandler extends AbstractInvoicingEventHand
             return;
         }
 
-        if (operationCheckingService.isOperationForSkip(
-                adapters, payment, invoiceId, changeId, event.getEventId(), payment.getRoute().getProvider().getId())) {
+        if (operationCheckingService.isOperationForSkip(payment, invoiceId, changeId, event.getEventId())) {
             return;
         }
 

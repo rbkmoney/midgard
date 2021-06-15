@@ -21,13 +21,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OperationCheckingService {
 
-    public boolean isOperationForSkip(List<ClearingAdapter> adapters,
-                                      InvoicePayment invoicePayment,
+    private final List<ClearingAdapter> adapters;
+
+    public boolean isOperationForSkip(InvoicePayment invoicePayment,
                                       String invoiceId,
                                       Integer changeId,
-                                      long sequenceId,
-                                      int providerId) {
-        ClearingAdapter clearingAdapter = ClearingAdaptersUtils.getClearingAdapter(adapters, providerId);
+                                      long sequenceId) {
+        ClearingAdapter clearingAdapter = ClearingAdaptersUtils.getClearingAdapter(adapters,
+                invoicePayment.getRoute().getProvider().getId());
         Optional<List<String>> excludeOperationParams = extractExcludeOperationParams(clearingAdapter);
 
         TransactionInfo transactionInfo = extractTransactionInfo(invoicePayment, invoiceId, changeId, sequenceId);
@@ -46,11 +47,10 @@ public class OperationCheckingService {
                 .map(ClearingServiceProperties.ExcludeOperationParams::getTypes);
     }
 
-    private TransactionInfo extractTransactionInfo(
-            InvoicePayment invoicePayment,
-            String invoiceId,
-            Integer changeId,
-            long sequenceId) {
+    private TransactionInfo extractTransactionInfo(InvoicePayment invoicePayment,
+                                                   String invoiceId,
+                                                   Integer changeId,
+                                                   long sequenceId) {
         InvoicePaymentSession paymentSession = MappingUtils.extractPaymentSession(
                 invoicePayment, invoiceId, changeId, sequenceId
         );

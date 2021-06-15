@@ -2,6 +2,9 @@ package com.rbkmoney.midgard.utils;
 
 import com.rbkmoney.damsel.domain.InvoicePaymentCaptured;
 import com.rbkmoney.damsel.domain.InvoicePaymentStatus;
+import com.rbkmoney.damsel.domain.PaymentRoute;
+import com.rbkmoney.damsel.domain.Provider;
+import com.rbkmoney.damsel.domain.ProviderRef;
 import com.rbkmoney.damsel.domain.TargetInvoicePaymentStatus;
 import com.rbkmoney.damsel.domain.TransactionInfo;
 import com.rbkmoney.damsel.payment_processing.InvoicePayment;
@@ -25,17 +28,16 @@ import static org.mockito.Mockito.mock;
 
 public class OperationCheckingServiceUtils {
 
-    public static boolean checkType(boolean onTransactionType, int providerId) {
-        List<ClearingAdapter> clearingAdapters = createClearingAdapters();
-        OperationCheckingService operationCheckingService = new OperationCheckingService();
-        return operationCheckingService.isOperationForSkip(
-                clearingAdapters,
-                createInvoicePayment(createTrxExtraMap(onTransactionType)),
-                InvoiceTestConstant.INVOICE_ID_1,
-                InvoiceTestConstant.CHANGE_ID_1,
-                InvoiceTestConstant.SEQUENCE_ID_1,
-                providerId
-        );
+    public static PaymentRoute extractedPaymentRoute(int providerId) {
+        PaymentRoute paymentRoute = new PaymentRoute();
+        paymentRoute.setProvider(extractedProvider(providerId));
+        return paymentRoute;
+    }
+
+    public static ProviderRef extractedProvider(int providerId) {
+        ProviderRef provider = new ProviderRef();
+        provider.setId(providerId);
+        return provider;
     }
 
     public static List<ClearingAdapter> createClearingAdapters() {
