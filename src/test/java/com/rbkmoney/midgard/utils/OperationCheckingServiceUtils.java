@@ -3,7 +3,6 @@ package com.rbkmoney.midgard.utils;
 import com.rbkmoney.damsel.domain.InvoicePaymentCaptured;
 import com.rbkmoney.damsel.domain.InvoicePaymentStatus;
 import com.rbkmoney.damsel.domain.PaymentRoute;
-import com.rbkmoney.damsel.domain.Provider;
 import com.rbkmoney.damsel.domain.ProviderRef;
 import com.rbkmoney.damsel.domain.TargetInvoicePaymentStatus;
 import com.rbkmoney.damsel.domain.TransactionInfo;
@@ -12,7 +11,6 @@ import com.rbkmoney.damsel.payment_processing.InvoicePaymentSession;
 import com.rbkmoney.midgard.ClearingAdapterSrv;
 import com.rbkmoney.midgard.config.props.ClearingServiceProperties;
 import com.rbkmoney.midgard.data.ClearingAdapter;
-import com.rbkmoney.midgard.service.check.OperationCheckingService;
 import com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant;
 
 import java.util.ArrayList;
@@ -34,6 +32,17 @@ public class OperationCheckingServiceUtils {
         );
         invoicePayment.setRoute(OperationCheckingServiceUtils.extractedPaymentRoute(providerId));
         return invoicePayment;
+    }
+
+    public static InvoicePayment createInvoicePayment(Map<String, String> trxExtra) {
+        var domainInvoicePayment = new com.rbkmoney.damsel.domain.InvoicePayment()
+                .setId(PAYMENT_ID_1)
+                .setCreatedAt(INSTANT_DATE_TIME.toString())
+                .setStatus(InvoicePaymentStatus.captured(new InvoicePaymentCaptured()));
+
+        return new InvoicePayment()
+                .setPayment(domainInvoicePayment)
+                .setSessions(createInvoicePaymentSessions(trxExtra));
     }
 
     public static PaymentRoute extractedPaymentRoute(int providerId) {
@@ -79,17 +88,6 @@ public class OperationCheckingServiceUtils {
     ) {
         ClearingAdapterSrv.Iface adapter = mock(ClearingAdapterSrv.Iface.class);
         return new ClearingAdapter(adapter, adapterName, adapterId, 1000, excludeOperationParams);
-    }
-
-    public static InvoicePayment createInvoicePayment(Map<String, String> trxExtra) {
-        var domainInvoicePayment = new com.rbkmoney.damsel.domain.InvoicePayment()
-                .setId(PAYMENT_ID_1)
-                .setCreatedAt(INSTANT_DATE_TIME.toString())
-                .setStatus(InvoicePaymentStatus.captured(new InvoicePaymentCaptured()));
-
-        return new InvoicePayment()
-                .setPayment(domainInvoicePayment)
-                .setSessions(createInvoicePaymentSessions(trxExtra));
     }
 
     public static List<InvoicePaymentSession> createInvoicePaymentSessions(Map<String, String> trxExtra) {

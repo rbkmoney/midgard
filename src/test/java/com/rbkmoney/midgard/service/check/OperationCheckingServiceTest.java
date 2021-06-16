@@ -3,13 +3,13 @@ package com.rbkmoney.midgard.service.check;
 import com.rbkmoney.damsel.payment_processing.InvoicePayment;
 import com.rbkmoney.midgard.data.ClearingAdapter;
 import com.rbkmoney.midgard.test.unit.data.InvoiceTestConstant;
-import com.rbkmoney.midgard.utils.OperationCheckingServiceUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.rbkmoney.midgard.utils.OperationCheckingServiceUtils.*;
+import static com.rbkmoney.midgard.utils.OperationCheckingServiceUtils.createClearingAdapters;
+import static com.rbkmoney.midgard.utils.OperationCheckingServiceUtils.createInvoicePayment;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
