@@ -101,6 +101,9 @@ kafka:
       enabled: false
   retry-policy:
     maxAttempts: 10
+  error-handler:
+    sleep-time-seconds: 5
+    maxAttempts: -1
 
 service:
   schedulator:

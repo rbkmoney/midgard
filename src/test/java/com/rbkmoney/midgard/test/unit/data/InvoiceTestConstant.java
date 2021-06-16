@@ -11,6 +11,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class InvoiceTestConstant {
 
+    public static final boolean FILL_IN_TRANSACTION_TYPE_ON = true;
+    public static final boolean FILL_IN_TRANSACTION_TYPE_OFF = false;
+
     public static final int PROVIDER_ID_HAS_AFT = 1;
     public static final int PROVIDER_ID_DONT_HAS_AFT = 2;
 
