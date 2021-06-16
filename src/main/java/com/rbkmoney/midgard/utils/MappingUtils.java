@@ -208,8 +208,8 @@ public final class MappingUtils {
                 .filter(session -> session.getTargetStatus().isSetCaptured())
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("Session for transaction with not found! Payment id %s",
-                                invoicePayment.getPayment().getId())));
+                        String.format("Session for transaction with not found! Payment %s",
+                                invoicePayment.getPayment())));
     }
 
     private static void fillPaymentTrxInfo(ClearingTransaction trx,

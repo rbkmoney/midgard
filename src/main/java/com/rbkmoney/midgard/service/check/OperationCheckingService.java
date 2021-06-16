@@ -2,7 +2,6 @@ package com.rbkmoney.midgard.service.check;
 
 import com.rbkmoney.damsel.domain.TransactionInfo;
 import com.rbkmoney.damsel.payment_processing.InvoicePayment;
-import com.rbkmoney.damsel.payment_processing.InvoicePaymentSession;
 import com.rbkmoney.midgard.config.props.ClearingServiceProperties;
 import com.rbkmoney.midgard.data.ClearingAdapter;
 import com.rbkmoney.midgard.utils.ClearingAdaptersUtils;
@@ -13,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -29,16 +27,12 @@ public class OperationCheckingService {
         Optional<List<String>> excludeOperationParams = extractExcludeOperationParams(clearingAdapter);
 
         TransactionInfo transactionInfo = extractTransactionInfo(invoicePayment);
-        if (transactionInfo == null || excludeOperationParams.isEmpty()) {
-            return false;
-        }
-        Map<String, String> extra = transactionInfo.getExtra();
-        if (extra == null) {
+        if (transactionInfo == null || transactionInfo.getExtra() == null || excludeOperationParams.isEmpty()) {
             return false;
         }
         return excludeOperationParams.get().stream()
                 .map(String::toLowerCase)
-                .anyMatch(value -> extra.containsValue(value.toLowerCase()));
+                .anyMatch(value -> transactionInfo.getExtra().containsValue(value.toLowerCase()));
     }
 
     @NotNull
