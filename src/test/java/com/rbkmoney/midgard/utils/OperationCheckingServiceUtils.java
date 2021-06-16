@@ -28,6 +28,14 @@ import static org.mockito.Mockito.mock;
 
 public class OperationCheckingServiceUtils {
 
+    public static InvoicePayment createInvoicePayment(boolean onTransactionType, int providerId) {
+        InvoicePayment invoicePayment = OperationCheckingServiceUtils.createInvoicePayment(
+                OperationCheckingServiceUtils.createTrxExtraMap(onTransactionType)
+        );
+        invoicePayment.setRoute(OperationCheckingServiceUtils.extractedPaymentRoute(providerId));
+        return invoicePayment;
+    }
+
     public static PaymentRoute extractedPaymentRoute(int providerId) {
         PaymentRoute paymentRoute = new PaymentRoute();
         paymentRoute.setProvider(extractedProvider(providerId));

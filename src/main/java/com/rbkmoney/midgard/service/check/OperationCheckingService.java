@@ -33,6 +33,9 @@ public class OperationCheckingService {
             return false;
         }
         Map<String, String> extra = transactionInfo.getExtra();
+        if (extra == null) {
+            return false;
+        }
         return excludeOperationParams.get().stream()
                 .map(String::toLowerCase)
                 .anyMatch(value -> extra.containsValue(value.toLowerCase()));

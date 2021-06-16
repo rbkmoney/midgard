@@ -86,8 +86,9 @@ public class PaymentStatusChangedEventHandler extends AbstractInvoicingEventHand
                         "changeId = '{}') was processed", invoiceId, sequenceId, changeId);
             }
         } catch (NotFoundException ex) {
-            throw new NotFoundException(String.format("%s invoice id '%s', sequence id '%d' and change id '%d'",
-                    ex.getMessage(), invoiceId, sequenceId, changeId));
+            log.error("{} invoice id '{}', sequence id '{}' and change id '{}'",
+                    ex.getMessage(), invoiceId, sequenceId, changeId);
+            throw ex;
         }
     }
 

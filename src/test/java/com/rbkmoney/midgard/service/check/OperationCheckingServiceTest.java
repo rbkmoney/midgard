@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.rbkmoney.midgard.utils.OperationCheckingServiceUtils.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -18,31 +19,24 @@ class OperationCheckingServiceTest {
 
     @BeforeEach
     public void before() {
-        List<ClearingAdapter> clearingAdapters = OperationCheckingServiceUtils.createClearingAdapters();
+        List<ClearingAdapter> clearingAdapters = createClearingAdapters();
         operationCheckingService = new OperationCheckingService(clearingAdapters);
     }
 
     @Test
     public void isOperationForSkipTest() {
-        boolean checkType = checkOperationType(true, InvoiceTestConstant.PROVIDER_ID_HAS_AFT);
-        assertTrue(checkType);
+        InvoicePayment invoicePayment = createInvoicePayment(true, InvoiceTestConstant.PROVIDER_ID_HAS_AFT);
+        assertTrue(operationCheckingService.isOperationForSkip(invoicePayment));
 
-        checkType = checkOperationType(false, InvoiceTestConstant.PROVIDER_ID_HAS_AFT);
-        assertFalse(checkType);
+        invoicePayment = createInvoicePayment(false, InvoiceTestConstant.PROVIDER_ID_HAS_AFT);
+        assertFalse(operationCheckingService.isOperationForSkip(invoicePayment));
 
-        checkType = checkOperationType(false, InvoiceTestConstant.PROVIDER_ID_DONT_HAS_AFT);
-        assertFalse(checkType);
+        invoicePayment = createInvoicePayment(false, InvoiceTestConstant.PROVIDER_ID_DONT_HAS_AFT);
+        assertFalse(operationCheckingService.isOperationForSkip(invoicePayment));
 
-        checkType = checkOperationType(false, InvoiceTestConstant.PROVIDER_ID_DONT_HAS_AFT);
-        assertFalse(checkType);
-    }
-
-    public boolean checkOperationType(boolean onTransactionType, int providerId) {
-        InvoicePayment invoicePayment = OperationCheckingServiceUtils.createInvoicePayment(
-                OperationCheckingServiceUtils.createTrxExtraMap(onTransactionType)
-        );
-        invoicePayment.setRoute(OperationCheckingServiceUtils.extractedPaymentRoute(providerId));
-        return operationCheckingService.isOperationForSkip(invoicePayment);
+        invoicePayment = createInvoicePayment(false, InvoiceTestConstant.PROVIDER_ID_DONT_HAS_AFT);
+        ;
+        assertFalse(operationCheckingService.isOperationForSkip(invoicePayment));
     }
 
 }
