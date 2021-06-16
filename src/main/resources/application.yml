@@ -60,6 +60,8 @@ clearing-service:
 #      networkTimeout: 120000
 #      providerId: 1
 #      package-size: 25
+#      exclude-operation-params:
+#        types: AFT
 #      scheduler:
 #        jobId: midgardClearingJobMock
 #        revisionId: 16396
@@ -99,6 +101,9 @@ kafka:
       enabled: false
   retry-policy:
     maxAttempts: 10
+  error-handler:
+    sleep-time-seconds: 5
+    maxAttempts: -1
 
 service:
   schedulator:

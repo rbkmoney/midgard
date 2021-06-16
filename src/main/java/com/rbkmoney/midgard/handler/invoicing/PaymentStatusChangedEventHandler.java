@@ -13,6 +13,7 @@ import com.rbkmoney.midgard.dao.transaction.TransactionsDao;
 import com.rbkmoney.midgard.data.ClearingAdapter;
 import com.rbkmoney.midgard.domain.tables.pojos.ClearingTransaction;
 import com.rbkmoney.midgard.exception.NotFoundException;
+import com.rbkmoney.midgard.service.check.OperationCheckingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,8 @@ public class PaymentStatusChangedEventHandler extends AbstractInvoicingEventHand
     private final InvoicingSrv.Iface invoicingService;
 
     private final List<ClearingAdapter> adapters;
+
+    private final OperationCheckingService operationCheckingService;
 
     private final Filter filter = new PathConditionFilter(
             new PathConditionRule("invoice_payment_change.payload.invoice_payment_status_changed.status.captured",
@@ -67,16 +70,26 @@ public class PaymentStatusChangedEventHandler extends AbstractInvoicingEventHand
         if (!isExistProviderId(adapters, payment.getRoute().getProvider().getId())) {
             return;
         }
-        ClearingTransaction clearingTransaction = transformTransaction(payment, event, invoiceId, changeId);
-        Long trxSeqId = transactionsDao.save(clearingTransaction);
-        if (trxSeqId == null) {
-            log.info("Payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +
-                    "changeId = '{}') was was skipped (it already exist)", invoiceId, sequenceId, changeId);
-        } else {
-            log.info("Payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +
-                    "changeId = '{}') was processed", invoiceId, sequenceId, changeId);
-        }
 
+        try {
+            if (operationCheckingService.isOperationForSkip(payment)) {
+                return;
+            }
+
+            ClearingTransaction clearingTransaction = transformTransaction(payment, event, invoiceId, changeId);
+            Long trxSeqId = transactionsDao.save(clearingTransaction);
+            if (trxSeqId == null) {
+                log.info("Payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +
+                        "changeId = '{}') was was skipped (it already exist)", invoiceId, sequenceId, changeId);
+            } else {
+                log.info("Payment with status 'capture' (invoiceId = '{}', sequenceId = '{}', " +
+                        "changeId = '{}') was processed", invoiceId, sequenceId, changeId);
+            }
+        } catch (NotFoundException ex) {
+            log.error("{} invoice id '{}', sequence id '{}' and change id '{}'",
+                    ex.getMessage(), invoiceId, sequenceId, changeId);
+            throw ex;
+        }
     }
 
     private InvoicePayment getPaymentById(Invoice invoice, String paymentId) {

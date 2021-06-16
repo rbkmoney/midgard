@@ -37,6 +37,16 @@ public class ClearingServiceProperties {
         @NestedConfigurationProperty
         private SchedulerProperties scheduler;
 
+        @NestedConfigurationProperty
+        private ExcludeOperationParams excludeOperationParams;
+
+    }
+
+    @Data
+    @Component
+    @ConfigurationProperties(prefix = "exclude-operation-params")
+    public static class ExcludeOperationParams {
+        private List<String> types;
     }
 
     @Data

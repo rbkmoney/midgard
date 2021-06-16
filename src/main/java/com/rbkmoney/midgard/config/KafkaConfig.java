@@ -1,6 +1,7 @@
 package com.rbkmoney.midgard.config;
 
 import com.rbkmoney.damsel.payment_processing.EventPayload;
+import com.rbkmoney.kafka.common.exception.handler.SeekToCurrentWithSleepErrorHandler;
 import com.rbkmoney.kafka.common.retry.ConfigurableRetryPolicy;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.midgard.config.props.KafkaConsumerProperties;
@@ -50,6 +51,12 @@ public class KafkaConfig {
     @Value("${kafka.retry-policy.maxAttempts}")
     private int maxAttempts;
 
+    @Value("${kafka.error-handler.sleep-time-seconds}")
+    private int errorHandlerSleepTimeSeconds;
+
+    @Value("${kafka.error-handler.maxAttempts}")
+    private int errorHandlerMaxAttempts;
+
     @Bean
     public Map<String, Object> consumerConfigs(KafkaSslProperties kafkaSslProperties,
                                                KafkaConsumerProperties kafkaConsumerProperties) {
@@ -98,7 +105,6 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<String, MachineEvent> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
-        factory.getContainerProperties().setAckOnError(false);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         factory.setErrorHandler(kafkaErrorHandler());
         factory.setConcurrency(kafkaConsumerProperties.getConcurrency());
@@ -106,7 +112,10 @@ public class KafkaConfig {
     }
 
     private ErrorHandler kafkaErrorHandler() {
-        return new SeekToCurrentErrorHandler(new FixedBackOff());
+        SeekToCurrentWithSleepErrorHandler seekToCurrentErrorHandler =
+                new SeekToCurrentWithSleepErrorHandler(errorHandlerSleepTimeSeconds, errorHandlerMaxAttempts);
+        seekToCurrentErrorHandler.setAckAfterHandle(false);
+        return seekToCurrentErrorHandler;
     }
 
     @Bean

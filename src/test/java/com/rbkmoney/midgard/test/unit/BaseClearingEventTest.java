@@ -3,6 +3,7 @@ package com.rbkmoney.midgard.test.unit;
 import com.rbkmoney.midgard.ClearingAdapterSrv;
 import com.rbkmoney.midgard.ClearingDataRequest;
 import com.rbkmoney.midgard.ProviderNotFound;
+import com.rbkmoney.midgard.config.props.ClearingServiceProperties;
 import com.rbkmoney.midgard.dao.info.ClearingEventInfoDao;
 import com.rbkmoney.midgard.data.ClearingAdapter;
 import com.rbkmoney.midgard.handler.Handler;
@@ -13,6 +14,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.rbkmoney.midgard.test.integration.data.ClearingEventTestData.getClearingEvent;
@@ -47,14 +49,20 @@ public class BaseClearingEventTest {
         AdapterWorkFlow adapterWorkFlow = new AdapterWorkFlow(1L, "upload");
         List<AdapterWorkFlow> adapterWorkFlowList = new ArrayList<>();
         adapterWorkFlowList.add(adapterWorkFlow);
-        clearingAdapters.add(getClearingAdapter("BANK_1", 1, adapterWorkFlowList));
-        clearingAdapters.add(getClearingAdapter("TEST", 2, adapterWorkFlowList));
+        ClearingServiceProperties.ExcludeOperationParams
+                excludeOperationParams = new ClearingServiceProperties.ExcludeOperationParams();
+        excludeOperationParams.setTypes(Collections.emptyList());
+        clearingAdapters.add(getClearingAdapter("BANK_1", 1, adapterWorkFlowList, excludeOperationParams));
+        clearingAdapters.add(getClearingAdapter("TEST", 2, adapterWorkFlowList, excludeOperationParams));
         return clearingAdapters;
     }
 
     private ClearingAdapter getClearingAdapter(String adapterName,
                                                int adapterId,
-                                               List<AdapterWorkFlow> adapterWorkflows) throws Exception {
+                                               List<AdapterWorkFlow> adapterWorkflows,
+                                               ClearingServiceProperties.ExcludeOperationParams excludeOperationParams
+
+    ) throws Exception {
         ClearingAdapterSrv.Iface adapter = mock(ClearingAdapterSrv.Iface.class);
         for (AdapterWorkFlow adapterWorkflow : adapterWorkflows) {
             Long clearingId = adapterWorkflow.getClearingId();
@@ -63,7 +71,7 @@ public class BaseClearingEventTest {
             when(adapter.sendClearingDataPackage(uploadId, getDataPackage(clearingId)))
                     .thenReturn(getDataPackageTag(1, "tag_1"));
         }
-        return new ClearingAdapter(adapter, adapterName, adapterId, 1000);
+        return new ClearingAdapter(adapter, adapterName, adapterId, 1000, excludeOperationParams);
     }
 
     private ClearingDataRequest getDataPackage(long clearingId) {

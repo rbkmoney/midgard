@@ -22,7 +22,9 @@ public class AdaptersConfig {
                     new ClearingAdapter(mockClearingAdapterThriftClient(props),
                             props.getName(),
                             props.getProviderId(),
-                            props.getPackageSize())
+                            props.getPackageSize(),
+                            props.getExcludeOperationParams()
+                    )
             );
         }
         return clearingAdapterList;

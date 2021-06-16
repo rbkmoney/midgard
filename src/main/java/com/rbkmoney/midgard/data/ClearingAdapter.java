@@ -1,6 +1,7 @@
 package com.rbkmoney.midgard.data;
 
 import com.rbkmoney.midgard.ClearingAdapterSrv;
+import com.rbkmoney.midgard.config.props.ClearingServiceProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,5 +15,6 @@ public class ClearingAdapter {
     private String adapterName;
     private int adapterId;
     private int packageSize;
+    private ClearingServiceProperties.ExcludeOperationParams excludeOperationParams;
 
 }
